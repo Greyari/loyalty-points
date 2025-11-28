@@ -32,7 +32,7 @@
         <div class="w-full max-w-md">
             <h1 class="text-3xl font-bold mb-15 text-center text-gray-800">Login</h1>
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login.submit') }}">
                 @csrf
 
                 <!-- Email -->
