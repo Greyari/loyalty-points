@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('name', 255);
             $table->decimal('price', 15, 2);
             $table->integer('points_per_unit')->default(0);
-            $table->text('description')->nullable();
             $table->timestamps();
-        });
 
+            $table->index('sku');
+        });
     }
 
     /**

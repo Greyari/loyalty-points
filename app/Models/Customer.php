@@ -10,4 +10,9 @@ class Customer extends Model
         'name',
         'phone'
     ];
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class);
+    }
 }
