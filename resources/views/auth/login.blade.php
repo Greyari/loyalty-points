@@ -6,7 +6,7 @@
 <div class="flex flex-col md:flex-row h-screen overflow-hidden">
     <!-- Left side: Image & text -->
     <div class="hidden md:flex md:w-1/2 flex-col justify-between p-4 lg:p-8 overflow-hidden">
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
             <h2 class="text-2xl lg:text-4xl font-bold text-black leading-snug font-poppins">Customer</h2>
             <h2 class="text-2xl lg:text-4xl font-bold text-black leading-snug mb-2 lg:mb-4 font-poppins">Loyalty</h2>
         </div>
@@ -15,11 +15,11 @@
             <img src="{{ asset('assets/team-login-image.svg') }}" alt="Team Illustration" class="max-h-full max-w-full w-auto h-auto object-contain">
         </div>
 
-        <h3 class="text-sm lg:text-base font-normal text-gray-600 flex-shrink-0 ">PT. Kreatif System Indonesia</h3>
+        <h3 class="text-sm lg:text-base font-normal text-gray-600 shrink-0 ">PT. Kreatif System Indonesia</h3>
     </div>
 
     <!-- Divider -->
-    <div class="hidden md:block md:w-px bg-gray-300 my-4 lg:my-8 mx-2 lg:mx-4 rounded-full flex-shrink-0"></div>
+    <div class="hidden md:block md:w-px bg-gray-300 my-4 lg:my-8 mx-2 lg:mx-4 rounded-full shrink-0"></div>
 
     <!-- Right side: Form -->
     <div class="flex w-full md:w-1/2 items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto">
