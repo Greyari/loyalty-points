@@ -25,7 +25,7 @@
     @endif
 </head>
 
-<body>
+<body class="bg-[#F7F6FB]">
     @yield('content')
 </body>
 
