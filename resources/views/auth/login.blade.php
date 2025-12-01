@@ -15,7 +15,7 @@
             <img src="{{ asset('assets/team-login-image.svg') }}" alt="Team Illustration" class="max-h-full max-w-full w-auto h-auto object-contain">
         </div>
 
-        <h3 class="text-sm lg:text-base font-normal text-gray-600 shrink-0 ">PT. Kreatif System Indonesia</h3>
+        <h3 class="text-sm lg:text-base font-normal text-gray-600 shrink-0">PT. Kreatif System Indonesia</h3>
     </div>
 
     <!-- Divider -->
@@ -37,7 +37,7 @@
                         name="email"
                         value="{{ old('email') }}"
                         placeholder="Enter your email..."
-                        class="w-full border border-gray-300 rounded-lg px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                        class="placeholder:text-gray-400 w-full border bg-transparent border-gray-300 rounded-lg px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base text-gray-700 focus:outline-none focus:border-gray-400"
                         required>
                     @error('email')
                     <p class="text-red-500 text-xs lg:text-sm mt-1">{{ $message }}</p>
@@ -52,29 +52,43 @@
                         name="password"
                         placeholder="Enter your password..."
                         id="password"
-                        class="w-full border border-gray-300 rounded-lg px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
+                        class="placeholder:text-gray-400 w-full border bg-transparent border-gray-300 rounded-lg px-3 lg:px-4 py-2 lg:py-3 pr-10 text-sm lg:text-base text-gray-700 focus:outline-none focus:border-gray-400"
                         required>
                     @error('password')
                     <p class="text-red-500 text-xs lg:text-sm mt-1">{{ $message }}</p>
                     @enderror
 
-                    <button type="button" id="togglePassword" class="absolute right-3 top-9 lg:top-10 text-gray-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 lg:h-5 lg:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <!-- Toggle Eye Icon -->
+                    <button type="button" id="togglePassword"
+                        class="absolute right-3 top-9 lg:top-10 text-gray-400 hover:text-gray-600 cursor-pointer flex items-center justify-center transition-colors duration-200">
+
+                        <!-- Eye Closed Icon (password hidden) -->
+                        <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 transition-opacity duration-200"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+
+                        <!-- Eye Open Icon (password visible) -->
+                        <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 hidden transition-opacity duration-200"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Submit -->
+                <!-- Submit Button -->
                 <button type="submit"
                     class="w-full bg-[#2A2A2A] text-white py-2 lg:py-3 rounded-lg text-sm lg:text-base hover:bg-[#1A1A1A] transition font-poppins">
                     Login
                 </button>
 
-                <!-- Forgot password -->
+                <!-- Forgot Password Link -->
                 <p class="text-center text-xs lg:text-sm text-gray-500 mt-3 lg:mt-4">
                     <a href="#" class="text-[#2A2A2A] hover:underline">Forgot password?</a>
                 </p>
@@ -84,12 +98,21 @@
 </div>
 
 <script>
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+    const eyeOpen = document.getElementById('eyeOpen');
+    const eyeClosed = document.getElementById('eyeClosed');
 
     togglePassword.addEventListener('click', () => {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
+        const isPasswordVisible = password.getAttribute('type') === 'text';
+
+        // Toggle password visibility
+        password.setAttribute('type', isPasswordVisible ? 'password' : 'text');
+
+        // Toggle icon visibility with smooth transition
+        eyeOpen.classList.toggle('hidden');
+        eyeClosed.classList.toggle('hidden');
     });
 </script>
+
 @endsection
