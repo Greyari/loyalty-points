@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     // Dashboard
     Route::get('/dashboard', function () {
         return view('home.dashboard');

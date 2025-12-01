@@ -4,15 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Transaction extends Model
+class PointTransaction extends Model
 {
     protected $fillable = [
         'customer_id',
         'product_id',
+        'sku',
         'qty',
-        'points_earned',
+        'points',
         'order_id',
-        'transaction_date'
     ];
 
     public function product()

@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
+        Schema::create('point_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products')->onDelete('restrict');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
+            $table->string('sku', 100);
             $table->integer('qty')->default(1);
-            $table->integer('points_earned');
-            $table->timestamp('transaction_date');
+            $table->integer('points')->default(0);
+            $table->string('order_id', 100)->nullable();
+            $table->index(['customer_id', 'order_id']);
             $table->timestamps();
-
-            $table->index('customer_id');
-            $table->index('transaction_date');
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::dropIfExists('point_transactions');
     }
 };

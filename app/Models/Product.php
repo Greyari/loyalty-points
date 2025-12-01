@@ -10,11 +10,7 @@ class Product extends Model
         'sku',
         'name',
         'price',
+        'description',
         'points_per_unit'
     ];
-
-    public function transaction()
-    {
-        return $this->belongsTo(Transaction::class);
-    }
 }
