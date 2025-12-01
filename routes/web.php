@@ -20,7 +20,9 @@ Route::middleware('guest')->group(function () {
 // AUTH ROUTES (sudah login)
 // ================================
 Route::middleware('auth')->group(function () {
-
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
     // Dashboard
     Route::get('/dashboard', function () {
         return view('home.dashboard');
@@ -45,7 +47,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', function () {
         return view('settings.settings_page');
     })->name('settings');
-
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

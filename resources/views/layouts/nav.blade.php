@@ -71,7 +71,7 @@
 
         <!-- Logout button -->
         <div class="py-4 px-2 border-t border-[#C8C8C8]">
-            <form action="">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="nav-item flex items-center w-full px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group text-gray-400">
                     <svg class="w-5 h-5 flex-shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

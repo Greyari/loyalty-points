@@ -25,6 +25,14 @@
     <div class="flex w-full md:w-1/2 items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div class="w-full max-w-md">
             <h1 class="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center text-gray-800 font-poppins">Login</h1>
+            @if(session('error'))
+                <div x-data="{ show: true }"
+                    x-show="show"
+                    x-init="setTimeout(() => show = false, 3000)"
+                    class="bg-red-500 text-white px-4 py-2 rounded">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('login.submit') }}">
                 @csrf
