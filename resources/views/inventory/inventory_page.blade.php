@@ -10,105 +10,155 @@
 </div>
 
 <x-data-tables
-    :headers="['Customer Name', 'Email', 'Phone', 'Company', 'Status']"
+    :headers="['Product Name', 'SKU', 'Category', 'Quantity', 'Price', 'Status']"
     :rows="[
         [
             'id' => 1,
-            'customer_name' => 'John Doe',
-            'email' => 'john.doe@example.com',
-            'phone' => '+62 812-3456-7890',
-            'company' => 'Tech Solutions Inc',
-            'status' => 'Active'
+            'product_name' => 'Dahua',
+            'sku' => '1233223',
+            'category' => 'CCTV',
+            'quantity' => '21',
+            'price' => '12.000.000',
+            'status' => 'Available'
         ],
         [
             'id' => 2,
-            'customer_name' => 'Jane Smith',
-            'email' => 'jane.smith@example.com',
-            'phone' => '+62 813-4567-8901',
-            'company' => 'Digital Marketing Co',
-            'status' => 'Active'
+            'product_name' => 'Hikvision',
+            'sku' => '0882-223',
+            'category' => 'CCTV',
+            'quantity' => '210',
+            'price' => '30.000.000',
+            'status' => 'Available'
         ],
-        [
-            'id' => 3,
-            'customer_name' => 'Michael Johnson',
-            'email' => 'michael.j@example.com',
-            'phone' => '+62 814-5678-9012',
-            'company' => 'Global Enterprises',
-            'status' => 'Inactive'
-        ],
-        [
-            'id' => 4,
-            'customer_name' => 'Sarah Williams',
-            'email' => 'sarah.w@example.com',
-            'phone' => '+62 815-6789-0123',
-            'company' => 'Innovation Labs',
-            'status' => 'Active'
-        ],
-        [
-            'id' => 5,
-            'customer_name' => 'David Brown',
-            'email' => 'david.brown@example.com',
-            'phone' => '+62 816-7890-1234',
-            'company' => 'Smart Systems Ltd',
-            'status' => 'Active'
-        ],
-        [
-            'id' => 6,
-            'customer_name' => 'Emily Davis',
-            'email' => 'emily.davis@example.com',
-            'phone' => '+62 817-8901-2345',
-            'company' => 'Creative Agency',
-            'status' => 'Pending'
-        ],
-        [
-            'id' => 7,
-            'customer_name' => 'Robert Miller',
-            'email' => 'robert.m@example.com',
-            'phone' => '+62 818-9012-3456',
-            'company' => 'Finance Group',
-            'status' => 'Active'
-        ],
-        [
-            'id' => 8,
-            'customer_name' => 'Lisa Anderson',
-            'email' => 'lisa.anderson@example.com',
-            'phone' => '+62 819-0123-4567',
-            'company' => 'Healthcare Solutions',
-            'status' => 'Active'
-        ],
-        [
-            'id' => 9,
-            'customer_name' => 'James Wilson',
-            'email' => 'james.wilson@example.com',
-            'phone' => '+62 820-1234-5678',
-            'company' => 'Construction Corp',
-            'status' => 'Inactive'
-        ],
-        [
-            'id' => 10,
-            'customer_name' => 'Jennifer Moore',
-            'email' => 'jennifer.m@example.com',
-            'phone' => '+62 821-2345-6789',
-            'company' => 'Retail Chain',
-            'status' => 'Active'
-        ],
-        [
-            'id' => 11,
-            'customer_name' => 'William Taylor',
-            'email' => 'william.taylor@example.com',
-            'phone' => '+62 822-3456-7890',
-            'company' => 'Logistics Express',
-            'status' => 'Active'
-        ],
-        [
-            'id' => 12,
-            'customer_name' => 'Patricia Thomas',
-            'email' => 'patricia.t@example.com',
-            'phone' => '+62 823-4567-8901',
-            'company' => 'Education Institute',
-            'status' => 'Pending'
-        ]
-    ]" />
+    ]"
+    onAdd="true"
+    onEdit="true"
+    onDelete="true" />
+
+<!-- Create Modal -->
+<x-modal id="createModal" title="Add New Product" size="lg" submitText="Save">
+    <form id="createForm" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Product Name</label>
+            <input type="text" name="product_name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
+                placeholder="Enter product name" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">SKU</label>
+                <input type="text" name="sku"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                    placeholder="SKU-001" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Category</label>
+                <select name="category"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700">
+                    <option>CCTV</option>
+                    <option>Access Control</option>
+                    <option>Alarm System</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Quantity</label>
+                <input type="number" name="quantity"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                    placeholder="0" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Price</label>
+                <input type="text" name="price"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                    placeholder="0" required>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Status</label>
+            <select name="status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700">
+                <option>Available</option>
+                <option>Out of Stock</option>
+                <option>Pre-Order</option>
+            </select>
+        </div>
+    </form>
+</x-modal>
+
+<!-- Edit Modal -->
+<x-modal id="editModal" title="Edit Product" size="lg" submitText="Update" submitButtonClass="bg-green-600 hover:bg-green-700 text-white">
+    <form id="editForm" class="space-y-4">
+        <input type="hidden" name="id" id="edit_id">
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Product Name</label>
+            <input type="text" name="product_name" id="edit_product_name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
+                placeholder="Enter product name" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">SKU</label>
+                <input type="text" name="sku" id="edit_sku"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                    placeholder="SKU-001" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Category</label>
+                <select name="category" id="edit_category"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700">
+                    <option>CCTV</option>
+                    <option>Access Control</option>
+                    <option>Alarm System</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Quantity</label>
+                <input type="number" name="quantity" id="edit_quantity"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                    placeholder="0" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Price</label>
+                <input type="text" name="price" id="edit_price"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                    placeholder="0" required>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Status</label>
+            <select name="status" id="edit_status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700">
+                <option>Available</option>
+                <option>Out of Stock</option>
+                <option>Pre-Order</option>
+            </select>
+        </div>
+    </form>
+</x-modal>
+
+<!-- Delete Confirmation Modal -->
+<x-modal id="deleteModal" title="Confirm Delete" size="sm" submitText="Delete" submitButtonClass="bg-red-600 hover:bg-red-700 text-white">
+    <div class="text-center py-4">
+        <svg class="mx-auto h-12 w-12 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <p class="text-gray-700 font-poppins mb-2">Are you sure you want to delete this product?</p>
+        <p class="text-sm text-gray-600 font-poppins font-semibold" id="delete_product_name"></p>
+        <p class="text-sm text-gray-500 mt-3 font-poppins">This action cannot be undone.</p>
+    </div>
+    <input type="hidden" id="delete_id">
+</x-modal>
 
 
 @endsection

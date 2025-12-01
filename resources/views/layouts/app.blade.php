@@ -15,6 +15,7 @@
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
+    <script src="//unpkg.com/alpinejs" defer></script>
     <style>
         /* Tailwind CSS fallback */
         body {
@@ -25,7 +26,7 @@
     @endif
 </head>
 
-<body class="bg-[#F7F6FB]">
+<body class="bg-white">
     @yield('content')
 </body>
 
