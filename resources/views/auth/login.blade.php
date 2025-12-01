@@ -34,9 +34,8 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login.submit') }}">
                 @csrf
-
                 <!-- Email -->
                 <div class="mb-3 lg:mb-4">
                     <label class="block mb-1 font-medium text-gray-700 text-sm lg:text-base font-poppins">Email</label>
