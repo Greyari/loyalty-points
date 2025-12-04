@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class PointTransactionController extends Controller
 {
@@ -23,16 +24,14 @@ class PointTransactionController extends Controller
             ->map(function ($t) {
                 return [
                     'id'            => $t->id,
-                    'order_id'      => $t->order_id ?? '-',
-                    'date'          => $t->created_at->format('Y-m-d H:i'),
-                    'customer'      => $t->customer->name ?? 'Unknown',
-                    'customer_id'   => $t->customer_id,
-                    'product'       => $t->product->name ?? 'Unknown',
-                    'product_id'    => $t->product_id,
-                    'sku'           => $t->sku,
-                    'qty'           => $t->qty,
-                    'points'        => number_format($t->points, 0, ',', '.'),
-                    'total_points'  => number_format($t->qty * $t->points, 0, ',', '.'),
+                    'order_id'     => $t->order_id ?? '-',
+                    'date'         => $t->created_at->format('Y-m-d H:i'),
+                    'customer'     => $t->customer->name ?? 'Unknown',
+                    'product'      => $t->product->name ?? 'Unknown',
+                    'sku'          => $t->sku,
+                    'qty'          => $t->qty,
+                    'points'       => number_format($t->points, 0, ',', '.'),
+                    'total_points' => number_format($t->qty * $t->points, 0, ',', '.'),
                 ];
             });
 
@@ -49,21 +48,31 @@ class PointTransactionController extends Controller
     public function store(Request $request)
     {
         try {
-            // Validasi input dari form
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
                 'product_id'  => 'required|exists:products,id',
-                'qty'         => 'required|integer|min:1',
-                'order_id'    => 'nullable|string|max:100',
+                'qty'         => 'required|integer|min:1'
             ]);
 
-            // Ambil data product untuk mendapatkan SKU dan points
             $product = Product::findOrFail($validated['product_id']);
 
-            // Generate order_id jika tidak ada
-            if (empty($validated['order_id'])) {
-                $validated['order_id'] = 'ORD-' . strtoupper(Str::random(8));
+            // Validasi stok
+            if ($validated['qty'] > $product->quantity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Stok produk '{$product->name}' tidak cukup. Tersisa: {$product->quantity}"
+                ], 422);
             }
+
+            DB::beginTransaction();
+
+            // Kurangi stok produk
+            $product->decrement('quantity', $validated['qty']);
+
+            // Generate order_id unik
+            do {
+                $validated['order_id'] = 'ORD-' . strtoupper(Str::random(8));
+            } while (PointTransaction::where('order_id', $validated['order_id'])->exists());
 
             // Buat transaksi
             $transaction = PointTransaction::create([
@@ -75,32 +84,24 @@ class PointTransactionController extends Controller
                 'order_id'    => $validated['order_id'],
             ]);
 
-            // Update total poin customer
-            $customer = Customer::find($validated['customer_id']);
-            $customer->increment('total_points', $product->points_per_unit * $validated['qty']);
+            DB::commit();
 
-            // Load relasi untuk response
             $transaction->load(['customer', 'product']);
-
-            // Format response
-            $responseData = [
-                'id'            => $transaction->id,
-                'order_id'      => $transaction->order_id,
-                'date'          => $transaction->created_at->format('Y-m-d H:i'),
-                'customer'      => $transaction->customer->name,
-                'customer_id'   => $transaction->customer_id,
-                'product'       => $transaction->product->name,
-                'product_id'    => $transaction->product_id,
-                'sku'           => $transaction->sku,
-                'qty'           => $transaction->qty,
-                'points'        => number_format($transaction->points, 0, ',', '.'),
-                'total_points'  => number_format($transaction->qty * $transaction->points, 0, ',', '.'),
-            ];
 
             return response()->json([
                 'success' => true,
                 'message' => 'Transaction berhasil ditambahkan!',
-                'data'    => $responseData
+                'data' => [
+                    'id' => $transaction->id,
+                    'order_id' => $transaction->order_id,
+                    'date' => $transaction->created_at->format('Y-m-d H:i'),
+                    'customer' => $transaction->customer->name,
+                    'product' => $transaction->product->name,
+                    'sku' => $transaction->sku,
+                    'qty' => $transaction->qty,
+                    'points' => number_format($transaction->points, 0, ',', '.'),
+                    'total_points' => number_format($transaction->qty * $transaction->points, 0, ',', '.'),
+                ]
             ]);
 
         } catch (ValidationException $e) {
@@ -109,12 +110,12 @@ class PointTransactionController extends Controller
                 'success' => false,
                 'message' => $allErrors,
             ], 422);
-
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menambahkan transaksi.',
-                'error'   => $e->getMessage()
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -128,48 +129,45 @@ class PointTransactionController extends Controller
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
                 'product_id'  => 'required|exists:products,id',
-                'qty'         => 'required|integer|min:1',
-                'order_id'    => 'nullable|string|max:100',
+                'qty'         => 'required|integer|min:1'
             ]);
+
+            DB::beginTransaction();
 
             $transaction = PointTransaction::findOrFail($id);
 
-            // Hitung selisih poin untuk update customer
-            $oldTotalPoints = $transaction->qty * $transaction->points;
+            // Produk lama (untuk mengembalikan stok)
+            $oldProduct = Product::findOrFail($transaction->product_id);
 
-            // Ambil product baru
-            $product = Product::findOrFail($validated['product_id']);
-            $newTotalPoints = $validated['qty'] * $product->points_per_unit;
+            // Kembalikan stok lama
+            $oldProduct->increment('quantity', $transaction->qty);
 
-            // Update poin customer lama (kurangi poin lama)
-            if ($transaction->customer_id != $validated['customer_id']) {
-                // Jika customer berubah
-                $oldCustomer = Customer::find($transaction->customer_id);
-                $oldCustomer->decrement('total_points', $oldTotalPoints);
+            // Produk baru (jika ganti product_id)
+            $newProduct = Product::findOrFail($validated['product_id']);
 
-                $newCustomer = Customer::find($validated['customer_id']);
-                $newCustomer->increment('total_points', $newTotalPoints);
-            } else {
-                // Customer sama, update selisih
-                $customer = Customer::find($transaction->customer_id);
-                $pointDiff = $newTotalPoints - $oldTotalPoints;
-
-                if ($pointDiff > 0) {
-                    $customer->increment('total_points', $pointDiff);
-                } elseif ($pointDiff < 0) {
-                    $customer->decrement('total_points', abs($pointDiff));
-                }
+            // Validasi stok baru
+            if ($validated['qty'] > $newProduct->quantity) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => "Stok produk '{$newProduct->name}' tidak cukup. Tersisa: {$newProduct->quantity}"
+                ], 422);
             }
+
+            // Kurangi stok baru
+            $newProduct->decrement('quantity', $validated['qty']);
 
             // Update transaksi
             $transaction->update([
                 'customer_id' => $validated['customer_id'],
                 'product_id'  => $validated['product_id'],
-                'sku'         => $product->sku,
+                'sku'         => $newProduct->sku,
                 'qty'         => $validated['qty'],
-                'points'      => $product->points_per_unit,
-                'order_id'    => $validated['order_id'] ?? $transaction->order_id,
+                'points'      => $newProduct->points_per_unit,
+                'order_id'    => $transaction->order_id, // order_id tidak berubah
             ]);
+
+            DB::commit();
 
             $transaction->load(['customer', 'product']);
 
@@ -178,9 +176,7 @@ class PointTransactionController extends Controller
                 'order_id'      => $transaction->order_id,
                 'date'          => $transaction->created_at->format('Y-m-d H:i'),
                 'customer'      => $transaction->customer->name,
-                'customer_id'   => $transaction->customer_id,
                 'product'       => $transaction->product->name,
-                'product_id'    => $transaction->product_id,
                 'sku'           => $transaction->sku,
                 'qty'           => $transaction->qty,
                 'points'        => number_format($transaction->points, 0, ',', '.'),
@@ -194,6 +190,7 @@ class PointTransactionController extends Controller
             ]);
 
         } catch (ValidationException $e) {
+            DB::rollBack();
             $allErrors = implode('<br>', $e->validator->errors()->all());
             return response()->json([
                 'success' => false,
@@ -201,6 +198,7 @@ class PointTransactionController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat mengupdate transaksi.',
@@ -216,12 +214,6 @@ class PointTransactionController extends Controller
     {
         try {
             $transaction = PointTransaction::findOrFail($id);
-
-            // Kurangi poin customer
-            $customer = Customer::find($transaction->customer_id);
-            $totalPoints = $transaction->qty * $transaction->points;
-            $customer->decrement('total_points', $totalPoints);
-
             $transaction->delete();
 
             return response()->json([
