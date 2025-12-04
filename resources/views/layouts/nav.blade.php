@@ -8,6 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@4.0.1/dist/flowbite.min.js"></script>
 </head>
 
 <body class="flex h-screen bg-[#F7F6FB] overflow-hidden">

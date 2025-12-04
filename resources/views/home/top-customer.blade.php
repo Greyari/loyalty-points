@@ -1,8 +1,8 @@
 <!-- Top Customer Card -->
 <div class="bg-white rounded-xl shadow-sm p-6">
     <div class="mb-1">
-        <h5 class="text-lg font-semibold text-gray-900">Top Customer</h5>
-        <p class="text-xs text-gray-400 mt-0.5">Monthly top customer rank points</p>
+        <h5 class="text-lg font-semibold text-gray-900 font-poppins">Top Customer</h5>
+        <p class="text-xs text-gray-400 mt-0.5 font-poppins">Monthly top customer rank points</p>
     </div>
 
     <div class="mt-6 space-y-4">
@@ -63,52 +63,60 @@
                     <img src="{{ asset('assets/Bronze.png') }}" alt="Bronze" class="w-full h-full object-cover">
                 </div>
                 @else
-                <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
-                    <span class="text-base font-semibold text-indigo-600">{{ $customer['rank'] }}</span>
+                <div class="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-600">
+                    <span class="text-base font-semibold text-indigo-600 ">{{ $customer['rank'] }}</span>
                 </div>
                 @endif
                 @if($customer['rank'] <= 3)
-                    <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-sm border-2 border-white
-                    @if($customer['rank'] == 1) bg-amber-400
-                    @elseif($customer['rank'] == 2) bg-gray-400
-                    @else bg-orange-600/90
-                    @endif">
-                    <span class="text-xs font-bold text-white">{{ $customer['rank'] }}</span>
+                    @php
+                    $badgeBgColor=match($customer['rank']) {
+                    1=> 'bg-amber-400',
+                    2 => 'bg-gray-400',
+                    3 => 'bg-[#C07D42]',
+                    default => 'bg-gray-400'
+                    };
+                    @endphp
+                    <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-sm border-2 border-white {{ $badgeBgColor }}">
+                        <span class="text-xs font-bold text-white">{{ $customer['rank'] }}</span>
+                    </div>
+                    @endif
             </div>
-            @endif
-        </div>
 
-        <!-- Customer Info -->
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-0.5">
-                <p class="text-sm font-semibold text-gray-900 truncate">{{ $customer['name'] }}</p>
-                @if($customer['badge'])
-                <span class="px-2 py-0.5 text-[10px] font-bold rounded
-                        @if($customer['badge'] == 'GOLD') bg-amber-100 text-amber-700
-                        @elseif($customer['badge'] == 'SILVER') bg-gray-200 text-gray-700
-                        @else bg-orange-100 text-orange-700
-                        @endif">
-                    {{ $customer['badge'] }}
-                </span>
-                @endif
+            <!-- Customer Info -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                    <p class="text-sm font-semibold text-gray-900 truncate">{{ $customer['name'] }}</p>
+                    @if($customer['badge'])
+                    @php
+                    $badgeClasses = match($customer['badge']) {
+                    'GOLD' => 'bg-amber-100 text-amber-700',
+                    'SILVER' => 'bg-gray-200 text-gray-700',
+                    'BRONZE' => 'bg-orange-100 text-orange-700',
+                    default => 'bg-gray-100 text-gray-700'
+                    };
+                    @endphp
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ $badgeClasses }}">
+                        {{ $customer['badge'] }}
+                    </span>
+                    @endif
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award">
+                        <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" />
+                        <circle cx="12" cy="8" r="6" />
+                    </svg>
+                    <span>{{ number_format((float)str_replace('.', '', $customer['points']), 0, ',', '.') }} poin</span>
+                    <span class="text-gray-400">•</span>
+                    <span>{{ $customer['time'] }}</span>
+                </div>
             </div>
-            <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-award">
-                    <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" />
-                    <circle cx="12" cy="8" r="6" />
-                </svg>
-                <span>{{ number_format((float)str_replace('.', '', $customer['points']), 0, ',', '.') }} poin</span>
-                <span class="text-gray-400">•</span>
-                <span>{{ $customer['time'] }}</span>
-            </div>
-        </div>
 
-        <!-- Points Display -->
-        <div class="text-right shrink-0">
-            <p class="text-base font-bold text-blue-600">{{ $customer['points'] }}</p>
-            <p class="text-[10px] text-gray-400">poin</p>
+            <!-- Points Display -->
+            <div class="text-right shrink-0">
+                <p class="text-base font-bold text-blue-600">{{ $customer['points'] }}</p>
+                <p class="text-[10px] text-gray-400">poin</p>
+            </div>
         </div>
+        @endforeach
     </div>
-    @endforeach
-</div>
 </div>

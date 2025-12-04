@@ -64,7 +64,12 @@ class DataTable {
         this.currentPage = 1;
 
         const noDataText = this.container.querySelector('.no-data-text');
-        noDataText.textContent = `No data found for "${this.searchInput.value}"`;
+        if (query !== '') {
+            noDataText.textContent = `No data found for "${this.searchInput.value}"`;
+        } else {
+            noDataText.textContent = 'No data available';
+        }
+        
         this.updateTable();
     }
 
@@ -116,6 +121,18 @@ class DataTable {
     }
 
     updateTable() {
+        // Refresh all rows from DOM
+        this.allRows = Array.from(this.tbody.querySelectorAll('.table-row'));
+        
+        // Reapply search filter if search is active
+        const query = this.searchInput.value.toLowerCase();
+        if (query !== '') {
+            this.visibleRows = this.allRows.filter(row => row.dataset.search.includes(query));
+        } else {
+            this.visibleRows = [...this.allRows];
+        }
+
+        // Hide all rows initially
         this.allRows.forEach(row => row.style.display = 'none');
 
         const start = (this.currentPage - 1) * this.entriesPerPage;
@@ -133,8 +150,18 @@ class DataTable {
         this.nextBtn.disabled = this.currentPage >= totalPages;
 
         const noDataRow = this.container.querySelector('.no-data-row');
+        const noDataText = this.container.querySelector('.no-data-text');
+        
         if (this.visibleRows.length === 0) {
             noDataRow.style.display = '';
+            
+            // Set appropriate message based on search state
+            if (this.searchInput.value.trim() !== '') {
+                noDataText.textContent = `No data found for "${this.searchInput.value}"`;
+            } else {
+                noDataText.textContent = 'No data available';
+            }
+            
             this.infoText.textContent = `Showing 0 to 0 of 0 entries`;
             this.paginationNumbers.innerHTML = '';
             this.prevBtn.disabled = true;
@@ -145,6 +172,11 @@ class DataTable {
         }
 
         this.renderPageNumbers();
+    }
+
+    // Method to refresh table after CRUD operations
+    refresh() {
+        this.updateTable();
     }
 }
 

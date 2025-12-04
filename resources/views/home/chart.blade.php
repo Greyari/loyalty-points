@@ -1,5 +1,5 @@
  <!-- Chart Card -->
- <div class="bg-white border border-gray-200 rounded-xl shadow-md p-6">
+ <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
      <div class="flex justify-between items-center mb-4">
          <div>
              <h5 class="text-2xl font-bold text-gray-900 font-poppins">Monthly Sales</h5>
