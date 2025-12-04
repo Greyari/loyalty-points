@@ -22,14 +22,6 @@
     <form id="createForm" class="space-y-4">
 
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Order ID (Optional)</label>
-            <input type="text" name="order_id"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
-                placeholder="Auto-generated if empty">
-            <p class="text-xs text-gray-500 mt-1">Leave empty to auto-generate</p>
-        </div>
-
-        <div>
             <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Customer <span class="text-red-500">*</span></label>
             <select name="customer_id"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
