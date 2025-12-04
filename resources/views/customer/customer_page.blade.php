@@ -1,88 +1,79 @@
 @extends('layouts.nav')
 
-@section('title', 'Customer Page')
-@section('page_title', 'Customer')
+    @section('title', 'Customer Page')
+    @section('page_title', 'Customer')
 
-@section('content')
-<div class="space-y-6 mb-6">
-    <h2 class="text-4xl font-semibold font-poppins mb-0">Customer Data</h2>
-    <p class="text-lg font-light text-gray-500 font-poppins">Manage your customer data.</p>
-</div>
+    @section('content')
+    <div class="space-y-6 mb-6">
+        <h2 class="text-4xl font-semibold font-poppins mb-0">Customer Data</h2>
+        <p class="text-lg font-light text-gray-500 font-poppins">Manage your customer data.</p>
+    </div>
 
-@php
-$customers = [
-[
-'id'=>1,
-'name'=>'Alice Johnson',
-'company'=>'PT. Alpha',
-'email'=>'alice@example.com',
-'phone'=>'081234567890',
-'points'=>2000,
-'last_transaction'=>'2025-11-28'
-],
-[
-'id'=>2,
-'name'=>'Bob Smith',
-'company'=>'PT. Beta',
-'email'=>'bob@example.com',
-'phone'=>'082233445566',
-'points'=>1500,
-'last_transaction'=>'2025-11-25'
-],
-[
-'id'=>3,
-'name'=>'Charlie Lee',
-'company'=>'PT. Gamma',
-'email'=>'charlie@example.com',
-'phone'=>'083344556677',
-'points'=>3000,
-'last_transaction'=>'2025-11-30'
-],
-[
-'id'=>4,
-'name'=>'Diana Prince',
-'company'=>'PT. Delta',
-'email'=>'diana@example.com',
-'phone'=>'084455667788',
-'points'=>1800,
-'last_transaction'=>'2025-11-27'
-],
-[
-'id'=>3,
-'name'=>'Charlie Lee',
-'company'=>'PT. Gamma',
-'email'=>'charlie@example.com',
-'phone'=>'083344556677',
-'points'=>3000,
-'last_transaction'=>'2025-11-30'
-],
-[
-'id'=>3,
-'name'=>'Charlie Lee',
-'company'=>'PT. Gamma',
-'email'=>'charlie@example.com',
-'phone'=>'083344556677',
-'points'=>3000,
-'last_transaction'=>'2025-11-30'
-],
-];
-@endphp
+    <x-data-tables
+        :headers="['Name', 'Phone']"
+        :rows="$customers"
+        onAdd="true"
+        onEdit="true"
+        onDelete="true"
+    />
 
-<x-data-tables
-    :headers="['Customer', 'Contact', 'Points', 'Rank', 'Last Transaction']"
-    :rows="array_map(function($customer, $index){
-        $rankColors = ['bg-yellow-400', 'bg-gray-400', 'bg-orange-500'];
-        $rankColor = $rankColors[$index] ?? 'bg-gray-300';
-        return [
-            'id' => $customer['id'],
-            'customer' => '<div class=\'flex items-center gap-3\'><div class=\'w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-700 font-semibold uppercase\'>'.collect(explode(' ', $customer['name']))->map(fn($n)=>substr($n,0,1))->join('').'</div><div class=\'flex flex-col\'><span class=\'font-medium text-gray-800 font-poppins\'>'.$customer['name'].'</span><span class=\'text-gray-500 text-sm font-poppins\'>'.$customer['company'].'</span></div></div>',
-            'contact' => '<div class=\'flex flex-col text-gray-700 font-poppins\'><span>'.$customer['email'].'</span><span class=\'text-sm text-gray-500\'>'.$customer['phone'].'</span></div>',
-            'points' => '<div class=\'flex items-center gap-2 text-gray-700 font-poppins\'><svg class=\'w-5 h-5 text-yellow-500\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.561-.955L10 0l2.949 5.955 6.561.955-4.755 4.635 1.123 6.545z\' /></svg> '.$customer['points'].'</div>',
-            'rank' => '<div class=\'w-6 h-6 rounded-full '.$rankColor.' flex items-center justify-center text-white font-semibold text-sm\'>'.($index+1).'</div>',
-            'last_transaction' => \Carbon\Carbon::parse($customer['last_transaction'])->format('d M Y')
-        ];
-    }, $customers, array_keys($customers))"
-    onAdd="true"
-    onEdit="true"
-    onDelete="true" />
+    <!-- Create Modal -->
+    <x-modal id="customerCreateModal" title="Add New Customer" size="lg" submitText="Save">
+        <form id="createForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Customer Name</label>
+                <input type="text" name="name"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
+                    placeholder="Enter custumer name" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Phone</label>
+                <input type="text" name="phone"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
+                    placeholder="Enter customer phone" required>
+            </div>
+        </form>
+    </x-modal>
+
+
+    <!-- Edit Modal -->
+    <x-modal id="customerEditModal" title="Edit Customer" size="lg" submitText="Update" submitButtonClass="bg-green-600 hover:bg-green-700 text-white">
+        <form id="editForm" class="space-y-4">
+            <input type="hidden" name="id" id="edit_id">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Customer Name</label>
+                <input type="text" name="name" id="edit_name"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
+                    placeholder="Enter customer name" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Customer Phone</label>
+                <input type="text" name="phone" id="edit_phone"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700 focus:border-transparent"
+                    placeholder="Enter customer phone" required>
+            </div>
+        </form>
+    </x-modal>
+
+    <!-- Delete Confirmation Modal -->
+    <x-modal id="customerDeleteModal" title="Confirm Delete" size="sm" submitText="Delete" submitButtonClass="bg-red-600 hover:bg-red-700 text-white">
+        <div class="text-center py-4">
+            <svg class="mx-auto h-12 w-12 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p class="text-gray-700 font-poppins mb-2">Are you sure you want to delete this customer?</p>
+            <p class="text-sm text-gray-600 font-poppins font-semibold" id="delete_name"></p>
+            <p class="text-sm text-gray-500 mt-3 font-poppins">This action cannot be undone.</p>
+        </div>
+        <input type="hidden" id="delete_id">
+    </x-modal>
+
+    @push('scripts')
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <script src="{{ asset('js/customer.js') }}"></script>
+    @endpush
+
 @endsection

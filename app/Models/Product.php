@@ -10,7 +10,7 @@ class Product extends Model
         'sku',
         'name',
         'price',
-        'description',
-        'points_per_unit'
+        'points_per_unit',
+        'quantity'
     ];
 }

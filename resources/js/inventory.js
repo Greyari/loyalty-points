@@ -1,10 +1,11 @@
 // ==================== CONSTANTS ====================
 const SELECTORS = {
     modals: {
-        create: '#customerCreateModal',
-        edit: '#customerEditModal',
-        delete: '#customerDeleteModal'
+        create: '#productCreateModal',
+        edit: '#productEditModal',
+        delete: '#productDeleteModal'
     },
+
     forms: {
         create: '#createForm',
         edit: '#editForm'
@@ -12,7 +13,10 @@ const SELECTORS = {
     fields: {
         editId: '#edit_id',
         editName: '#edit_name',
-        editPhone: '#edit_phone',
+        editSku: '#edit_sku',
+        editQuantity: '#edit_quantity',
+        editPrice: '#edit_price',
+        editPoints: '#edit_points_per_unit',
         deleteId: '#delete_id',
         deleteName: '#delete_name'
     },
@@ -25,8 +29,8 @@ const SELECTORS = {
 };
 
 const API_ENDPOINTS = {
-    customer: '/customer',
-    customerItem: (id) => `/customer/${id}`
+    inventory: '/inventory',
+    inventoryItem: (id) => `/inventory/${id}`
 };
 
 // ==================== UTILITY FUNCTIONS ====================
@@ -34,11 +38,17 @@ const utils = {
     // Get element safely
     getElement: (selector) => document.querySelector(selector),
 
+    // Format price to Indonesian Rupiah
+    formatPrice: (price) => `Rp ${parseInt(price).toLocaleString('id-ID')}`,
+
+    // Parse price from formatted string
+    parsePrice: (priceText) => priceText.replace(/Rp\s*/g, '').replace(/\./g, '').replace(/,/g, ''),
+
     // Get CSRF token
     getCsrfToken: () => document.querySelector('meta[name="csrf-token"]').content,
 
     // Create search data attribute
-    createSearchData: (data) => `${data.name} ${data.phone}`.toLowerCase()
+    createSearchData: (data) => `${data.name} ${data.sku} ${data.quantity} ${data.price} ${data.points}`.toLowerCase()
 };
 
 // ==================== API FUNCTIONS ====================
@@ -64,26 +74,26 @@ const api = {
         return response.json();
     },
 
-    // Create customer
+    // Create product
     create(formData) {
-        return this.request(API_ENDPOINTS.customer, {
+        return this.request(API_ENDPOINTS.inventory, {
             method: 'POST',
             body: formData
         });
     },
 
-    // Update customer
+    // Update product
     update(id, formData) {
         formData.append('_method', 'PUT');
-        return this.request(API_ENDPOINTS.customerItem(id), {
+        return this.request(API_ENDPOINTS.inventoryItem(id), {
             method: 'POST',
             body: formData
         });
     },
 
-    // Delete customer
+    // Delete product
     delete(id) {
-        return this.request(API_ENDPOINTS.customerItem(id), {
+        return this.request(API_ENDPOINTS.inventoryItem(id), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -100,7 +110,7 @@ const ui = {
     // Show notification
     showNotification(type, message) {
         // Remove existing notifications
-        document.querySelectorAll('.customer-notification').forEach(n => n.remove());
+        document.querySelectorAll('.inventory-notification').forEach(n => n.remove());
 
         const config = {
             success: { color: 'green', icon: 'M5 13l4 4L19 7' },
@@ -110,7 +120,7 @@ const ui = {
 
         const { color, icon } = config[type];
         const notification = document.createElement('div');
-        notification.className = 'customer-notification fixed bottom-4 right-4 flex items-center w-full max-w-sm p-4 rounded-xl shadow-lg bg-white z-[9999]';
+        notification.className = 'inventory-notification fixed bottom-4 right-4 flex items-center w-full max-w-sm p-4 rounded-xl shadow-lg bg-white z-[9999]';
         notification.innerHTML = `
             <div class="shrink-0 w-10 h-10 mr-3 flex items-center justify-center rounded-full bg-${color}-500/20 text-${color}-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -133,9 +143,13 @@ const ui = {
 
     // Create table row HTML
     createRowHTML(data) {
+        const formattedPrice = utils.formatPrice(data.price);
         return `
             <td class="py-4 px-2">${data.name}</td>
-            <td class="py-4 px-2">${data.phone}</td>
+            <td class="py-4 px-2">${data.sku}</td>
+            <td class="py-4 px-2">${data.quantity}</td>
+            <td class="py-4 px-2">${formattedPrice}</td>
+            <td class="py-4 px-2">${data.points_per_unit}</td>
             <td class="py-2 px-2">
                 <div class="flex justify-center items-center gap-2">
                     <button class="edit-btn text-blue-600 hover:text-blue-800 transition-colors" data-id="${data.id}" title="Edit">
@@ -187,14 +201,20 @@ const table = {
 
         const data = {
             name: formData.get('name'),
-            phone: formData.get('phone'),
+            sku: formData.get('sku'),
+            quantity: formData.get('quantity'),
+            price: formData.get('price'),
+            points_per_unit: formData.get('points_per_unit')
         };
 
         row.setAttribute('data-search', utils.createSearchData(data));
 
         const cells = row.querySelectorAll('td');
         cells[0].textContent = data.name;
-        cells[1].textContent = data.phone;
+        cells[1].textContent = data.sku;
+        cells[2].textContent = data.quantity;
+        cells[3].textContent = utils.formatPrice(data.price);
+        cells[4].textContent = data.points_per_unit;
 
         await ui.animate(row, { backgroundColor: '#dbeafe' }, 100);
         await ui.animate(row, { transition: 'background-color 0.5s ease', backgroundColor: '' });
@@ -230,9 +250,8 @@ const handlers = {
     onAdd() {
         const form = utils.getElement(SELECTORS.forms.create);
         if (form) form.reset();
-        if (typeof open_customerCreateModal === 'function') open_customerCreateModal();
+        if (typeof open_productCreateModal === 'function') open_productCreateModal();
     },
-
 
     // Handle edit button
     onEdit(e) {
@@ -241,29 +260,31 @@ const handlers = {
         if (!row || !utils.getElement(SELECTORS.fields.editId)) return;
 
         const cells = row.querySelectorAll('td');
-        if (cells.length < 2) return;
+        if (cells.length < 5) return;
 
         utils.getElement(SELECTORS.fields.editId).value = id;
         utils.getElement(SELECTORS.fields.editName).value = cells[0].textContent.trim();
-        utils.getElement(SELECTORS.fields.editPhone).value = cells[1].textContent.trim();
+        utils.getElement(SELECTORS.fields.editSku).value = cells[1].textContent.trim();
+        utils.getElement(SELECTORS.fields.editQuantity).value = cells[2].textContent.trim();
+        utils.getElement(SELECTORS.fields.editPrice).value = utils.parsePrice(cells[3].textContent.trim());
+        utils.getElement(SELECTORS.fields.editPoints).value = cells[4].textContent.trim();
 
-        if (typeof open_customerEditModal === 'function') open_customerEditModal();
+        if (typeof open_productEditModal === 'function') open_productEditModal();
     },
-
     // Handle delete button
     onDelete(e) {
         const id = e.detail.id;
         const row = utils.getElement(SELECTORS.table.row(id));
         if (!row || !utils.getElement(SELECTORS.fields.deleteId)) return;
 
-        const customerName = row.querySelector('td:first-child');
-        if (!customerName) return;
+        const productName = row.querySelector('td:first-child');
+        if (!productName) return;
 
         utils.getElement(SELECTORS.fields.deleteId).value = id;
         const deleteNameEl = utils.getElement(SELECTORS.fields.deleteName);
-        if (deleteNameEl) deleteNameEl.textContent = customerName.textContent.trim();
+        if (deleteNameEl) deleteNameEl.textContent = productName.textContent.trim();
 
-        if (typeof open_customerDeleteModal === 'function') open_customerDeleteModal();
+        if (typeof open_productDeleteModal === 'function') open_productDeleteModal();
     },
 
     // Handle create submission
@@ -275,13 +296,12 @@ const handlers = {
             const data = await api.create(new FormData(form));
 
             if (data.success) {
-                if (typeof close_customerCreateModal === 'function') close_customerCreateModal();
-
+                if (typeof close_productCreateModal === 'function') close_productCreateModal();
                 await table.addRow(data.data);
                 ui.showNotification('success', data.message);
                 form.reset();
             } else {
-                ui.showNotification('error', data.message || 'Gagal menambahkan customer');
+                ui.showNotification('error', data.message || 'Gagal menambahkan produk');
             }
         } catch (error) {
             console.error('❌ Create error:', error);
@@ -301,12 +321,11 @@ const handlers = {
             const data = await api.update(id, formData);
 
             if (data.success) {
-                if (typeof close_customerEditModal === 'function') close_customerEditModal();
-
+                if (typeof close_productEditModal === 'function') close_productEditModal();
                 await table.updateRow(id, formData);
                 ui.showNotification('success', data.message);
             } else {
-                ui.showNotification('error', data.message || 'Gagal mengupdate customer');
+                ui.showNotification('error', data.message || 'Gagal mengupdate produk');
             }
         } catch (error) {
             console.error('❌ Update error:', error);
@@ -322,11 +341,11 @@ const handlers = {
             const data = await api.delete(id);
 
             if (data.success) {
-                if (typeof close_customerDeleteModal === 'function') close_customerDeleteModal();
+                if (typeof close_productDeleteModal === 'function') close_productDeleteModal();
                 await table.removeRow(id);
                 ui.showNotification('success', data.message);
             } else {
-                ui.showNotification('error', data.message || 'Gagal menghapus customer');
+                ui.showNotification('error', data.message || 'Gagal menghapus produk');
             }
         } catch (error) {
             console.error('❌ Delete error:', error);
@@ -337,11 +356,11 @@ const handlers = {
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if customer page
+    // Check if inventory page
     const modals = Object.values(SELECTORS.modals).map(s => utils.getElement(s));
     if (modals.some(m => !m)) return;
 
-    console.log('✅ customer module loaded');
+    console.log('✅ Inventory module loaded');
 
     // Register event listeners
     document.addEventListener('table:add', handlers.onAdd);

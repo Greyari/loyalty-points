@@ -1,21 +1,30 @@
 // ==================== CONSTANTS ====================
 const SELECTORS = {
     modals: {
-        create: '#customerCreateModal',
-        edit: '#customerEditModal',
-        delete: '#customerDeleteModal'
+        create: '#transactionCreateModal',
+        edit: '#transactionEditModal',
+        delete: '#transactionDeleteModal'
     },
     forms: {
         create: '#createForm',
         edit: '#editForm'
     },
     fields: {
+        // Create form
+        productSelect: '#product_select',
+        qtyInput: '#qty_input',
+        totalPointsDisplay: '#total_points_display',
+        // Edit form
         editId: '#edit_id',
-        editName: '#edit_name',
-        editPhone: '#edit_phone',
+        editOrderId: '#edit_order_id',
+        editCustomerId: '#edit_customer_id',
+        editProductId: '#edit_product_id',
+        editQty: '#edit_qty',
+        editTotalPointsDisplay: '#edit_total_points_display',
+        // Delete form
         deleteId: '#delete_id',
-        deleteName: '#delete_name'
-    },
+        deleteOrderId: '#delete_order_id'
+    }, 
     table: {
         body: '.table-body',
         row: (id) => `tr[data-id="${id}"]`,
@@ -25,25 +34,25 @@ const SELECTORS = {
 };
 
 const API_ENDPOINTS = {
-    customer: '/customer',
-    customerItem: (id) => `/customer/${id}`
+    transactions: '/transaction',
+    transactionItem: (id) => `/transaction/${id}`
 };
 
 // ==================== UTILITY FUNCTIONS ====================
 const utils = {
-    // Get element safely
     getElement: (selector) => document.querySelector(selector),
 
-    // Get CSRF token
+    formatNumber: (number) => parseInt(number).toLocaleString('id-ID'),
+
+    parseNumber: (text) => text.replace(/\./g, '').replace(/,/g, ''),
+
     getCsrfToken: () => document.querySelector('meta[name="csrf-token"]').content,
 
-    // Create search data attribute
-    createSearchData: (data) => `${data.name} ${data.phone}`.toLowerCase()
+    createSearchData: (data) => `${data.order_id} ${data.date} ${data.customer} ${data.product} ${data.sku} ${data.qty} ${data.points} ${data.total_points}`.toLowerCase()
 };
 
 // ==================== API FUNCTIONS ====================
 const api = {
-    // Generic fetch wrapper
     async request(url, options) {
         const response = await fetch(url, {
             headers: {
@@ -64,26 +73,23 @@ const api = {
         return response.json();
     },
 
-    // Create customer
     create(formData) {
-        return this.request(API_ENDPOINTS.customer, {
+        return this.request(API_ENDPOINTS.transactions, {
             method: 'POST',
             body: formData
         });
     },
 
-    // Update customer
     update(id, formData) {
         formData.append('_method', 'PUT');
-        return this.request(API_ENDPOINTS.customerItem(id), {
+        return this.request(API_ENDPOINTS.transactionItem(id), {
             method: 'POST',
             body: formData
         });
     },
 
-    // Delete customer
     delete(id) {
-        return this.request(API_ENDPOINTS.customerItem(id), {
+        return this.request(API_ENDPOINTS.transactionItem(id), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -92,15 +98,12 @@ const api = {
             })
         });
     }
-
 };
 
 // ==================== UI FUNCTIONS ====================
 const ui = {
-    // Show notification
     showNotification(type, message) {
-        // Remove existing notifications
-        document.querySelectorAll('.customer-notification').forEach(n => n.remove());
+        document.querySelectorAll('.transaction-notification').forEach(n => n.remove());
 
         const config = {
             success: { color: 'green', icon: 'M5 13l4 4L19 7' },
@@ -110,7 +113,7 @@ const ui = {
 
         const { color, icon } = config[type];
         const notification = document.createElement('div');
-        notification.className = 'customer-notification fixed bottom-4 right-4 flex items-center w-full max-w-sm p-4 rounded-xl shadow-lg bg-white z-[9999]';
+        notification.className = 'transaction-notification fixed bottom-4 right-4 flex items-center w-full max-w-sm p-4 rounded-xl shadow-lg bg-white z-[9999]';
         notification.innerHTML = `
             <div class="shrink-0 w-10 h-10 mr-3 flex items-center justify-center rounded-full bg-${color}-500/20 text-${color}-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -126,16 +129,20 @@ const ui = {
         `;
 
         document.body.appendChild(notification);
-
         notification.querySelector('button').onclick = () => notification.remove();
         setTimeout(() => notification.remove(), 5000);
     },
 
-    // Create table row HTML
     createRowHTML(data) {
         return `
-            <td class="py-4 px-2">${data.name}</td>
-            <td class="py-4 px-2">${data.phone}</td>
+            <td class="py-4 px-2">${data.order_id}</td>
+            <td class="py-4 px-2">${data.date}</td>
+            <td class="py-4 px-2">${data.customer}</td>
+            <td class="py-4 px-2">${data.product}</td>
+            <td class="py-4 px-2">${data.sku}</td>
+            <td class="py-4 px-2">${data.qty}</td>
+            <td class="py-4 px-2">${data.points}</td>
+            <td class="py-4 px-2">${data.total_points}</td>
             <td class="py-2 px-2">
                 <div class="flex justify-center items-center gap-2">
                     <button class="edit-btn text-blue-600 hover:text-blue-800 transition-colors" data-id="${data.id}" title="Edit">
@@ -153,16 +160,44 @@ const ui = {
         `;
     },
 
-    // Animate element
     animate(element, styles, duration = 300) {
         Object.assign(element.style, styles);
         return new Promise(resolve => setTimeout(resolve, duration));
+    },
+
+    calculateTotalPoints() {
+        const productSelect = utils.getElement(SELECTORS.fields.productSelect);
+        const qtyInput = utils.getElement(SELECTORS.fields.qtyInput);
+        const totalPointsDisplay = utils.getElement(SELECTORS.fields.totalPointsDisplay);
+
+        if (!productSelect || !qtyInput || !totalPointsDisplay) return;
+
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const pointsPerUnit = selectedOption?.dataset.points || 0;
+        const qty = parseInt(qtyInput.value) || 0;
+        const totalPoints = pointsPerUnit * qty;
+
+        totalPointsDisplay.value = utils.formatNumber(totalPoints);
+    },
+
+    calculateEditTotalPoints() {
+        const productSelect = utils.getElement(SELECTORS.fields.editProductId);
+        const qtyInput = utils.getElement(SELECTORS.fields.editQty);
+        const totalPointsDisplay = utils.getElement(SELECTORS.fields.editTotalPointsDisplay);
+
+        if (!productSelect || !qtyInput || !totalPointsDisplay) return;
+
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const pointsPerUnit = selectedOption?.dataset.points || 0;
+        const qty = parseInt(qtyInput.value) || 0;
+        const totalPoints = pointsPerUnit * qty;
+
+        totalPointsDisplay.value = utils.formatNumber(totalPoints);
     }
 };
 
 // ==================== TABLE OPERATIONS ====================
 const table = {
-    // Add new row
     async addRow(data) {
         const tbody = utils.getElement(SELECTORS.table.body);
         if (!tbody) return;
@@ -180,27 +215,26 @@ const table = {
         this.updateInfo();
     },
 
-    // Update existing row
-    async updateRow(id, formData) {
+    async updateRow(id, data) {
         const row = utils.getElement(SELECTORS.table.row(id));
         if (!row) return;
-
-        const data = {
-            name: formData.get('name'),
-            phone: formData.get('phone'),
-        };
 
         row.setAttribute('data-search', utils.createSearchData(data));
 
         const cells = row.querySelectorAll('td');
-        cells[0].textContent = data.name;
-        cells[1].textContent = data.phone;
+        cells[0].textContent = data.order_id;
+        cells[1].textContent = data.date;
+        cells[2].textContent = data.customer;
+        cells[3].textContent = data.product;
+        cells[4].textContent = data.sku;
+        cells[5].textContent = data.qty;
+        cells[6].textContent = data.points;
+        cells[7].textContent = data.total_points;
 
         await ui.animate(row, { backgroundColor: '#dbeafe' }, 100);
         await ui.animate(row, { transition: 'background-color 0.5s ease', backgroundColor: '' });
     },
 
-    // Remove row
     async removeRow(id) {
         const row = utils.getElement(SELECTORS.table.row(id));
         if (!row) return;
@@ -210,7 +244,6 @@ const table = {
         this.updateInfo();
     },
 
-    // Update table info and pagination
     updateInfo() {
         const container = utils.getElement(SELECTORS.table.container);
         if (!container) return;
@@ -226,47 +259,64 @@ const table = {
 
 // ==================== EVENT HANDLERS ====================
 const handlers = {
-    // Handle add button
     onAdd() {
         const form = utils.getElement(SELECTORS.forms.create);
         if (form) form.reset();
-        if (typeof open_customerCreateModal === 'function') open_customerCreateModal();
+        ui.calculateTotalPoints();
+        if (typeof open_transactionCreateModal === 'function') open_transactionCreateModal();
     },
 
-
-    // Handle edit button
     onEdit(e) {
         const id = e.detail.id;
         const row = utils.getElement(SELECTORS.table.row(id));
         if (!row || !utils.getElement(SELECTORS.fields.editId)) return;
 
         const cells = row.querySelectorAll('td');
-        if (cells.length < 2) return;
+        if (cells.length < 8) return;
 
         utils.getElement(SELECTORS.fields.editId).value = id;
-        utils.getElement(SELECTORS.fields.editName).value = cells[0].textContent.trim();
-        utils.getElement(SELECTORS.fields.editPhone).value = cells[1].textContent.trim();
+        utils.getElement(SELECTORS.fields.editOrderId).value = cells[0].textContent.trim();
 
-        if (typeof open_customerEditModal === 'function') open_customerEditModal();
+        // Set customer dropdown
+        const customerSelect = utils.getElement(SELECTORS.fields.editCustomerId);
+        const customerText = cells[2].textContent.trim();
+        Array.from(customerSelect.options).forEach(option => {
+            if (option.text === customerText) {
+                customerSelect.value = option.value;
+            }
+        });
+
+        // Set product dropdown
+        const productSelect = utils.getElement(SELECTORS.fields.editProductId);
+        const productText = cells[3].textContent.trim();
+        Array.from(productSelect.options).forEach(option => {
+            if (option.text.includes(productText)) {
+                productSelect.value = option.value;
+            }
+        });
+
+        utils.getElement(SELECTORS.fields.editQty).value = cells[5].textContent.trim();
+
+        ui.calculateEditTotalPoints();
+
+        if (typeof open_transactionEditModal === 'function') open_transactionEditModal();
     },
 
-    // Handle delete button
     onDelete(e) {
         const id = e.detail.id;
         const row = utils.getElement(SELECTORS.table.row(id));
         if (!row || !utils.getElement(SELECTORS.fields.deleteId)) return;
 
-        const customerName = row.querySelector('td:first-child');
-        if (!customerName) return;
+        const orderId = row.querySelector('td:first-child');
+        if (!orderId) return;
 
         utils.getElement(SELECTORS.fields.deleteId).value = id;
-        const deleteNameEl = utils.getElement(SELECTORS.fields.deleteName);
-        if (deleteNameEl) deleteNameEl.textContent = customerName.textContent.trim();
+        const deleteOrderIdEl = utils.getElement(SELECTORS.fields.deleteOrderId);
+        if (deleteOrderIdEl) deleteOrderIdEl.textContent = orderId.textContent.trim();
 
-        if (typeof open_customerDeleteModal === 'function') open_customerDeleteModal();
+        if (typeof open_transactionDeleteModal === 'function') open_transactionDeleteModal();
     },
 
-    // Handle create submission
     async onCreate() {
         const form = utils.getElement(SELECTORS.forms.create);
         if (!form) return;
@@ -275,13 +325,13 @@ const handlers = {
             const data = await api.create(new FormData(form));
 
             if (data.success) {
-                if (typeof close_customerCreateModal === 'function') close_customerCreateModal();
-
+                if (typeof close_transactionCreateModal === 'function') close_transactionCreateModal();
                 await table.addRow(data.data);
                 ui.showNotification('success', data.message);
                 form.reset();
+                ui.calculateTotalPoints();
             } else {
-                ui.showNotification('error', data.message || 'Gagal menambahkan customer');
+                ui.showNotification('error', data.message || 'Gagal menambahkan transaksi');
             }
         } catch (error) {
             console.error('❌ Create error:', error);
@@ -289,7 +339,6 @@ const handlers = {
         }
     },
 
-    // Handle edit submission
     async onEditSubmit() {
         const form = utils.getElement(SELECTORS.forms.edit);
         if (!form) return;
@@ -301,12 +350,11 @@ const handlers = {
             const data = await api.update(id, formData);
 
             if (data.success) {
-                if (typeof close_customerEditModal === 'function') close_customerEditModal();
-
-                await table.updateRow(id, formData);
+                if (typeof close_transactionEditModal === 'function') close_transactionEditModal();
+                await table.updateRow(id, data.data);
                 ui.showNotification('success', data.message);
             } else {
-                ui.showNotification('error', data.message || 'Gagal mengupdate customer');
+                ui.showNotification('error', data.message || 'Gagal mengupdate transaksi');
             }
         } catch (error) {
             console.error('❌ Update error:', error);
@@ -314,7 +362,6 @@ const handlers = {
         }
     },
 
-    // Handle delete submission
     async onDeleteSubmit() {
         const id = utils.getElement(SELECTORS.fields.deleteId).value;
 
@@ -322,11 +369,11 @@ const handlers = {
             const data = await api.delete(id);
 
             if (data.success) {
-                if (typeof close_customerDeleteModal === 'function') close_customerDeleteModal();
+                if (typeof close_transactionDeleteModal === 'function') close_transactionDeleteModal();
                 await table.removeRow(id);
                 ui.showNotification('success', data.message);
             } else {
-                ui.showNotification('error', data.message || 'Gagal menghapus customer');
+                ui.showNotification('error', data.message || 'Gagal menghapus transaksi');
             }
         } catch (error) {
             console.error('❌ Delete error:', error);
@@ -337,11 +384,22 @@ const handlers = {
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if customer page
     const modals = Object.values(SELECTORS.modals).map(s => utils.getElement(s));
     if (modals.some(m => !m)) return;
 
-    console.log('✅ customer module loaded');
+    console.log('✅ Point Transaction module loaded');
+
+    // Calculate total points on product/qty change (Create form)
+    const productSelect = utils.getElement(SELECTORS.fields.productSelect);
+    const qtyInput = utils.getElement(SELECTORS.fields.qtyInput);
+    if (productSelect) productSelect.addEventListener('change', ui.calculateTotalPoints);
+    if (qtyInput) qtyInput.addEventListener('input', ui.calculateTotalPoints);
+
+    // Calculate total points on product/qty change (Edit form)
+    const editProductSelect = utils.getElement(SELECTORS.fields.editProductId);
+    const editQtyInput = utils.getElement(SELECTORS.fields.editQty);
+    if (editProductSelect) editProductSelect.addEventListener('change', ui.calculateEditTotalPoints);
+    if (editQtyInput) editQtyInput.addEventListener('input', ui.calculateEditTotalPoints);
 
     // Register event listeners
     document.addEventListener('table:add', handlers.onAdd);

@@ -1,4 +1,4 @@
-@extends('layouts.nav')
+{{-- @extends('layouts.nav')
 
 @section('title', 'Aturan Poin')
 @section('page_title', 'Aturan Poin')
@@ -305,4 +305,4 @@
         </div>
     </form>
 </div>
-@endsection
+@endsection --}}
