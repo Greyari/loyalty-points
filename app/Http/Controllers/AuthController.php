@@ -33,7 +33,7 @@ class AuthController extends Controller
         // Regenerate session untuk keamanan
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('success', 'Login berhasil');
+        return redirect()->route('dashboard.index')->with('success', 'Login berhasil');
     }
 
     public function logout(Request $request)

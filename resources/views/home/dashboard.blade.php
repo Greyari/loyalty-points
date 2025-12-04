@@ -9,7 +9,7 @@
     <p class="text-lg font-light text-gray-500 font-poppins">November, 01 - 30</p>
 
     @if(session('success'))
-    <x-toast type="success" :message="session('success')" />
+        <x-toast type="success" :message="session('success')" />
     @endif
 
     <!-- Container grid untuk layout -->

@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PointTransactionController;
+use App\Http\Controllers\DashboardController;
 
 // ================================
 // GUEST ROUTES (belum login)
@@ -26,9 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('home.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
 
     // Inventory
     Route::get('/inventory', [ProductController::class, 'index'])->name('inventory.index');

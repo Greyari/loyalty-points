@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Services\MonthlySummaryService;
 
 class PointTransactionController extends Controller
 {
@@ -88,6 +89,10 @@ class PointTransactionController extends Controller
 
             $transaction->load(['customer', 'product']);
 
+            // update untuk dasboard
+            $summaryService = app(MonthlySummaryService::class);
+            $summaryService->add($transaction);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Transaction berhasil ditambahkan!',
@@ -136,13 +141,14 @@ class PointTransactionController extends Controller
 
             $transaction = PointTransaction::findOrFail($id);
 
-            // Produk lama (untuk mengembalikan stok)
-            $oldProduct = Product::findOrFail($transaction->product_id);
+            // Simpan data lama untuk memperbaiki summary
+            $oldTransaction = clone $transaction;
 
-            // Kembalikan stok lama
+            // Produk lama → kembalikan stok
+            $oldProduct = Product::findOrFail($transaction->product_id);
             $oldProduct->increment('quantity', $transaction->qty);
 
-            // Produk baru (jika ganti product_id)
+            // Produk baru
             $newProduct = Product::findOrFail($validated['product_id']);
 
             // Validasi stok baru
@@ -164,37 +170,40 @@ class PointTransactionController extends Controller
                 'sku'         => $newProduct->sku,
                 'qty'         => $validated['qty'],
                 'points'      => $newProduct->points_per_unit,
-                'order_id'    => $transaction->order_id, // order_id tidak berubah
             ]);
 
             DB::commit();
 
+            // Load ulang relasi
             $transaction->load(['customer', 'product']);
 
-            $responseData = [
-                'id'            => $transaction->id,
-                'order_id'      => $transaction->order_id,
-                'date'          => $transaction->created_at->format('Y-m-d H:i'),
-                'customer'      => $transaction->customer->name,
-                'product'       => $transaction->product->name,
-                'sku'           => $transaction->sku,
-                'qty'           => $transaction->qty,
-                'points'        => number_format($transaction->points, 0, ',', '.'),
-                'total_points'  => number_format($transaction->qty * $transaction->points, 0, ',', '.'),
-            ];
+            // update untuk dasboard
+            $summaryService = app(MonthlySummaryService::class);
+            $summaryService->subtract($oldTransaction); // hapus efek data lama
+            $summaryService->add($transaction);         // tambahkan efek data baru
 
+            // Response
             return response()->json([
                 'success' => true,
                 'message' => 'Transaction berhasil diupdate!',
-                'data'    => $responseData
+                'data'    => [
+                    'id'            => $transaction->id,
+                    'order_id'      => $transaction->order_id,
+                    'date'          => $transaction->created_at->format('Y-m-d H:i'),
+                    'customer'      => $transaction->customer->name,
+                    'product'       => $transaction->product->name,
+                    'sku'           => $transaction->sku,
+                    'qty'           => $transaction->qty,
+                    'points'        => number_format($transaction->points, 0, ',', '.'),
+                    'total_points'  => number_format($transaction->qty * $transaction->points, 0, ',', '.'),
+                ]
             ]);
 
         } catch (ValidationException $e) {
             DB::rollBack();
-            $allErrors = implode('<br>', $e->validator->errors()->all());
             return response()->json([
                 'success' => false,
-                'message' => $allErrors,
+                'message' => implode('<br>', $e->validator->errors()->all()),
             ], 422);
 
         } catch (\Exception $e) {
@@ -207,6 +216,7 @@ class PointTransactionController extends Controller
         }
     }
 
+
     /**
      * Hapus transaksi poin
      */
@@ -214,6 +224,11 @@ class PointTransactionController extends Controller
     {
         try {
             $transaction = PointTransaction::findOrFail($id);
+
+            // update untuk dasboard
+            $summaryService = app(MonthlySummaryService::class);
+            $summaryService->subtract($transaction);
+
             $transaction->delete();
 
             return response()->json([
