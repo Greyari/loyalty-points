@@ -5,8 +5,8 @@
 
 @section('content')
 <div class="space-y-6 mb-6">
-    <h2 class="text-4xl font-semibold font-poppins mb-0">Point Transactions</h2>
-    <p class="text-lg font-light text-gray-500 font-poppins">Manage customer point transactions.</p>
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Point Transactions</h2>
+    <p class="text-sm sm:text-base lg:text-lg  font-light text-gray-500 font-poppins">Manage customer point transactions.</p>
 </div>
 
 <x-data-tables
@@ -14,8 +14,7 @@
     :rows="$transactions"
     onAdd="true"
     onEdit="true"
-    onDelete="true"
-/>
+    onDelete="true" />
 
 <!-- Create Modal -->
 <x-modal id="transactionCreateModal" title="Add New Transaction" size="lg" submitText="Save">
@@ -28,7 +27,7 @@
                 required>
                 <option value="">Select customer</option>
                 @foreach($customers as $customer)
-                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -40,11 +39,11 @@
                 required>
                 <option value="">Select product</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id }}"
-                            data-sku="{{ $product->sku }}"
-                            data-points="{{ $product->points_per_unit }}">
-                        {{ $product->name }} ({{ $product->sku }}) - {{ $product->points_per_unit }} pts
-                    </option>
+                <option value="{{ $product->id }}"
+                    data-sku="{{ $product->sku }}"
+                    data-points="{{ $product->points_per_unit }}">
+                    {{ $product->name }} ({{ $product->sku }}) - {{ $product->points_per_unit }} pts
+                </option>
                 @endforeach
             </select>
         </div>
@@ -86,7 +85,7 @@
                 required>
                 <option value="">Select customer</option>
                 @foreach($customers as $customer)
-                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -98,11 +97,11 @@
                 required>
                 <option value="">Select product</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id }}"
-                            data-sku="{{ $product->sku }}"
-                            data-points="{{ $product->points_per_unit }}">
-                        {{ $product->name }} ({{ $product->sku }}) - {{ $product->points_per_unit }} pts
-                    </option>
+                <option value="{{ $product->id }}"
+                    data-sku="{{ $product->sku }}"
+                    data-points="{{ $product->points_per_unit }}">
+                    {{ $product->name }} ({{ $product->sku }}) - {{ $product->points_per_unit }} pts
+                </option>
                 @endforeach
             </select>
         </div>
@@ -138,8 +137,8 @@
 </x-modal>
 
 @push('scripts')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <script src="{{ asset('js/point_transaction.js') }}"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="{{ asset('js/point_transaction.js') }}"></script>
 @endpush
 
 @endsection

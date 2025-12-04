@@ -8,8 +8,8 @@
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-[#0F1724] text-4xl font-semibold font-poppins mb-2">Aturan Poin</h1>
-            <p class="text-[#475569] text-lg font-light font-poppins">Konfigurasi sistem poin loyalty program</p>
+            <h1 class="text-[#0F1724] text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-2">Aturan Poin</h1>
+            <p class="text-[#475569] text-sm sm:text-base lg:text-lg  font-light font-poppins">Konfigurasi sistem poin loyalty program</p>
         </div>
 
     </div>
