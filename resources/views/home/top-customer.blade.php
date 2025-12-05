@@ -47,7 +47,9 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-0.5">
                         <p class="text-sm font-semibold text-gray-900 truncate">
-                            {{ $customer->customer->name }}
+                            {{-- {{ $customer->customer?->name ?? 'Data user ini dihapus' }} --}}
+                            {{ optional($customer->customer)->name ?? 'Data user ini dihapus' }}
+
                         </p>
                     </div>
 

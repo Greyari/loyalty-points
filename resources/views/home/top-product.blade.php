@@ -54,10 +54,12 @@
                             </div>
                         </td>
 
-                        <td class="px-6 py-4 text-gray-600">{{ $product->product->sku }}</td>
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ optional($product->product)->sku ?? 'Data produk ini dihapus' }}
+                        </td>
 
                         <td class="px-6 py-4 font-medium text-gray-900">
-                            {{ $product->product->name }}
+                            {{ optional($product->product)->name ?? 'Data produk ini dihapus' }}
                         </td>
 
                         <td class="px-6 py-4 text-center font-semibold text-gray-800">
@@ -65,7 +67,10 @@
                         </td>
 
                         <td class="px-6 py-4 text-right font-semibold text-gray-900">
-                            {{ number_format($product->qty * $product->product->points_per_unit, 0, ',', '.') }}
+                            {{ $product->product
+                                ? number_format($product->qty * $product->product->points_per_unit, 0, ',', '.')
+                                : '-'
+                            }}
                         </td>
                     </tr>
                     @endforeach
