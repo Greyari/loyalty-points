@@ -26,7 +26,10 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['product_id','customer_id','year','month']);
+            $table->unique(['product_id','customer_id','year','month'], 'monthly_summary_unique');
+
+            // Index untuk query yang sering dipakai
+            $table->index(['year', 'month']);
         });
     }
 

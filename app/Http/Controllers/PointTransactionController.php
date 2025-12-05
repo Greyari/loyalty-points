@@ -26,7 +26,7 @@ class PointTransactionController extends Controller
                 return [
                     'id'            => $t->id,
                     'order_id'     => $t->order_id ?? '-',
-                    'date'         => $t->created_at->format('Y-m-d H:i'),
+                    'date'         => $t->created_at->timezone('Asia/Jakarta')->translatedFormat('l, d F Y (H:i)'),
                     'customer'     => $t->customer->name ?? 'Unknown',
                     'product'      => $t->product->name ?? 'Unknown',
                     'sku'          => $t->sku,
