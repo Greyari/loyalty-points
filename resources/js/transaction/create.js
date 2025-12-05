@@ -1,7 +1,7 @@
 $(document).ready(function() {
     $('#product_select').select2({
-        placeholder: "Select product(s)",
-        width: '100%'
+        placeholder: "Select product",
+        width: '100%',
     });
 
     function updateQtyInputs() {
@@ -44,3 +44,4 @@ $(document).ready(function() {
     // trigger when any qty input changes
     $(document).on('input', '#qty_container input[type="number"]', updateTotalPoints);
 });
+

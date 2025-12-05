@@ -1,14 +1,14 @@
  <!-- Total Penjualan Card -->
- <div class="bg-white rounded-lg shadow-md p-4 flex justify-between items-center h-[113px]">
+ <div class="transform transition-transform duration-300 hover:-translate-y-1  bg-white rounded-lg shadow-md p-4 flex justify-between items-center h-[113px]">
      <div class="flex flex-col justify-between h-full">
          <div>
              <p class="font-bold text-gray-900 text-base font-poppins">Total Sales</p>
              <p class="text-gray-500 text-sm font-poppins">Total amount this month</p>
          </div>
 
-        <p class="font-bold text-gray-900 text-xl mt-2 font-poppins">
-            Rp. {{ number_format($totalSales ?? 0, 0, ',', '.') }}
-        </p>
+         <p class="font-bold text-gray-900 text-xl mt-2 font-poppins">
+             Rp. {{ number_format($totalSales ?? 0, 0, ',', '.') }}
+         </p>
      </div>
      <!-- kalo penjualan naik -->
      <div class="flex items-center justify-center w-16 h-16 rounded-full bg-green-100">

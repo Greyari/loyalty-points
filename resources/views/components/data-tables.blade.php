@@ -16,8 +16,8 @@ $componentId = 'table_' . uniqid();
     <div class="flex flex-col md:flex-row justify-between gap-3 mb-4 items-center">
         <!-- Entries per-page -->
         <div class="flex items-center">
-            <label class="text-sm mr-2 font-medium font-poppins">Show</label>
-            <select class="entries-select bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 px-2.5 py-1.5 pr-8">
+            <label class="text-sm mr-2 font-medium font-poppins ">Show</label>
+            <select class=" entries-select bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 px-2.5 py-1.5 pr-8">
                 <option value="10" class="font-poppins">10</option>
                 <option value="25" class="font-poppins">25</option>
                 <option value="50" class="font-poppins">50</option>

@@ -7,24 +7,24 @@
     <!-- Left side: Image & text -->
     <div class="hidden md:flex md:w-1/2 flex-col justify-between p-4 lg:p-8 overflow-hidden">
         <div class="shrink-0">
-            <h2 class="text-2xl lg:text-4xl font-bold text-black leading-snug font-poppins">Customer</h2>
-            <h2 class="text-2xl lg:text-4xl font-bold text-black leading-snug mb-2 lg:mb-4 font-poppins">Loyalty</h2>
+            <h2 class="text-2xl lg:text-4xl font-bold text-black leading-snug font-poppins  transform transition-transform duration-300 hover:-translate-y-1 ">Customer</h2>
+            <h2 class="text-2xl lg:text-4xl font-bold text-black leading-snug mb-2 lg:mb-4 font-poppins  transform transition-transform duration-300 hover:-translate-y-1 ">Loyalty</h2>
         </div>
 
-        <div class="flex justify-center items-center flex-1 min-h-0 py-7">
-            <img src="{{ asset('assets/team-login-image.svg') }}" alt="Team Illustration" class="max-h-full max-w-full w-auto h-auto object-contain">
+        <div class=" flex justify-center items-center flex-1 min-h-0 py-7">
+            <img src="{{ asset('assets/team-login-image.svg') }}" alt="Team Illustration" class=" transform transition-transform duration-300 hover:-translate-y-1  max-h-full max-w-full w-auto h-auto object-contain">
         </div>
 
-        <h3 class="text-sm lg:text-base font-normal text-gray-600 shrink-0">PT. Kreatif System Indonesia</h3>
+        <h3 class="text-sm lg:text-base font-normal text-gray-600 shrink-0 font-poppins  transform transition-transform duration-300 hover:-translate-y-1 ">PT. Kreatif System Indonesia</h3>
     </div>
 
     <!-- Divider -->
-    <div class="hidden md:block md:w-px bg-gray-300 my-4 lg:my-8 mx-2 lg:mx-4 rounded-full shrink-0"></div>
+    <div class=" hidden md:block md:w-px bg-gray-300 my-4 lg:my-8 mx-2 lg:mx-4 rounded-full shrink-0"></div>
 
     <!-- Right side: Form -->
     <div class="flex w-full md:w-1/2 items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div class="w-full max-w-md">
-            <h1 class="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center text-gray-800 font-poppins">Login</h1>
+            <h1 class="text-2xl lg:text-3xl font-bold mb-6 lg:mb-8 text-center text-gray-800 font-poppins transform transition-transform duration-300 hover:-translate-y-1  ">Login</h1>
             @if(session('error'))
             <x-toast type="error" :message="session('error')" />
             @endif
@@ -33,7 +33,7 @@
             <form method="POST" action="{{ route('login.submit') }}">
                 @csrf
                 <!-- Email -->
-                <div class="mb-3 lg:mb-4">
+                <div class=" transform transition-transform duration-300 hover:-translate-y-1  mb-3 lg:mb-4">
                     <label class="block mb-1 font-medium text-gray-700 text-sm lg:text-base font-poppins">Email</label>
                     <input
                         type="email"
@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Password -->
-                <div class="mb-4 lg:mb-6 relative">
+                <div class=" transform transition-transform duration-300 hover:-translate-y-1  mb-4 lg:mb-6 relative">
                     <label class="block mb-1 font-medium text-gray-700 text-sm lg:text-base font-poppins">Password</label>
                     <input
                         type="password"
@@ -63,7 +63,7 @@
 
                     <!-- Toggle Eye Icon -->
                     <button type="button" id="togglePassword"
-                        class="absolute right-3 top-9 lg:top-10 text-gray-400 hover:text-gray-600 cursor-pointer flex items-center justify-center transition-colors duration-200">
+                        class=" absolute right-3 top-9 lg:top-10 text-gray-400 hover:text-gray-600 cursor-pointer flex items-center justify-center transition-colors duration-200">
 
                         <!-- Eye Closed Icon (password hidden) -->
                         <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg"
@@ -87,14 +87,11 @@
 
                 <!-- Submit Button -->
                 <button type="submit"
-                    class="w-full bg-[#2A2A2A] text-white py-2 lg:py-3 rounded-lg text-sm lg:text-base hover:bg-[#1A1A1A] transition font-poppins">
+                    class=" transform transition-transform duration-300 hover:-translate-y-1  w-full bg-[#2A2A2A] text-white py-2 lg:py-3 rounded-lg text-sm lg:text-base hover:bg-[#1A1A1A] font-poppins">
                     Login
                 </button>
 
-                <!-- Forgot Password Link -->
-                <p class="text-center text-xs lg:text-sm text-gray-500 mt-3 lg:mt-4">
-                    <a href="#" class="text-[#2A2A2A] hover:underline">Forgot password?</a>
-                </p>
+
             </form>
         </div>
     </div>
