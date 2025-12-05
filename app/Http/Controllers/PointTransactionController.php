@@ -20,7 +20,7 @@ class PointTransactionController extends Controller
     {
         // Load semua data dengan relasi customer dan product
         $transactions = PointTransaction::with(['customer', 'product'])
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get()
             ->map(function ($t) {
                 return [

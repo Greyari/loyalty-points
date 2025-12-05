@@ -14,23 +14,31 @@
          </div>
      </div>
 
-     <div id="main-chart" class="py-4"></div>
+    {{-- Dropdown --}}
+    <div class="flex gap-3 mb-4">
 
-     <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-         <button id="dropdownLastDays14Button" data-dropdown-toggle="LastDays14dropdown" data-dropdown-placement="bottom"
-             class="text-sm font-medium text-gray-700 hover:text-gray-900 inline-flex items-center px-2 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200">
-             Last 7 days
-             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
-             </svg>
-         </button>
+        <select id="filterYear" class="border rounded-md px-2 py-1 text-sm">
+            <option value="">All Years</option>
+        </select>
 
-         <a href="#"
-             class="text-sm font-medium text-gray-700 hover:text-gray-900 inline-flex items-center px-3 py-1 border border-gray-200 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200">
-             Progress report
-             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m14 0-4 4m4-4-4-4" />
-             </svg>
-         </a>
-     </div>
+        <select id="filterMonth" class="border rounded-md px-2 py-1 text-sm">
+            <option value="">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+
+    </div>
+
+    <div id="main-chart" class="py-4"></div>
+
  </div>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MonthlySummary;
+use App\Models\PointTransaction;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -31,7 +33,18 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('home.dashboard', compact('topCustomers', 'topProducts'));
+        // Last 5 transactions
+        $recentTransactions = PointTransaction::with('customer')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $totalSales = PointTransaction::whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->selectRaw('SUM(qty * points) as total')
+            ->value('total');
+
+        return view('home.dashboard', compact('topCustomers', 'topProducts', 'recentTransactions', 'totalSales'));
     }
 
     public function data()
@@ -66,4 +79,48 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function chartData(Request $request)
+    {
+        $query = MonthlySummary::selectRaw('year, month, SUM(total_qty) as qty_sum')
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month');
+
+        // Filter by year if provided
+        if ($request->filled('year')) {
+            $query->where('year', $request->year);
+        }
+
+        // Filter by month if provided
+        if ($request->filled('month')) {
+            $query->where('month', $request->month);
+        }
+
+        $data = $query->get();
+
+        return response()->json([
+            'categories' => $data->map(function($x) {
+                return date('M Y', strtotime("{$x->year}-{$x->month}-01"));
+            })->toArray(),
+            'qty' => $data->pluck('qty_sum')->toArray(),
+        ]);
+    }
+
+    public function getAvailableMonths(Request $request)
+    {
+        $query = MonthlySummary::select('month')
+            ->distinct()
+            ->orderBy('month');
+
+        // Filter by year if provided
+        if ($request->filled('year')) {
+            $query->where('year', $request->year);
+        }
+
+        $months = $query->pluck('month')->toArray();
+
+        return response()->json([
+            'months' => $months
+        ]);
+    }
 }

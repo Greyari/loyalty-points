@@ -3,65 +3,42 @@
 namespace App\Services;
 
 use App\Models\MonthlySummary;
+use App\Models\PointTransaction;
+use Carbon\Carbon;
 
 class MonthlySummaryService
 {
-    /**
-     * Tambah data ke summary (dipakai saat transaksi ditambahkan atau setelah update)
-     */
-    public function add($transaction)
+    public function add(PointTransaction $trx)
     {
-        $year  = $transaction->created_at->year;
-        $month = $transaction->created_at->month;
+        $date = Carbon::parse($trx->created_at);
 
-        // Create jika belum ada
-        $summary = MonthlySummary::firstOrCreate(
-            [
-                'product_id'  => $transaction->product_id,
-                'customer_id' => $transaction->customer_id,
-                'year'        => $year,
-                'month'       => $month,
-            ]
-        );
+        $summary = MonthlySummary::firstOrCreate([
+            'product_id'  => $trx->product_id,
+            'customer_id' => $trx->customer_id,
+            'year'        => $date->year,
+            'month'       => $date->month,
+        ]);
 
-        // Update summary
-        $summary->increment('total_qty', $transaction->qty);
-        $summary->increment('total_points', $transaction->qty * $transaction->points);
-        $summary->increment('total_transactions', 1);
+        $summary->increment('total_qty', $trx->qty);
+        $summary->increment('total_points', $trx->points);
+        $summary->increment('total_transactions');
     }
 
-    /**
-     * Kurangi data dari summary (dipakai saat transaksi dihapus atau sebelum update)
-     */
-    public function subtract($transaction)
+    public function subtract(PointTransaction $trx)
     {
-        $year  = $transaction->created_at->year;
-        $month = $transaction->created_at->month;
+        $date = Carbon::parse($trx->created_at);
 
-        // Ambil summary
         $summary = MonthlySummary::where([
-            'product_id'  => $transaction->product_id,
-            'customer_id' => $transaction->customer_id,
-            'year'        => $year,
-            'month'       => $month,
+            'product_id'  => $trx->product_id,
+            'customer_id' => $trx->customer_id,
+            'year'        => $date->year,
+            'month'       => $date->month,
         ])->first();
 
-        if (!$summary) {
-            return;
-        }
+        if (!$summary) return;
 
-        // Kurangi
-        $summary->decrement('total_qty', $transaction->qty);
-        $summary->decrement('total_points', $transaction->qty * $transaction->points);
-        $summary->decrement('total_transactions', 1);
-
-        // Kalau summary sudah 0 semua → aman hapus untuk hemat DB
-        if (
-            $summary->total_qty <= 0 &&
-            $summary->total_points <= 0 &&
-            $summary->total_transactions <= 0
-        ) {
-            $summary->delete();
-        }
+        $summary->decrement('total_qty', $trx->qty);
+        $summary->decrement('total_points', $trx->points);
+        $summary->decrement('total_transactions');
     }
 }
