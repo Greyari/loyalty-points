@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="flex h-screen bg-[#F7F6FB] overflow-hidden">
@@ -48,7 +49,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('transaction.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('transaction.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
+                    <a href="{{ route('orders.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('transaction.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
                         <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                         </svg>

@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PointTransactionController;
 use App\Http\Controllers\DashboardController;
 use App\Models\MonthlySummary;
+use App\Http\Controllers\OrderController;
 
 // ================================
 // GUEST ROUTES (belum login)
@@ -37,6 +38,12 @@ Route::middleware('auth')->group(function () {
         ]);
     });
 
+    // Order Routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::put('/orders/{id}', [OrderController::class, 'update'])->name('orders.update');
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
 
     // Inventory
     Route::get('/inventory', [ProductController::class, 'index'])->name('inventory.index');
@@ -51,10 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy');
 
     // Transaction
-    route::get('/transaction', [PointTransactionController::class, 'index'])->name('transaction.index');
-    Route::post('/transaction', [PointTransactionController::class, 'store'])->name('transaction.store');
-    Route::put('/transaction/{id}', [PointTransactionController::class, 'update'])->name('transaction.update');
-    Route::delete('/transaction/{id}', [PointTransactionController::class, 'destroy'])->name('transaction.destroy');
+    // route::get('/transaction', [PointTransactionController::class, 'index'])->name('transaction.index');
+    // Route::post('/transaction', [PointTransactionController::class, 'store'])->name('transaction.store');
+    // Route::put('/transaction/{id}', [PointTransactionController::class, 'update'])->name('transaction.update');
+    // Route::delete('/transaction/{id}', [PointTransactionController::class, 'destroy'])->name('transaction.destroy');
 
     // Settings
     // Route::get('/settings', function () {
