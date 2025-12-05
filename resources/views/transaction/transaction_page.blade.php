@@ -24,6 +24,7 @@
 @push('scripts')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script src="{{ asset('js/point_transaction.js') }}"></script>
+<script src="{{ asset('js/transaction/create.js') }}"></script>
 @endpush
 
 @push('styles')

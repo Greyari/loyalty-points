@@ -16,34 +16,24 @@
 
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Product <span class="text-red-500">*</span></label>
-            <select name="product_id" id="product_select"
+            <select name="product_ids[]" id="product_select"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
-                required>
-                <option value="">Select product</option>
+                multiple required>
                 @foreach($products as $product)
                 <option value="{{ $product->id }}"
                     data-sku="{{ $product->sku }}"
                     data-points="{{ $product->points_per_unit }}">
-                    {{ $product->name }} ({{ $product->sku }}) - {{ $product->points_per_unit }} pts
+                    {{ $product->name }}
                 </option>
                 @endforeach
             </select>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Quantity <span class="text-red-500">*</span></label>
-                <input type="number" name="qty" id="qty_input"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
-                    placeholder="1" min="1" value="1" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Total Points</label>
-                <input type="text" id="total_points_display"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100"
-                    placeholder="0" readonly>
-            </div>
+        <div id="qty_container" class="space-y-2 mt-2">
+            <!-- JS nanti akan generate input qty per product -->
         </div>
+
+
 
     </form>
 </x-modal>
