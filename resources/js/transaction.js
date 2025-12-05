@@ -10,21 +10,19 @@ const SELECTORS = {
         edit: '#editForm'
     },
     fields: {
-        // Create form
+        customerSelect: '#customer_select',
         productSelect: '#product_select',
         qtyInput: '#qty_input',
         totalPointsDisplay: '#total_points_display',
-        // Edit form
         editId: '#edit_id',
         editOrderId: '#edit_order_id',
-        editCustomerId: '#edit_customer_id',
+        editCustomerSelect: '#edit_customer_select',
         editProductId: '#edit_product_id',
         editQty: '#edit_qty',
         editTotalPointsDisplay: '#edit_total_points_display',
-        // Delete form
         deleteId: '#delete_id',
         deleteOrderId: '#delete_order_id'
-    }, 
+    },
     table: {
         body: '.table-body',
         row: (id) => `tr[data-id="${id}"]`,
@@ -165,34 +163,17 @@ const ui = {
         return new Promise(resolve => setTimeout(resolve, duration));
     },
 
-    calculateTotalPoints() {
-        const productSelect = utils.getElement(SELECTORS.fields.productSelect);
-        const qtyInput = utils.getElement(SELECTORS.fields.qtyInput);
-        const totalPointsDisplay = utils.getElement(SELECTORS.fields.totalPointsDisplay);
+    calculateTotalPoints(productSelector, qtySelector, displaySelector) {
+        const $productSelect = $(productSelector);
+        const $qtyInput = $(qtySelector);
+        const $display = $(displaySelector);
 
-        if (!productSelect || !qtyInput || !totalPointsDisplay) return;
-
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const pointsPerUnit = selectedOption?.dataset.points || 0;
-        const qty = parseInt(qtyInput.value) || 0;
+        const selectedOption = $productSelect.find(':selected');
+        const pointsPerUnit = parseFloat(selectedOption.data('points')) || 0;
+        const qty = parseInt($qtyInput.val()) || 0;
         const totalPoints = pointsPerUnit * qty;
 
-        totalPointsDisplay.value = utils.formatNumber(totalPoints);
-    },
-
-    calculateEditTotalPoints() {
-        const productSelect = utils.getElement(SELECTORS.fields.editProductId);
-        const qtyInput = utils.getElement(SELECTORS.fields.editQty);
-        const totalPointsDisplay = utils.getElement(SELECTORS.fields.editTotalPointsDisplay);
-
-        if (!productSelect || !qtyInput || !totalPointsDisplay) return;
-
-        const selectedOption = productSelect.options[productSelect.selectedIndex];
-        const pointsPerUnit = selectedOption?.dataset.points || 0;
-        const qty = parseInt(qtyInput.value) || 0;
-        const totalPoints = pointsPerUnit * qty;
-
-        totalPointsDisplay.value = utils.formatNumber(totalPoints);
+        $display.val(utils.formatNumber(totalPoints));
     }
 };
 
@@ -262,7 +243,11 @@ const handlers = {
     onAdd() {
         const form = utils.getElement(SELECTORS.forms.create);
         if (form) form.reset();
-        ui.calculateTotalPoints();
+        
+        $(SELECTORS.fields.customerSelect).val(null).trigger('change');
+        $(SELECTORS.fields.productSelect).val(null).trigger('change');
+        $(SELECTORS.fields.totalPointsDisplay).val('0');
+        
         if (typeof open_transactionCreateModal === 'function') open_transactionCreateModal();
     },
 
@@ -274,30 +259,37 @@ const handlers = {
         const cells = row.querySelectorAll('td');
         if (cells.length < 8) return;
 
-        utils.getElement(SELECTORS.fields.editId).value = id;
-        utils.getElement(SELECTORS.fields.editOrderId).value = cells[0].textContent.trim();
-
-        // Set customer dropdown
-        const customerSelect = utils.getElement(SELECTORS.fields.editCustomerId);
+        const orderId = cells[0].textContent.trim();
         const customerText = cells[2].textContent.trim();
-        Array.from(customerSelect.options).forEach(option => {
-            if (option.text === customerText) {
-                customerSelect.value = option.value;
-            }
-        });
-
-        // Set product dropdown
-        const productSelect = utils.getElement(SELECTORS.fields.editProductId);
         const productText = cells[3].textContent.trim();
-        Array.from(productSelect.options).forEach(option => {
-            if (option.text.includes(productText)) {
-                productSelect.value = option.value;
+        const qty = cells[5].textContent.trim();
+
+        utils.getElement(SELECTORS.fields.editId).value = id;
+        utils.getElement(SELECTORS.fields.editOrderId).value = orderId;
+        
+        const $customerSelect = $(SELECTORS.fields.editCustomerSelect);
+        $customerSelect.find('option').each(function() {
+            if ($(this).text() === customerText) {
+                $customerSelect.val($(this).val()).trigger('change');
             }
         });
 
-        utils.getElement(SELECTORS.fields.editQty).value = cells[5].textContent.trim();
+        const $productSelect = $(SELECTORS.fields.editProductId);
+        $productSelect.find('option').each(function() {
+            if ($(this).text().includes(productText)) {
+                $productSelect.val($(this).val()).trigger('change');
+            }
+        });
 
-        ui.calculateEditTotalPoints();
+        utils.getElement(SELECTORS.fields.editQty).value = qty;
+
+        setTimeout(() => {
+            ui.calculateTotalPoints(
+                SELECTORS.fields.editProductId,
+                SELECTORS.fields.editQty,
+                SELECTORS.fields.editTotalPointsDisplay
+            );
+        }, 100);
 
         if (typeof open_transactionEditModal === 'function') open_transactionEditModal();
     },
@@ -329,7 +321,9 @@ const handlers = {
                 await table.addRow(data.data);
                 ui.showNotification('success', data.message);
                 form.reset();
-                ui.calculateTotalPoints();
+                $(SELECTORS.fields.customerSelect).val(null).trigger('change');
+                $(SELECTORS.fields.productSelect).val(null).trigger('change');
+                $(SELECTORS.fields.totalPointsDisplay).val('0');
             } else {
                 ui.showNotification('error', data.message || 'Gagal menambahkan transaksi');
             }
@@ -382,24 +376,83 @@ const handlers = {
     }
 };
 
-// ==================== INITIALIZATION ====================
-document.addEventListener('DOMContentLoaded', () => {
-    const modals = Object.values(SELECTORS.modals).map(s => utils.getElement(s));
-    if (modals.some(m => !m)) return;
+// ==================== SELECT2 INITIALIZATION ====================
+function formatProduct(product) {
+    if (!product.id) return product.text;
+    
+    const $element = $(product.element);
+    const name = $element.text().split('(')[0].trim();
+    const sku = $element.data('sku');
+    const points = $element.data('points');
+    
+    return $(
+        '<div class="flex flex-col py-1">' +
+            '<span class="font-medium text-gray-900">' + name + '</span>' +
+            '<span class="text-xs text-gray-500 mt-0.5">SKU: ' + sku + ' • ' + points + ' pts/unit</span>' +
+        '</div>'
+    );
+}
 
+function formatProductSelection(product) {
+    if (!product.id) return product.text;
+    return $(product.element).text().split('(')[0].trim();
+}
+
+// ==================== INITIALIZATION ====================
+$(document).ready(function() {
     console.log('✅ Point Transaction module loaded');
 
-    // Calculate total points on product/qty change (Create form)
-    const productSelect = utils.getElement(SELECTORS.fields.productSelect);
-    const qtyInput = utils.getElement(SELECTORS.fields.qtyInput);
-    if (productSelect) productSelect.addEventListener('change', ui.calculateTotalPoints);
-    if (qtyInput) qtyInput.addEventListener('input', ui.calculateTotalPoints);
+    // Initialize Select2 for customer dropdowns
+    $(SELECTORS.fields.customerSelect).select2({
+        placeholder: 'Select customer',
+        allowClear: false,
+        width: '100%',
+        dropdownParent: $(SELECTORS.modals.create)
+    });
 
-    // Calculate total points on product/qty change (Edit form)
-    const editProductSelect = utils.getElement(SELECTORS.fields.editProductId);
-    const editQtyInput = utils.getElement(SELECTORS.fields.editQty);
-    if (editProductSelect) editProductSelect.addEventListener('change', ui.calculateEditTotalPoints);
-    if (editQtyInput) editQtyInput.addEventListener('input', ui.calculateEditTotalPoints);
+    $(SELECTORS.fields.editCustomerSelect).select2({
+        placeholder: 'Select customer',
+        allowClear: false,
+        width: '100%',
+        dropdownParent: $(SELECTORS.modals.edit)
+    });
+
+    // Initialize Select2 for product dropdowns
+    $(SELECTORS.fields.productSelect).select2({
+        placeholder: 'Select product',
+        allowClear: false,
+        width: '100%',
+        dropdownParent: $(SELECTORS.modals.create),
+        templateResult: formatProduct,
+        templateSelection: formatProductSelection
+    });
+
+    $(SELECTORS.fields.editProductId).select2({
+        placeholder: 'Select product',
+        allowClear: false,
+        width: '100%',
+        dropdownParent: $(SELECTORS.modals.edit),
+        templateResult: formatProduct,
+        templateSelection: formatProductSelection
+    });
+
+    // Auto-calculate total points (Create Modal)
+    $(SELECTORS.fields.productSelect + ', ' + SELECTORS.fields.qtyInput).on('change input', function() {
+        ui.calculateTotalPoints(
+            SELECTORS.fields.productSelect,
+            SELECTORS.fields.qtyInput,
+            SELECTORS.fields.totalPointsDisplay
+        );
+    });
+
+    // Auto-calculate total points (Edit Modal)
+    $(SELECTORS.fields.editProductId + ', ' + SELECTORS.fields.editQty).on('change input', function() {
+        ui.calculateTotalPoints(
+            SELECTORS.fields.editProductId,
+            SELECTORS.fields.editQty,
+            SELECTORS.fields.editTotalPointsDisplay
+        );
+    });
 
     // Register event listeners
     document.addEventListener('table:add', handlers.onAdd);
@@ -409,4 +462,100 @@ document.addEventListener('DOMContentLoaded', () => {
     utils.getElement(SELECTORS.modals.create).addEventListener('modal:submit', handlers.onCreate);
     utils.getElement(SELECTORS.modals.edit).addEventListener('modal:submit', handlers.onEditSubmit);
     utils.getElement(SELECTORS.modals.delete).addEventListener('modal:submit', handlers.onDeleteSubmit);
+});
+
+// ==================== CSRF TOKEN SETUP ====================
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+// ==================== MODAL HANDLERS ====================
+// Open Create Modal
+$(document).on('click', '[data-modal="transactionCreateModal"]', function() {
+    $('#createForm')[0].reset();
+    $('#customer_select').val(null).trigger('change');
+    $('#product_select').val(null).trigger('change');
+    $('#total_points_display').val('0');
+    $('#transactionCreateModal').removeClass('hidden');
+});
+
+// Open Delete Modal
+$(document).on('click', '.delete-btn', function() {
+    var id = $(this).data('id');
+    var orderId = $(this).data('order-id');
+    
+    $('#delete_id').val(id);
+    $('#delete_order_id').text(orderId);
+    $('#transactionDeleteModal').removeClass('hidden');
+});
+
+// ==================== FORM SUBMISSIONS ====================
+// Create Transaction
+$(document).on('click', '#transactionCreateModal button[type="submit"]', function(e) {
+    e.preventDefault();
+    
+    var formData = {
+        customer_id: $('#customer_select').val(),
+        product_id: $('#product_select').val(),
+        qty: $('#qty_input').val()
+    };
+    
+    $.post('/point-transactions', formData, function(response) {
+        $('#transactionCreateModal').addClass('hidden');
+        location.reload();
+    }).fail(function(xhr) {
+        alert('Error: ' + (xhr.responseJSON?.message || 'Failed to create transaction'));
+    });
+});
+
+// Update Transaction
+$(document).on('click', '#transactionEditModal button[type="submit"]', function(e) {
+    e.preventDefault();
+    
+    var id = $('#edit_id').val();
+    var formData = {
+        customer_id: $('#edit_customer_select').val(),
+        product_id: $('#edit_product_id').val(),
+        qty: $('#edit_qty').val(),
+        _method: 'PUT'
+    };
+    
+    $.post('/point-transactions/' + id, formData, function(response) {
+        $('#transactionEditModal').addClass('hidden');
+        location.reload();
+    }).fail(function(xhr) {
+        alert('Error: ' + (xhr.responseJSON?.message || 'Failed to update transaction'));
+    });
+});
+
+// Delete Transaction
+$(document).on('click', '#transactionDeleteModal button[type="submit"]', function(e) {
+    e.preventDefault();
+    
+    var id = $('#delete_id').val();
+    
+    $.ajax({
+        url: '/point-transactions/' + id,
+        type: 'DELETE',
+        success: function(response) {
+            $('#transactionDeleteModal').addClass('hidden');
+            location.reload();
+        },
+        error: function(xhr) {
+            alert('Error: ' + (xhr.responseJSON?.message || 'Failed to delete transaction'));
+        }
+    });
+});
+
+// ==================== MODAL CLOSE HANDLERS ====================
+$(document).on('click', '[data-dismiss="modal"]', function() {
+    $(this).closest('.fixed').addClass('hidden');
+});
+
+$(document).on('click', '.fixed', function(e) {
+    if (e.target === this) {
+        $(this).addClass('hidden');
+    }
 });
