@@ -5,40 +5,48 @@
              <h5 class="text-2xl font-bold text-gray-900 font-poppins">Monthly Sales</h5>
              <p class="text-gray-500 font-poppins">Sales chart data</p>
          </div>
-         <div class="flex items-center px-3 py-1 bg-green-100 text-green-700 font-medium rounded-full text-sm">
-             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                     d="M12 6v13m0-13 4 4m-4-4-4 4" />
-             </svg>
-             12%
+         {{-- Dropdown --}}
+         <div class="flex gap-3 mb-4 items-center">
+             <select id="filterMode"
+                 class="font-poppins h-9 px-3 pr-9 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white cursor-pointer">
+                 <option value="monthly">Monthly</option>
+                 <option value="yearly">Yearly</option>
+             </select>
+
+             <select id="filterYear"
+                 class="font-poppins h-9 px-3 pr-9 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white cursor-pointer hidden">
+                 <option value="">All Years</option>
+             </select>
          </div>
+
      </div>
 
-    {{-- Dropdown --}}
-    <div class="flex gap-3 mb-4">
-
-        <select id="filterYear" class="border rounded-md px-2 py-1 text-sm">
-            <option value="">All Years</option>
-        </select>
-
-        <select id="filterMonth" class="border rounded-md px-2 py-1 text-sm">
-            <option value="">All Months</option>
-            <option value="1">January</option>
-            <option value="2">February</option>
-            <option value="3">March</option>
-            <option value="4">April</option>
-            <option value="5">May</option>
-            <option value="6">June</option>
-            <option value="7">July</option>
-            <option value="8">August</option>
-            <option value="9">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-        </select>
-
-    </div>
-
-    <div id="main-chart" class="py-4"></div>
-
+     <div id="main-chart" class="py-4"></div>
  </div>
+
+ <style>
+     select:hover {
+         border-color: #6366f1;
+         /* indigo-500 */
+         background: #eef2ff;
+         /* indigo-50 */
+     }
+
+     /* Hover saat dropdown terbuka (option list) */
+     select option {
+         font-family: 'Poppins', sans-serif;
+     }
+
+     select option:hover,
+     select option:checked {
+         background: #eef2ff !important;
+         color: #0837e2 !important;
+     }
+
+     select:focus {
+         border-color: #4f46e5;
+         /* indigo-600 */
+         box-shadow: 0 0 0 3px rgba(79, 70, 229, .3);
+         background: #ffffff;
+     }
+ </style>

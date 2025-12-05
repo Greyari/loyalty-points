@@ -10,10 +10,16 @@
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Dashboard Analytics</h2>
             <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">November, 01 - 30</p>
         </div>
+
+
+
+    
+
+
     </div>
 
     @if(session('success'))
-        <x-toast type="success" :message="session('success')" />
+    <x-toast type="success" :message="session('success')" />
     @endif
 
     <!-- Container grid untuk layout -->
