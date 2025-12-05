@@ -1,4 +1,4 @@
-<!-- Edit Modal -->
+{{-- <!-- Edit Modal -->
 <x-modal id="transactionEditModal" title="Edit Transaction" size="lg" submitText="Update" submitButtonClass="bg-green-600 hover:bg-green-700 text-white">
     <form id="editForm" class="space-y-4">
         <input type="hidden" name="id" id="edit_id">
@@ -66,4 +66,4 @@
         <p class="text-sm text-gray-500 mt-3 font-poppins">This action cannot be undone and will affect customer points.</p>
     </div>
     <input type="hidden" id="delete_id">
-</x-modal>
+</x-modal> --}}

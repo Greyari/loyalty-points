@@ -1,4 +1,4 @@
-@extends('layouts.nav')
+{{-- @extends('layouts.nav')
 
 @section('title', 'Point Transactions')
 @section('page_title', 'Point Transactions')
@@ -31,4 +31,4 @@
 <link href="{{ asset('css/transaction.css') }}" rel="stylesheet">
 @endpush
 
-@endsection
+@endsection --}}

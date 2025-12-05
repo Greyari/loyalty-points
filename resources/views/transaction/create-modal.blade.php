@@ -1,4 +1,4 @@
-<!-- Create Modal -->
+{{-- <!-- Create Modal -->
 <x-modal id="transactionCreateModal" title="Add New Transaction" size="lg" submitText="Save">
     <form id="createForm" class="space-y-4">
 
@@ -36,4 +36,4 @@
 
 
     </form>
-</x-modal>
+</x-modal> --}}
