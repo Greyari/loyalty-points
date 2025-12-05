@@ -13,3 +13,34 @@
     }
 
 @plugin "flowbite/plugin";
+
+
+/* ApexCharts toolbar & menu styling */
+.apexcharts-toolbar .apexcharts-menu-icon {
+    width: 36px;
+    padding: 4px;
+}
+.apexcharts-toolbar .apexcharts-menu-icon svg {
+    fill: #7c7c7c;
+}
+.apexcharts-toolbar .apexcharts-menu-icon:hover svg {
+    fill: #0837e2;
+}
+
+.apexcharts-menu {
+    font-family: 'Poppins', sans-serif !important;
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: max-content !important;
+}
+
+.apexcharts-menu-item {
+    padding: 8px 14px !important;
+    font-size: 14px;
+    border-radius: 6px;
+    white-space: nowrap !important;
+}
+.apexcharts-menu-item:hover {
+    background: #eef2ff !important;
+    color: #0837e2 !important;
+}

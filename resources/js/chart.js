@@ -192,13 +192,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // LOAD CHART DATA FUNCTION
     // ==========================
     function loadChartData() {
-        const year = document.getElementById("filterYear")?.value || "";
-        const month = document.getElementById("filterMonth")?.value || "";
+       const mode = document.getElementById("filterMode")?.value || "monthly";
+        const yearSelect = document.getElementById("filterYear");
+        let year = "";
+
+        if (mode === "yearly") {
+            year = ""; // otomatis all year
+        } else {
+        year = yearSelect?.value || "";
+        }
+
         const loader = document.getElementById("chartLoader");
 
         const params = new URLSearchParams();
-        if (year) params.append('year', year);
-        if (month) params.append('month', month);
+        params.append("mode", mode);
+        params.append("year", year);
 
         const url = `/chart-data?${params.toString()}`;
 
@@ -293,22 +301,27 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // EVENT LISTENER DROPDOWN
     // ==========================
-    const yearFilter = document.getElementById("filterYear");
-    const monthFilter = document.getElementById("filterMonth");
-
-    if (yearFilter) {
-        yearFilter.addEventListener("change", loadChartData);
+    const filterMode = document.getElementById("filterMode");
+    const filterYear = document.getElementById("filterYear");
+    filterMode.addEventListener("change", () => {
+    if (filterMode.value === "monthly") {
+        filterYear.classList.remove("hidden");
+    } else {
+        filterYear.classList.add("hidden");
+        filterYear.value = ""; // reset
     }
+    loadChartData();
+    });
 
-    if (monthFilter) {
-        monthFilter.addEventListener("change", loadChartData);
-    }
-
+    if (filterYear) filterYear.addEventListener("change", loadChartData);
+  
     // ==========================
     // FIRST LOAD
     // ==========================
     if (chartEl) {
         loadYearOptions();
+        filterMode.value = "monthly";
+        filterYear.classList.remove("hidden");
         loadChartData();
     }
 }); 
