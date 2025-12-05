@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Services\MonthlySummaryService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -82,6 +83,11 @@ class OrderController extends Controller
                 'total_items' => 0,  // Akan diupdate otomatis
             ]);
 
+            $order->update([
+                'total_points' => $order->items->sum('total_points'), // total semua poin
+                'total_items' => $order->items->sum('qty'),           // total qty semua item
+            ]);
+
             // Loop untuk setiap item
             $itemsData = [];
             foreach ($validated['items'] as $itemData) {
@@ -107,8 +113,12 @@ class OrderController extends Controller
                     'product_name' => $product->name,
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
-                    // total_points otomatis dihitung
+                    'total_points' => $itemData['qty'] * $product->points_per_unit,
                 ]);
+
+                // Update monthly summary
+                $summaryService = app(MonthlySummaryService::class);
+                $summaryService->add($orderItem);
 
                 // Simpan untuk response
                 $itemsData[] = [
@@ -238,9 +248,13 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $order = Order::with('items')->findOrFail($id);
+            $summaryService = app(MonthlySummaryService::class);
 
             // Kembalikan stok produk lama
             foreach ($order->items as $oldItem) {
+                // Hapus efek item lama dari summary
+                $summaryService->subtract($oldItem);
+
                 $oldProduct = Product::find($oldItem->product_id);
                 if ($oldProduct) {
                     $oldProduct->increment('quantity', $oldItem->qty);
@@ -272,15 +286,17 @@ class OrderController extends Controller
                 // Kurangi stok
                 $product->decrement('quantity', $itemData['qty']);
 
-                // Buat item baru
-                OrderItem::create([
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'sku' => $product->sku,
                     'product_name' => $product->name,
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
+                    'total_points' => $itemData['qty'] * $product->points_per_unit,
                 ]);
+
+                $summaryService->add($orderItem);
             }
 
             DB::commit();
@@ -339,16 +355,22 @@ class OrderController extends Controller
 
             $order = Order::with('items')->findOrFail($id);
 
-            // Kembalikan stok produk
+            $summaryService = app(MonthlySummaryService::class);
+
             foreach ($order->items as $item) {
+                // 1️⃣ Pastikan item lengkap dan summary diupdate dulu
+                $summaryService->subtract($item);
+
+                // 2️⃣ Kembalikan stok produk
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $product->increment('quantity', $item->qty);
                 }
             }
 
-            // Hapus order (items ikut terhapus karena cascade)
-            $order->delete();
+            // 3️⃣ Hapus semua items dulu, baru hapus order
+            $order->items()->delete();   // [DIUBAH] hapus items explicit, jangan rely cascade
+            $order->delete();            // hapus order
 
             DB::commit();
 
