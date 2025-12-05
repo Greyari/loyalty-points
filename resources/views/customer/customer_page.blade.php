@@ -10,7 +10,7 @@
 </div>
 
 <x-data-tables
-    :headers="['Name', 'Phone']"
+    :headers="['Name', 'Phone', 'Total Points']"
     :rows="$customers"
     onAdd="true"
     onEdit="true"

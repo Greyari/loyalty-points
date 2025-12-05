@@ -10,18 +10,20 @@ class CustomerController extends Controller
 {
     public function index()
     {
-        // Load semua data tanpa pagination (dipakai untuk client-side pagination)
-        $customers = Customer::all()->map(function ($p) {
-            return [
-                'id'             => $p->id,
-                'name'           => $p->name,
-                'phone'          => $p->phone,
-            ];
-        });
+        // Ambil semua customer dengan total poin dari transaksi
+        $customers = Customer::withSum('transactions as total_points', 'points')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id'             => $p->id,
+                    'name'           => $p->name,
+                    'phone'          => $p->phone,
+                    'points'         => $p->total_points ?? 0,
+                ];
+            });
 
         return view('customer.customer_page', compact('customers'));
     }
-
 
     /**
      * Tambah data customer

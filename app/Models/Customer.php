@@ -10,4 +10,9 @@ class Customer extends Model
         'name',
         'phone'
     ];
+
+    public function transactions()
+    {
+        return $this->hasMany(\App\Models\PointTransaction::class);
+    }
 }
