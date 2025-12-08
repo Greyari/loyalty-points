@@ -55,9 +55,9 @@ class DashboardController extends Controller
             });
 
         // Total sales bulan ini (sum of points)
-        $totalSales = Order::whereYear('created_at', $currentYear)
-            ->whereMonth('created_at', $currentMonth)
-            ->sum('total_points');
+        $totalSales = Order::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('total_price');
 
         return view('home.dashboard', compact(
             'topCustomers',

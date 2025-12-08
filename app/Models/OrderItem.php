@@ -17,6 +17,8 @@ class OrderItem extends Model
         'qty',
         'points_per_unit',
         'total_points',
+        'price_per_unit',
+        'total_price',
     ];
 
     protected $casts = [

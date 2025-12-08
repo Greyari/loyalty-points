@@ -15,6 +15,7 @@ class Order extends Model
         'total_points',
         'total_items',
         'notes',
+        'total_price'
     ];
 
     protected $casts = [
@@ -49,8 +50,10 @@ class Order extends Model
     // Update totals dari items
     public function updateTotals()
     {
-        $this->total_points = $this->items()->sum('total_points');
-        $this->total_items = $this->items()->sum('qty');
-        $this->saveQuietly();
+        $this->total_items = $this->items->sum('qty');
+        $this->total_points = $this->items->sum('total_points');
+        $this->total_price = $this->items->sum('total_price');
+
+        $this->save();
     }
 }
