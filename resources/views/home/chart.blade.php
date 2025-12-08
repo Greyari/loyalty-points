@@ -18,13 +18,9 @@
                  <option value="">All Years</option>
              </select>
          </div>
-
-
      </div>
-
      <div id="main-chart" class="py-4"></div>
  </div>
-
  <style>
      select:hover {
          border-color: #6366f1;
