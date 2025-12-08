@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/customer/{id}', [CustomerController::class, 'update'])->name('customer.update');
     Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy');
 
+    // Chart
+    Route::get('/chart-data', [DashboardController::class, 'chartData'])->name('chart.data');
+    Route::get('/chart-data-years', [DashboardController::class, 'getAvailableYears'])->name('chart.years');
     // Transaction
     // route::get('/transaction', [PointTransactionController::class, 'index'])->name('transaction.index');
     // Route::post('/transaction', [PointTransactionController::class, 'store'])->name('transaction.store');

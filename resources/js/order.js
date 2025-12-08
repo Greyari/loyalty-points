@@ -17,7 +17,6 @@ const SELECTORS = {
         addItemBtn: '#addItemBtn',
         summaryTotalItems: '#summaryTotalItems',
         summaryTotalPoints: '#summaryTotalPoints',
-        // Edit fields
         editId: '#edit_id',
         editOrderId: '#edit_order_id',
         editCustomerSelect: '#edit_customer_select',
@@ -26,10 +25,8 @@ const SELECTORS = {
         editAddItemBtn: '#editAddItemBtn',
         editSummaryTotalItems: '#editSummaryTotalItems',
         editSummaryTotalPoints: '#editSummaryTotalPoints',
-        // Delete fields
         deleteId: '#delete_id',
         deleteOrderId: '#delete_order_id',
-        // View
         orderViewContent: '#orderViewContent'
     },
     table: {
@@ -59,7 +56,7 @@ const utils = {
 
     getCsrfToken: () => document.querySelector('meta[name="csrf-token"]').content,
 
-    createSearchData: (data) => `${data.order_id} ${data.date} ${data.customer} ${data.total_items} ${data.total_points}`.toLowerCase()
+    createSearchData: (data) => `${data.order_id} ${data.created_at} ${data.customer} ${data.items_count} ${data.total_items}`.toLowerCase()
 };
 
 // ==================== API FUNCTIONS ====================
@@ -157,6 +154,7 @@ const ui = {
             <td class="py-4 px-2">${data.customer}</td>
             <td class="py-4 px-2">${data.items_count}</td>
             <td class="py-4 px-2">${data.total_items}</td>
+            <td class="py-4 px-2">${data.total_points}</td>
             <td class="py-2 px-2">
                 <div class="flex justify-center items-center gap-2">
                     <button class="view-btn text-green-600 hover:text-green-800 transition-colors" data-id="${data.id}" title="View">
@@ -185,6 +183,7 @@ const ui = {
         return new Promise(resolve => setTimeout(resolve, duration));
     }
 };
+
 // ==================== ITEM ROW MANAGEMENT ====================
 const itemRow = {
     create(containerId, isEdit = false) {
@@ -249,7 +248,6 @@ const itemRow = {
         const container = utils.getElement(containerId);
         container.appendChild(row);
 
-        // Initialize Select2 with text truncation
         $(row).find('.product-select-' + counter).select2({
             width: '100%',
             dropdownParent: $(isEdit ? SELECTORS.modals.edit : SELECTORS.modals.create),
@@ -258,7 +256,6 @@ const itemRow = {
                 if (!data.id) {
                     return data.text;
                 }
-                // Create truncated display
                 const $span = $('<span></span>');
                 $span.text(data.text);
                 $span.css({
@@ -272,7 +269,6 @@ const itemRow = {
             }
         });
 
-        // Add event listeners
         this.attachEvents(counter, isEdit);
 
         return row;
@@ -300,7 +296,6 @@ const itemRow = {
 
         $totalInput.val(utils.formatNumber(total));
 
-        // Update summary
         this.updateSummary(isEdit);
     },
 
@@ -355,6 +350,7 @@ const itemRow = {
         return items;
     }
 };
+
 // ==================== TABLE OPERATIONS ====================
 const table = {
     async addRow(data) {
@@ -382,7 +378,7 @@ const table = {
 
         const cells = row.querySelectorAll('td');
         cells[0].textContent = data.order_id;
-        cells[1].textContent = data.date;
+        cells[1].textContent = data.created_at;
         cells[2].textContent = data.customer;
         cells[3].textContent = data.items_count;
         cells[4].textContent = data.total_items;
@@ -424,7 +420,6 @@ const handlers = {
         $(SELECTORS.fields.itemsContainer).empty();
         itemCounter = 0;
 
-        // Add initial item row
         itemRow.create(SELECTORS.fields.itemsContainer);
 
         $(SELECTORS.fields.summaryTotalItems).text('0');
@@ -432,35 +427,25 @@ const handlers = {
 
         if (typeof open_orderCreateModal === 'function') open_orderCreateModal();
     },
- async onView(e) {
-        console.log(' View button clicked, event:', e);
-        const id = e.detail.id;
-        console.log(' Order ID:', id);
 
-        // Show loading
+    async onView(e) {
+        const id = e.detail.id;
+
         $(SELECTORS.fields.orderViewContent).html(`
             <div class="flex items-center justify-center py-8">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
         `);
 
-        // Open modal immediately to show loading
         if (typeof open_orderViewModal === 'function') {
-            console.log(' Opening view modal');
             open_orderViewModal();
-        } else {
-            console.error(' open_orderViewModal function not found');
-            return;
         }
 
         try {
-            console.log(' Fetching order data...');
             const response = await api.show(id);
-            console.log(' API Response:', response);
 
             if (response.success) {
                 const order = response.data;
-                console.log(' Order data:', order);
 
                 let itemsHTML = order.items.map(item => `
                     <div class="grid grid-cols-12 gap-3 p-3 bg-gray-50 rounded-lg">
@@ -531,24 +516,23 @@ const handlers = {
                     </div>
                 `;
 
-                console.log(' Updating modal content');
                 $(SELECTORS.fields.orderViewContent).html(content);
 
             } else {
-                console.error(' API returned error:', response.message);
                 ui.showNotification('error', response.message || 'Gagal memuat detail order');
                 if (typeof close_orderViewModal === 'function') {
                     close_orderViewModal();
                 }
             }
         } catch (error) {
-            console.error(' View error:', error);
+            console.error('View error:', error);
             ui.showNotification('error', 'Gagal memuat detail order');
             if (typeof close_orderViewModal === 'function') {
                 close_orderViewModal();
             }
         }
     },
+
     async onEdit(e) {
         const id = e.detail.id;
 
@@ -563,11 +547,9 @@ const handlers = {
                 $(SELECTORS.fields.editCustomerSelect).val(order.customer_id).trigger('change');
                 $(SELECTORS.fields.editNotes).val(order.notes || '');
 
-                // Clear items container
                 $(SELECTORS.fields.editItemsContainer).empty();
                 editItemCounter = 0;
 
-                // Add items
                 order.items.forEach(item => {
                     const row = itemRow.create(SELECTORS.fields.editItemsContainer, true);
                     const index = editItemCounter;
@@ -602,49 +584,74 @@ const handlers = {
         if (typeof open_orderDeleteModal === 'function') open_orderDeleteModal();
     },
 
-async onCreate() {
-    let data; // <-- pindahkan ke luar try
+    async onCreate() {
+        try {
+            const customerId = $(SELECTORS.fields.customerSelect).val();
+            const notes = $(SELECTORS.fields.notes).val();
+            const items = itemRow.getFormData(false);
 
-    try {
-        const customerId = $(SELECTORS.fields.customerSelect).val();
-        const notes = $(SELECTORS.fields.notes).val();
-        const items = itemRow.getFormData(false);
+            if (!customerId) {
+                ui.showNotification('error', 'Customer harus dipilih');
+                return;
+            }
 
-        if (!customerId) {
-            ui.showNotification('error', 'Customer harus dipilih');
-            return;
+            if (items.length === 0) {
+                ui.showNotification('error', 'Minimal 1 produk harus dipilih');
+                return;
+            }
+
+            const data = await api.create({
+                customer_id: parseInt(customerId),
+                notes: notes || null,
+                items: items
+            });
+
+            if (!data.success) {
+                ui.showNotification('error', data.message);
+                return;
+            }
+
+            // CRITICAL FIX: Close everything and wait for complete cleanup
+            // 1. Destroy all Select2 instances completely
+            $('.select2-hidden-accessible').each(function() {
+                $(this).select2('destroy');
+            });
+            
+            // 2. Close modal
+            if (typeof close_orderCreateModal === 'function') {
+                close_orderCreateModal();
+            }
+
+            // 3. Wait for modal to completely disappear AND re-initialize Select2
+            await new Promise(resolve => setTimeout(resolve, 400));
+            
+            // 4. Re-initialize Select2 for next use
+            $(SELECTORS.fields.customerSelect).select2({
+                placeholder: 'Select customer',
+                allowClear: false,
+                width: '100%',
+                dropdownParent: $(SELECTORS.modals.create)
+            });
+
+            // 5. Force table reflow before adding row
+            const tableContainer = document.querySelector('.table-responsive, table');
+            if (tableContainer) {
+                tableContainer.style.display = 'none';
+                tableContainer.offsetHeight; // Force reflow
+                tableContainer.style.display = '';
+            }
+
+            // 6. Now add the row
+            await table.addRow(data.data);
+
+            // 7. Show notification
+            ui.showNotification('success', data.message);
+
+        } catch (error) {
+            console.error('Create error:', error);
+            ui.showNotification('error', error.message || 'Terjadi kesalahan');
         }
-
-        if (items.length === 0) {
-            ui.showNotification('error', 'Minimal 1 produk harus dipilih');
-            return;
-        }
-
-        data = await api.create({
-            customer_id: parseInt(customerId),
-            notes: notes || null,
-            items: items
-        });
-
-        if (!data.success) {
-            ui.showNotification('error', data.message);
-            return;
-        }
-
-    } catch (error) {
-        console.error('Create error:', error);
-        ui.showNotification('error', error.message || 'Terjadi kesalahan');
-        return;
-    }
-
-    // Jika sukses
-    if (data.success) {
-        if (typeof close_orderCreateModal === 'function') close_orderCreateModal();
-        await table.addRow(data.data);
-        ui.showNotification('success', data.message);
-    }
-}
-,
+    },
 
     async onEditSubmit() {
         try {
@@ -670,8 +677,14 @@ async onCreate() {
             });
 
             if (data.success) {
+                $('.select2-hidden-accessible').select2('close');
+                
                 if (typeof close_orderEditModal === 'function') close_orderEditModal();
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
                 await table.updateRow(id, data.data);
+                
                 ui.showNotification('success', data.message);
             } else {
                 ui.showNotification('error', data.message || 'Gagal mengupdate order');
@@ -690,7 +703,11 @@ async onCreate() {
 
             if (data.success) {
                 if (typeof close_orderDeleteModal === 'function') close_orderDeleteModal();
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
                 await table.removeRow(id);
+                
                 ui.showNotification('success', data.message);
             } else {
                 ui.showNotification('error', data.message || 'Gagal menghapus order');
@@ -704,8 +721,6 @@ async onCreate() {
 
 // ==================== INITIALIZATION ====================
 $(document).ready(function() {
-    console.log(' Order module loaded');
-
     // Initialize Select2 for customer dropdowns
     $(SELECTORS.fields.customerSelect).select2({
         placeholder: 'Select customer',
@@ -721,17 +736,16 @@ $(document).ready(function() {
         dropdownParent: $(SELECTORS.modals.edit)
     });
 
-    // Add Item Button - Create Modal
+    // Add Item Button handlers
     $(SELECTORS.fields.addItemBtn).on('click', function() {
         itemRow.create(SELECTORS.fields.itemsContainer, false);
     });
 
-    // Add Item Button - Edit Modal
     $(SELECTORS.fields.editAddItemBtn).on('click', function() {
         itemRow.create(SELECTORS.fields.editItemsContainer, true);
     });
 
-    // Remove Item Button
+    // Remove Item Button handler
     $(document).on('click', '.remove-item-btn', function() {
         const isEdit = $(this).closest('#editItemsContainer').length > 0;
         itemRow.remove(this, isEdit);
@@ -739,10 +753,7 @@ $(document).ready(function() {
 
     // Register event listeners
     document.addEventListener('table:add', handlers.onAdd);
-    document.addEventListener('table:view', (e) => {
-        console.log(' table:view event triggered');
-        handlers.onView(e);
-    });
+    document.addEventListener('table:view', handlers.onView);
     document.addEventListener('table:edit', handlers.onEdit);
     document.addEventListener('table:delete', handlers.onDelete);
 
