@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('total_points')->default(0);
             $table->integer('total_items')->default(0);
             $table->text('notes')->nullable();
+            $table->decimal('total_price', 15, 2)->default(0);
 
             $table->timestamps();
 

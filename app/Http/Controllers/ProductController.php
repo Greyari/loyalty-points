@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -117,17 +118,31 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($id);
+
+            // Ambil semua order yang menggunakan product ini
+            $orders = Order::whereHas('items', function($q) use ($id) {
+                $q->where('product_id', $id);
+            })->get();
+
+            // Hapus product → otomatis hapus order_items terkait
             $product->delete();
+
+            // Setelah product dihapus, cek apakah order masih punya item lain
+            foreach ($orders as $order) {
+                if ($order->items()->count() == 0) {
+                    $order->delete();
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product berhasil dihapus!'
+                'message' => 'Product & related orders updated successfully'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus product.',
+                'message' => 'Error saat menghapus product',
                 'error'   => $e->getMessage()
             ], 500);
         }

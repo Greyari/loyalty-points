@@ -32,12 +32,13 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
+                    'total_price' => number_format($order->total_price, 0, ',', '.'),
                 ];
             });
 
         // Load data customer dan product untuk dropdown
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
-        $products = Product::select('id', 'name', 'sku', 'points_per_unit', 'quantity')
+        $products = Product::select('id', 'name', 'sku', 'points_per_unit', 'price', 'quantity')
             ->where('quantity', '>', 0) // Hanya produk yang ada stoknya
             ->orderBy('name')
             ->get();
@@ -78,8 +79,9 @@ class OrderController extends Controller
                 'order_id' => $orderId,
                 'customer_id' => $validated['customer_id'],
                 'notes' => $validated['notes'] ?? null,
-                'total_points' => 0, // Akan diupdate otomatis
-                'total_items' => 0,  // Akan diupdate otomatis
+                'total_points' => 0,
+                'total_items' => 0,
+                'total_price' => 0,
             ]);
 
             // Loop untuk setiap item
@@ -108,6 +110,8 @@ class OrderController extends Controller
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
                     'total_points' => $itemData['qty'] * $product->points_per_unit,
+                    'price_per_unit' => $product->price ?? 0,
+                    'total_price' => $itemData['qty'] * ($product->price ?? 0),
                 ]);
 
                 // Simpan untuk response
@@ -117,10 +121,12 @@ class OrderController extends Controller
                     'qty' => $itemData['qty'],
                     'points_per_unit' => number_format($product->points_per_unit, 0, ',', '.'),
                     'total_points' => number_format($orderItem->total_points, 0, ',', '.'),
+                    'price_per_unit' => number_format($product->price ?? 0, 0, ',', '.'),
+                    'total_price' => number_format($orderItem->total_price, 0, ',', '.'),
                 ];
             }
 
-            // Update total_points dan total_items dari items
+            // Update total_points, total_items, dan total_price
             $order->updateTotals();
 
             DB::commit();
@@ -141,6 +147,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
+                    'total_price' => number_format($order->total_price, 0, ',', '.'),
                     'items' => $itemsData,
                 ]
             ]);
@@ -153,7 +160,6 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // Simpan error lengkap ke log Laravel
             Log::error('Order store failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -187,6 +193,8 @@ class OrderController extends Controller
                     'qty' => $item->qty,
                     'points_per_unit' => $item->points_per_unit,
                     'total_points' => $item->total_points,
+                    'price_per_unit' => $item->price_per_unit,
+                    'total_price' => $item->total_price,
                 ];
             });
 
@@ -200,6 +208,7 @@ class OrderController extends Controller
                     'notes' => $order->notes,
                     'total_points' => $order->total_points,
                     'total_items' => $order->total_items,
+                    'total_price' => $order->total_price,
                     'items' => $itemsData,
                     'created_at' => $order->formatted_date,
                 ]
@@ -279,10 +288,12 @@ class OrderController extends Controller
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
                     'total_points' => $itemData['qty'] * $product->points_per_unit,
+                    'price_per_unit' => $product->price ?? 0,
+                    'total_price' => $itemData['qty'] * ($product->price ?? 0),
                 ]);
             }
 
-            // Update total_points dan total_items
+            // Update total_points, total_items, dan total_price
             $order->updateTotals();
 
             DB::commit();
@@ -303,6 +314,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
+                    'total_price' => number_format($order->total_price, 0, ',', '.'),
                 ]
             ]);
         } catch (ValidationException $e) {
