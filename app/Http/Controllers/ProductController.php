@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -124,11 +125,18 @@ class ProductController extends Controller
                 $q->where('product_id', $id);
             })->get();
 
-            // Hapus product → otomatis hapus order_items terkait
+            // Hapus product
             $product->delete();
 
-            // Setelah product dihapus, cek apakah order masih punya item lain
+            // Setelah product dihapus, recalc semua order yg terdampak
             foreach ($orders as $order) {
+
+                // Hitung ulang order
+                OrderService::recalculate($order->id);
+
+                // Setelah dihitung ulang, cek apakah order masih ada item
+                $order->refresh();
+
                 if ($order->items()->count() == 0) {
                     $order->delete();
                 }
@@ -136,7 +144,7 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Product & related orders updated successfully'
+                'message' => 'Product deleted and affected orders updated'
             ]);
 
         } catch (\Exception $e) {
@@ -147,4 +155,5 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
 }

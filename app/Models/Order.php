@@ -48,12 +48,12 @@ class Order extends Model
     }
 
     // Update totals dari items
-    public function updateTotals()
-    {
-        $this->total_items = $this->items->sum('qty');
-        $this->total_points = $this->items->sum('total_points');
-        $this->total_price = $this->items->sum('total_price');
+    // public function updateTotals()
+    // {
+    //     $this->total_items = $this->items->sum('qty');
+    //     $this->total_points = $this->items->sum('total_points');
+    //     $this->total_price = $this->items->sum('total_price');
 
-        $this->save();
-    }
+    //     $this->save();
+    // }
 }
