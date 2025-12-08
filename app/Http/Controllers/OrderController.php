@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -127,7 +128,7 @@ class OrderController extends Controller
             }
 
             // Update total_points, total_items, dan total_price
-            $order->updateTotals();
+            OrderService::recalculate($order->id);
 
             DB::commit();
 
@@ -294,7 +295,7 @@ class OrderController extends Controller
             }
 
             // Update total_points, total_items, dan total_price
-            $order->updateTotals();
+            OrderService::recalculate($order->id);
 
             DB::commit();
 
