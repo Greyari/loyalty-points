@@ -189,24 +189,46 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // ==========================
-    // LOAD CHART DATA FUNCTION
+    // Update Chart Title
+    // ==========================
+    function updateChartTitle() {
+        const mode = document.getElementById("filterMode")?.value || "monthly";
+        const year = document.getElementById("filterYear")?.value || "";
+        const titleEl = document.querySelector('.text-2xl.font-bold.text-gray-900');
+        const descEl = titleEl?.nextElementSibling;
+
+        if (!titleEl || !descEl) return;
+
+        if (mode === "monthly") {
+            if (year) {
+                titleEl.textContent = `Monthly Sales ${year}`;
+                descEl.textContent = `Sales chart data for ${year}`;
+            } else {
+                titleEl.textContent = "Monthly Sales (All Years)";
+                descEl.textContent = "Sales chart data across all years";
+            }
+        } else {
+            titleEl.textContent = "Yearly Sales";
+            descEl.textContent = "Sales chart data per year";
+        }
+    }
+
+    // ==========================
+    // Load Chart Data
     // ==========================
     function loadChartData() {
-       const mode = document.getElementById("filterMode")?.value || "monthly";
+        const mode = document.getElementById("filterMode")?.value || "monthly";
         const yearSelect = document.getElementById("filterYear");
-        let year = "";
-
-        if (mode === "yearly") {
-            year = ""; // otomatis all year
-        } else {
-        year = yearSelect?.value || "";
-        }
-
         const loader = document.getElementById("chartLoader");
-
+        
         const params = new URLSearchParams();
         params.append("mode", mode);
-        params.append("year", year);
+        
+        // Only send year parameter for monthly mode
+        if (mode === "monthly") {
+            const year = yearSelect?.value || "";
+            params.append("year", year);
+        }
 
         const url = `/chart-data?${params.toString()}`;
 
@@ -241,16 +263,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 chartInstance = new ApexCharts(chartEl, chartOptions);
                 chartInstance.render();
 
+                // Update title after data loaded
+                updateChartTitle();
+
                 // Hide loader after render
                 setTimeout(() => {
                     if (loader) loader.classList.add('hidden');
                 }, 500);
             })
             .catch(err => {
-                console.error("Chart Load Error: ", err);
+                console.error("Chart Load Error:", err);
                 if (loader) loader.classList.add('hidden');
 
-                // Show error message in a more user-friendly way
+                // Show error message
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mt-4';
                 errorDiv.innerHTML = `
@@ -261,14 +286,18 @@ document.addEventListener("DOMContentLoaded", () => {
                         <p class="text-sm text-red-700 font-medium">Failed to load chart data. Please try again.</p>
                     </div>
                 `;
+                
+                // Remove existing error if any
+                const existingError = chartEl?.parentElement.querySelector('.bg-red-50');
+                if (existingError) existingError.remove();
+                
                 chartEl?.insertAdjacentElement('afterend', errorDiv);
-
                 setTimeout(() => errorDiv.remove(), 5000);
             });
     }
 
     // ==========================
-    // LOAD YEAR LIST FOR DROPDOWN
+    // Load Year Options
     // ==========================
     function loadYearOptions() {
         fetch('/chart-data-years')
@@ -278,14 +307,14 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .then(data => {
                 const yearDropdown = document.getElementById("filterYear");
-
                 if (!yearDropdown) return;
 
-                // Clear existing options except the first one
+                // Clear existing options except first (All Years)
                 while (yearDropdown.options.length > 1) {
                     yearDropdown.remove(1);
                 }
 
+                // Add year options
                 data.years.forEach(year => {
                     const opt = document.createElement("option");
                     opt.value = year;
@@ -294,34 +323,48 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             })
             .catch(err => {
-                console.error("Year Load Error: ", err);
+                console.error("Year Load Error:", err);
             });
     }
 
     // ==========================
-    // EVENT LISTENER DROPDOWN
+    // Event Listeners
     // ==========================
     const filterMode = document.getElementById("filterMode");
     const filterYear = document.getElementById("filterYear");
-    filterMode.addEventListener("change", () => {
-    if (filterMode.value === "monthly") {
-        filterYear.classList.remove("hidden");
-    } else {
-        filterYear.classList.add("hidden");
-        filterYear.value = ""; // reset
-    }
-    loadChartData();
-    });
 
-    if (filterYear) filterYear.addEventListener("change", loadChartData);
-  
+    if (filterMode) {
+        filterMode.addEventListener("change", () => {
+            if (filterMode.value === "monthly") {
+                // Monthly mode: show year dropdown
+                if (filterYear) filterYear.classList.remove("hidden");
+            } else {
+                // Yearly mode: hide year dropdown
+                if (filterYear) filterYear.classList.add("hidden");
+            }
+            loadChartData();
+        });
+    }
+
+    // Handle year change (only for monthly mode)
+    if (filterYear) {
+        filterYear.addEventListener("change", () => {
+            if (filterMode.value === "monthly") {
+                loadChartData();
+            }
+        });
+    }
+
     // ==========================
-    // FIRST LOAD
+    // First Load
     // ==========================
     if (chartEl) {
         loadYearOptions();
-        filterMode.value = "monthly";
-        filterYear.classList.remove("hidden");
+        
+        // Set initial state
+        if (filterMode) filterMode.value = "monthly";
+        if (filterYear) filterYear.classList.remove("hidden");
+        
         loadChartData();
     }
-}); 
+});

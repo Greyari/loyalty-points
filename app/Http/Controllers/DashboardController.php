@@ -27,10 +27,10 @@ class DashboardController extends Controller
             ->get();
 
         // Produk terlaris bulan ini (berdasarkan qty dari order_items)
-        $topProducts = OrderItem::whereHas('order', function($q) use ($currentYear, $currentMonth) {
-                $q->whereYear('created_at', $currentYear)
-                  ->whereMonth('created_at', $currentMonth);
-            })
+        $topProducts = OrderItem::whereHas('order', function ($q) use ($currentYear, $currentMonth) {
+            $q->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $currentMonth);
+        })
             ->with('product:id,name,sku,points_per_unit')
             ->selectRaw('product_id, SUM(qty) as qty, SUM(total_points) as total_points')
             ->groupBy('product_id')
@@ -43,7 +43,7 @@ class DashboardController extends Controller
             ->latest()
             ->take(5)
             ->get()
-            ->map(function($order) {
+            ->map(function ($order) {
                 return [
                     'id' => $order->id,
                     'order_id' => $order->order_id,
@@ -72,55 +72,48 @@ class DashboardController extends Controller
      */
     public function chartData(Request $request)
     {
-        // Query orders berdasarkan bulan
-        $query = Order::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(total_items) as qty_sum, SUM(total_points) as points_sum')
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month');
+        $mode = $request->input('mode', 'monthly');
+        $year = $request->input('year', '');
 
-        // Filter by year if provided
-        if ($request->filled('year')) {
-            $query->whereYear('created_at', $request->year);
+        if ($mode === 'yearly') {
+            // Yearly mode: aggregate by year only
+            $query = Order::selectRaw('YEAR(created_at) as year, SUM(total_items) as qty_sum, SUM(total_points) as points_sum')
+                ->groupBy('year')
+                ->orderBy('year');
+
+            $data = $query->get();
+
+            return response()->json([
+                'categories' => $data->pluck('year')->toArray(),
+                'qty' => $data->pluck('qty_sum')->toArray(),
+                'points' => $data->pluck('points_sum')->toArray(),
+            ]);
+        } else {
+            // Monthly mode: aggregate by year and month
+            $query = Order::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(total_items) as qty_sum, SUM(total_points) as points_sum')
+                ->groupBy('year', 'month')
+                ->orderBy('year')
+                ->orderBy('month');
+
+            // Filter by specific year if provided
+            if (!empty($year)) {
+                $query->whereYear('created_at', $year);
+            }
+
+            $data = $query->get();
+
+            return response()->json([
+                'categories' => $data->map(function ($x) {
+                    return date('M Y', strtotime("{$x->year}-{$x->month}-01"));
+                })->toArray(),
+                'qty' => $data->pluck('qty_sum')->toArray(),
+                'points' => $data->pluck('points_sum')->toArray(),
+            ]);
         }
-
-        // Filter by month if provided
-        if ($request->filled('month')) {
-            $query->whereMonth('created_at', $request->month);
-        }
-
-        $data = $query->get();
-
-        return response()->json([
-            'categories' => $data->map(function($x) {
-                return date('M Y', strtotime("{$x->year}-{$x->month}-01"));
-            })->toArray(),
-            'qty' => $data->pluck('qty_sum')->toArray(),
-            'points' => $data->pluck('points_sum')->toArray(),
-        ]);
     }
 
     /**
-     * API endpoint untuk mendapatkan bulan yang tersedia
-     */
-    public function getAvailableMonths(Request $request)
-    {
-        $query = Order::selectRaw('DISTINCT MONTH(created_at) as month')
-            ->orderBy('month');
-
-        // Filter by year if provided
-        if ($request->filled('year')) {
-            $query->whereYear('created_at', $request->year);
-        }
-
-        $months = $query->pluck('month')->toArray();
-
-        return response()->json([
-            'months' => $months
-        ]);
-    }
-
-    /**
-     * API endpoint untuk mendapatkan tahun yang tersedia
+     * API endpoint to get available years
      */
     public function getAvailableYears()
     {
