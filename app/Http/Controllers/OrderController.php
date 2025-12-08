@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
 use App\Models\Product;
-use App\Services\MonthlySummaryService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -28,11 +27,11 @@ class OrderController extends Controller
                 return [
                     'id' => $order->id,
                     'order_id' => $order->order_id,
-                    'date' => $order->formatted_date,
+                    'created_at' => $order->created_at->format('d M Y'),
                     'customer' => $order->customer->name ?? 'Unknown',
+                    'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'items_count' => $order->items->count(), // Jumlah jenis produk
                 ];
             });
 
@@ -83,11 +82,6 @@ class OrderController extends Controller
                 'total_items' => 0,  // Akan diupdate otomatis
             ]);
 
-            $order->update([
-                'total_points' => $order->items->sum('total_points'), // total semua poin
-                'total_items' => $order->items->sum('qty'),           // total qty semua item
-            ]);
-
             // Loop untuk setiap item
             $itemsData = [];
             foreach ($validated['items'] as $itemData) {
@@ -116,10 +110,6 @@ class OrderController extends Controller
                     'total_points' => $itemData['qty'] * $product->points_per_unit,
                 ]);
 
-                // Update monthly summary
-                $summaryService = app(MonthlySummaryService::class);
-                $summaryService->add($orderItem);
-
                 // Simpan untuk response
                 $itemsData[] = [
                     'product_name' => $product->name,
@@ -129,6 +119,9 @@ class OrderController extends Controller
                     'total_points' => number_format($orderItem->total_points, 0, ',', '.'),
                 ];
             }
+
+            // Update total_points dan total_items dari items
+            $order->updateTotals();
 
             DB::commit();
 
@@ -142,11 +135,12 @@ class OrderController extends Controller
                 'data' => [
                     'id' => $order->id,
                     'order_id' => $order->order_id,
+                    'created_at' => $order->created_at->format('d M Y'),
                     'date' => $order->formatted_date,
                     'customer' => $order->customer->name,
+                    'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'items_count' => $order->items->count(),
                     'items' => $itemsData,
                 ]
             ]);
@@ -164,7 +158,7 @@ class OrderController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all(), // optional, untuk melihat input
+                'request_data' => $request->all(),
             ]);
 
             return response()->json([
@@ -191,8 +185,8 @@ class OrderController extends Controller
                     'product_name' => $item->product_name,
                     'sku' => $item->sku,
                     'qty' => $item->qty,
-                    'points_per_unit' => $item->points_per_unit, // Raw number
-                    'total_points' => $item->total_points, // Raw number
+                    'points_per_unit' => $item->points_per_unit,
+                    'total_points' => $item->total_points,
                 ];
             });
 
@@ -204,8 +198,8 @@ class OrderController extends Controller
                     'customer_id' => $order->customer_id,
                     'customer_name' => $order->customer->name,
                     'notes' => $order->notes,
-                    'total_points' => $order->total_points, // Raw number
-                    'total_items' => $order->total_items, // Raw number
+                    'total_points' => $order->total_points,
+                    'total_items' => $order->total_items,
                     'items' => $itemsData,
                     'created_at' => $order->formatted_date,
                 ]
@@ -243,13 +237,9 @@ class OrderController extends Controller
             DB::beginTransaction();
 
             $order = Order::with('items')->findOrFail($id);
-            $summaryService = app(MonthlySummaryService::class);
 
             // Kembalikan stok produk lama
             foreach ($order->items as $oldItem) {
-                // Hapus efek item lama dari summary
-                $summaryService->subtract($oldItem);
-
                 $oldProduct = Product::find($oldItem->product_id);
                 if ($oldProduct) {
                     $oldProduct->increment('quantity', $oldItem->qty);
@@ -281,7 +271,7 @@ class OrderController extends Controller
                 // Kurangi stok
                 $product->decrement('quantity', $itemData['qty']);
 
-                $orderItem = OrderItem::create([
+                OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'sku' => $product->sku,
@@ -290,9 +280,10 @@ class OrderController extends Controller
                     'points_per_unit' => $product->points_per_unit,
                     'total_points' => $itemData['qty'] * $product->points_per_unit,
                 ]);
-
-                $summaryService->add($orderItem);
             }
+
+            // Update total_points dan total_items
+            $order->updateTotals();
 
             DB::commit();
 
@@ -306,11 +297,12 @@ class OrderController extends Controller
                 'data' => [
                     'id' => $order->id,
                     'order_id' => $order->order_id,
+                    'created_at' => $order->created_at->format('d M Y'),
                     'date' => $order->formatted_date,
                     'customer' => $order->customer->name,
+                    'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'items_count' => $order->items->count(),
                 ]
             ]);
         } catch (ValidationException $e) {
@@ -322,17 +314,16 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // Simpan error lengkap ke log Laravel
-            Log::error('Order store failed: ' . $e->getMessage(), [
+            Log::error('Order update failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
-                'request_data' => $request->all(), // optional, untuk melihat input
+                'request_data' => $request->all(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menambahkan order.',
+                'message' => 'Terjadi kesalahan saat mengupdate order.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -348,22 +339,16 @@ class OrderController extends Controller
 
             $order = Order::with('items')->findOrFail($id);
 
-            $summaryService = app(MonthlySummaryService::class);
-
+            // Kembalikan stok produk
             foreach ($order->items as $item) {
-                // 1️⃣ Pastikan item lengkap dan summary diupdate dulu
-                $summaryService->subtract($item);
-
-                // 2️⃣ Kembalikan stok produk
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $product->increment('quantity', $item->qty);
                 }
             }
 
-            // 3️⃣ Hapus semua items dulu, baru hapus order
-            $order->items()->delete();   // [DIUBAH] hapus items explicit, jangan rely cascade
-            $order->delete();            // hapus order
+            // Hapus order (items akan terhapus otomatis karena cascade)
+            $order->delete();
 
             DB::commit();
 
@@ -374,8 +359,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // Simpan error lengkap ke log Laravel
-            Log::error('Order store failed: ' . $e->getMessage(), [
+            Log::error('Order delete failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
@@ -383,7 +367,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menambahkan order.',
+                'message' => 'Terjadi kesalahan saat menghapus order.',
                 'error' => $e->getMessage()
             ], 500);
         }

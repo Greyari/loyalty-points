@@ -11,8 +11,8 @@ class Customer extends Model
         'phone'
     ];
 
-    public function transactions()
+    public function orders()
     {
-        return $this->hasMany(\App\Models\PointTransaction::class);
+        return $this->hasMany(Order::class);
     }
 }

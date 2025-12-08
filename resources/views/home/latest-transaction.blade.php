@@ -9,79 +9,79 @@
         <ul role="list" class="divide-y divide-gray-200">
             @foreach($recentTransactions as $transaction)
             @php
-            // Determine status based on points (you can adjust this logic)
-            $status = 'completed'; // Default status
+                // Determine status
+                $status = 'completed';
 
-            // If you have a status field in your transaction, use it:
-            // $status = $transaction->status;
-
-            // Or determine based on other criteria
-            if (isset($transaction->status)) {
-            $status = $transaction->status;
-            } elseif ($transaction->points < 0) {
-                $status='pending' ; // negative points might be pending/refund
+                if (isset($transaction['status'])) {
+                    $status = $transaction['status'];
+                } elseif (($transaction['total_points'] ?? 0) < 0) {
+                    $status = 'pending';
                 }
 
-                $statusBgClass=match($status) { 'completed'=> 'bg-green-100',
-                'pending' => 'bg-yellow-100',
-                'failed' => 'bg-red-100',
-                default => 'bg-green-100'
+                $statusBgClass = match($status) {
+                    'completed' => 'bg-green-100',
+                    'pending' => 'bg-yellow-100',
+                    'failed' => 'bg-red-100',
+                    default => 'bg-green-100'
                 };
 
                 $statusIconColor = match($status) {
-                'completed' => 'text-green-600',
-                'pending' => 'text-yellow-600',
-                'failed' => 'text-red-600',
-                default => 'text-green-600'
+                    'completed' => 'text-green-600',
+                    'pending' => 'text-yellow-600',
+                    'failed' => 'text-red-600',
+                    default => 'text-green-600'
                 };
 
-                // Format time ago
-                $timeAgo = $transaction->created_at->diffForHumans();
-                @endphp
+                // Time ago
+                $timeAgo = $transaction['created_at']->diffForHumans();
+            @endphp
 
-                <li class="py-2">
-                    <div class="flex items-start gap-3">
-                        <div class="shrink-0">
-                            <div class="w-10 h-10 rounded-lg {{ $statusBgClass }} flex items-center justify-center">
-                                @if($status == 'completed')
-                                <svg class="w-5 h-5 {{ $statusIconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                                @elseif($status == 'pending')
-                                <svg class="w-5 h-5 {{ $statusIconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                @else
-                                <svg class="w-5 h-5 {{ $statusIconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-medium text-gray-800 truncate font-poppins">
-                                #{{ $transaction->id }}
-                            </p>
-                            <p class="text-xs text-gray-500 truncate font-poppins">
-                                {{ $transaction->customer->name ?? 'Unknown Customer' }}
-                                @if($transaction->product)
-                                - {{ $transaction->product->name }}
-                                @endif
-                            </p>
-                            <p class="text-xs text-gray-400 font-poppins mt-1">
-                                <span class="font-medium {{ $transaction->points >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                    {{ $transaction->points >= 0 ? '+' : '' }}{{ number_format($transaction->points) }} pts
-                                </span>
-                                • {{ $transaction->qty }} qty
-                            </p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs text-gray-400 font-poppins">{{ $timeAgo }}</p>
+            <li class="py-2">
+                <div class="flex items-start gap-3">
+                    <div class="shrink-0">
+                        <div class="w-10 h-10 rounded-lg {{ $statusBgClass }} flex items-center justify-center">
+                            {{-- Status icon --}}
+                            @if($status == 'completed')
+                            <svg class="w-5 h-5 {{ $statusIconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            @elseif($status == 'pending')
+                            <svg class="w-5 h-5 {{ $statusIconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            @else
+                            <svg class="w-5 h-5 {{ $statusIconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            @endif
                         </div>
                     </div>
-                </li>
-                @endforeach
+
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium text-gray-800 truncate font-poppins">
+                            #{{ $transaction['order_id'] }}
+                        </p>
+
+                        <p class="text-xs text-gray-500 truncate font-poppins">
+                            {{ $transaction['customer']->name ?? 'Unknown Customer' }}
+                        </p>
+
+                        <p class="text-xs text-gray-400 font-poppins mt-1">
+                            <span class="font-medium {{ ($transaction['total_points'] ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                {{ ($transaction['total_points'] ?? 0) >= 0 ? '+' : '' }}{{ number_format($transaction['total_points'] ?? 0) }} pts
+                            </span>
+                            • {{ number_format($transaction['qty'] ?? 0) }} qty
+                        </p>
+                    </div>
+
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400 font-poppins">{{ $timeAgo }}</p>
+                    </div>
+                </div>
+            </li>
+            @endforeach
         </ul>
+
         @else
         <div class="flex flex-col items-center justify-center h-full text-center py-8">
             <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

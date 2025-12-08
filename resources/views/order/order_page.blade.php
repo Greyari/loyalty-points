@@ -10,7 +10,7 @@
 </div>
 
 <x-data-tables
-    :headers="['Order ID', 'Date', 'Customer', 'Items Count', 'Total Items', 'Total Points']"
+    :headers="['Order ID', 'Date', 'Customer', 'Total Jenis Items','Total Items', 'Total Points']"
     :rows="$orders"
     onAdd="true"
     onEdit="true"
@@ -84,7 +84,6 @@
 <!-- View Modal -->
 <x-modal id="orderViewModal" title="Order Details" size="lg" :showSubmit="false">
     <div id="orderViewContent" class="space-y-4">
-
     </div>
 </x-modal>
 

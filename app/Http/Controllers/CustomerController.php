@@ -11,7 +11,7 @@ class CustomerController extends Controller
     public function index()
     {
         // Ambil semua customer dengan total poin dari transaksi
-        $customers = Customer::withSum('transactions as total_points', 'points')
+        $customers = Customer::withSum('orders as total_points', 'total_points')
             ->get()
             ->map(function ($p) {
                 return [

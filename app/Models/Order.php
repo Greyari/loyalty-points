@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
     use HasFactory;
 
-    // Field yang bisa diisi mass-assignment
     protected $fillable = [
         'order_id',
         'customer_id',
@@ -18,29 +17,40 @@ class Order extends Model
         'notes',
     ];
 
-    /**
-     * Relasi ke customer
-     */
+    protected $casts = [
+        'total_points' => 'integer',
+        'total_items' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    // Relationships
     public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
 
-    /**
-     * Relasi ke order items
-     */
     public function items()
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    /**
-     * Hitung dan update total items dan total points
-     */
+    // Accessors
+    public function getFormattedDateAttribute()
+    {
+        return $this->created_at->format('d M Y, H:i');
+    }
+
+    public function getDateAttribute()
+    {
+        return $this->created_at->format('d M Y');
+    }
+
+    // Update totals dari items
     public function updateTotals()
     {
-        $this->total_items = $this->items()->sum('qty'); // total jumlah produk
-        $this->total_points = $this->items()->sum('total_points'); // total points
-        $this->save();
+        $this->total_points = $this->items()->sum('total_points');
+        $this->total_items = $this->items()->sum('qty');
+        $this->saveQuietly();
     }
 }

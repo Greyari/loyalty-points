@@ -4,9 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PointTransactionController;
 use App\Http\Controllers\DashboardController;
-use App\Models\MonthlySummary;
 use App\Http\Controllers\OrderController;
 
 // ================================
@@ -32,11 +30,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/chart-data', [DashboardController::class, 'chartData']);
-    Route::get('/chart-data-years', function() {
-        return response()->json([
-            'years' => MonthlySummary::select('year')->groupBy('year')->pluck('year')
-        ]);
-    });
 
     // Order Routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
