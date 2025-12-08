@@ -155,6 +155,7 @@ const ui = {
             <td class="py-4 px-2">${data.items_count}</td>
             <td class="py-4 px-2">${data.total_items}</td>
             <td class="py-4 px-2">${data.total_points}</td>
+            <td class="py-4 px-2">${data.total_price}</td>
             <td class="py-2 px-2">
                 <div class="flex justify-center items-center gap-2">
                     <button class="view-btn text-green-600 hover:text-green-800 transition-colors" data-id="${data.id}" title="View">
@@ -383,6 +384,7 @@ const table = {
         cells[3].textContent = data.items_count;
         cells[4].textContent = data.total_items;
         cells[5].textContent = data.total_points;
+        cells[6].textContent = data.total_price;
 
         await ui.animate(row, { backgroundColor: '#dbeafe' }, 100);
         await ui.animate(row, { transition: 'background-color 0.5s ease', backgroundColor: '' });
@@ -502,7 +504,7 @@ const handlers = {
                         </div>
 
                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-3 gap-4">
                                 <div>
                                     <p class="text-sm text-gray-600 font-poppins">Total Items (Qty)</p>
                                     <p class="text-2xl font-semibold text-gray-900 font-poppins">${utils.formatNumber(order.total_items)}</p>
@@ -510,6 +512,10 @@ const handlers = {
                                 <div>
                                     <p class="text-sm text-gray-600 font-poppins">Total Points</p>
                                     <p class="text-2xl font-semibold text-blue-600 font-poppins">${utils.formatNumber(order.total_points)}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 font-poppins">Total Price</p>
+                                    <p class="text-2xl font-semibold text-blue-600 font-poppins">${utils.formatNumber(order.total_price)}</p>
                                 </div>
                             </div>
                         </div>
