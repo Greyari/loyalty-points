@@ -2,6 +2,7 @@
 'headers' => [],
 'rows' => [],
 'onAdd' => null,
+'onView' => null,
 'onEdit' => null,
 'onDelete' => null,
 ])
@@ -48,7 +49,7 @@ $componentId = 'table_' . uniqid();
                     @foreach ($headers as $header)
                     <th class="text-left py-3 px-2 font-semibold text-gray-800 whitespace-nowrap font-poppins">{{ $header }}</th>
                     @endforeach
-                    @if($onEdit || $onDelete)
+                    @if($onView || $onEdit || $onDelete)
                     <th class="text-center py-3 px-2 font-semibold text-gray-800 whitespace-nowrap font-poppins">Action</th>
                     @endif
                 </tr>
@@ -65,9 +66,23 @@ $componentId = 'table_' . uniqid();
 
                     @endif
                     @endforeach
-                    @if($onEdit || $onDelete)
+                    @if( $onView || $onEdit || $onDelete)
                     <td class="py-2 px-2">
                         <div class="flex justify-center items-center gap-2">
+                            @if($onView)
+                            <!-- View Icon -->
+                            <button
+                                class="view-btn text-green-600 hover:text-green-800 transition-colors"
+                                data-id="{{ $row['id'] }}"
+                                title="View">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            @endif
+
+
                             @if($onEdit)
                             <!-- Edit Icon -->
                             <button

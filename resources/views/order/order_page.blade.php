@@ -82,25 +82,14 @@
 </x-modal>
 
 <!-- View Modal -->
-<x-modal id="orderViewModal" title="Order Details" size="2xl" :showSubmit="false">
+<x-modal id="orderViewModal" title="Order Details" size="lg" :showSubmit="false">
     <div id="orderViewContent" class="space-y-4">
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm text-gray-600 font-poppins">Total Items (Qty)</p>
-                    <p class="text-2xl font-semibold text-gray-900 font-poppins" id="editSummaryTotalItems">0</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600 font-poppins">Total Points</p>
-                    <p class="text-2xl font-semibold text-blue-600 font-poppins" id="editSummaryTotalPoints">0</p>
-                </div>
-            </div>
-        </div>
+
     </div>
 </x-modal>
 
 <!-- Edit Modal -->
-<x-modal id="orderEditModal" title="Edit Order" size="2xl" submitText="Update Order" submitButtonClass="bg-green-600 hover:bg-green-700 text-white">
+<x-modal id="orderEditModal" title="Edit Order" size="lg" submitText="Update Order" submitButtonClass="bg-green-600 hover:bg-green-700 text-white">
     <form id="editForm" class="space-y-4">
         <input type="hidden" name="id" id="edit_id">
 
