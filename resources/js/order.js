@@ -186,7 +186,6 @@ const ui = {
         return new Promise(resolve => setTimeout(resolve, duration));
     }
 };
-
 // ==================== ITEM ROW MANAGEMENT ====================
 const itemRow = {
     create(containerId, isEdit = false) {
@@ -194,58 +193,84 @@ const itemRow = {
         const prefix = isEdit ? 'edit_' : '';
 
         const row = document.createElement('div');
-        row.className = 'item-row grid grid-cols-12 gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200';
+        row.className = 'item-row p-4 bg-gray-50 rounded-lg border border-gray-200';
         row.dataset.index = counter;
 
         row.innerHTML = `
-            <div class="col-span-6">
-                <select name="items[${counter}][product_id]"
-                    class="${prefix}product-select product-select-${counter}"
-                    data-index="${counter}" required>
-                    <option value="">Select product</option>
-                    ${window.productsData.map(p => `
-                        <option value="${p.id}"
-                            data-sku="${p.sku}"
-                            data-points="${p.points_per_unit}"
-                            data-stock="${p.quantity}">
-                            ${p.name} (${p.sku}) - ${p.points_per_unit} pts - Stock: ${p.quantity}
-                        </option>
-                    `).join('')}
-                </select>
-            </div>
-            <div class="col-span-3">
-                <input type="number"
-                    name="items[${counter}][qty]"
-                    class="${prefix}qty-input qty-input-${counter}"
-                    data-index="${counter}"
-                    placeholder="Qty"
-                    min="1"
-                    value="1"
-                    required>
-            </div>
-            <div class="col-span-2">
-                <input type="text"
-                    class="${prefix}item-total item-total-${counter} bg-white"
-                    placeholder="0"
-                    readonly>
-            </div>
-            <div class="col-span-1 flex items-center justify-center">
-                <button type="button" class="remove-item-btn text-red-600 hover:text-red-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 w-full md:w-auto min-w-0">
+                    <select name="items[${counter}][product_id]"
+                        class="${prefix}product-select product-select-${counter} w-full"
+                        data-index="${counter}" required>
+                        <option value="">Select product</option>
+                        ${window.productsData.map(p => `
+                            <option value="${p.id}"
+                                data-sku="${p.sku}"
+                                data-points="${p.points_per_unit}"
+                                data-stock="${p.quantity}">
+                                ${p.name} (${p.sku}) - ${p.points_per_unit} pts - Stock: ${p.quantity}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-4 flex-none flex-nowrap">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">QTY :</label>
+                        <input type="number"
+                            name="items[${counter}][qty]"
+                            class="${prefix}qty-input qty-input-${counter} px-2 py-1 w-16 text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            data-index="${counter}"
+                            placeholder="1"
+                            min="1"
+                            value="1" required>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Point :</label>
+                        <input type="text"
+                            class="${prefix}item-total item-total-${counter} px-2 py-1 w-16 text-center border border-gray-300 rounded bg-gray-100"
+                            data-index="${counter}"
+                            placeholder="0"
+                            readonly>
+                    </div>
+
+                    <button type="button" 
+                        class="remove-item-btn p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors shrink-0"
+                        aria-label="Remove item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         `;
 
         const container = utils.getElement(containerId);
         container.appendChild(row);
 
-        // Initialize Select2 for this row
+        // Initialize Select2 with text truncation
         $(row).find('.product-select-' + counter).select2({
             width: '100%',
             dropdownParent: $(isEdit ? SELECTORS.modals.edit : SELECTORS.modals.create),
-            placeholder: 'Select product'
+            placeholder: 'Select product',
+            templateSelection: function(data) {
+                if (!data.id) {
+                    return data.text;
+                }
+                // Create truncated display
+                const $span = $('<span></span>');
+                $span.text(data.text);
+                $span.css({
+                    'display': 'block',
+                    'overflow': 'hidden',
+                    'text-overflow': 'ellipsis',
+                    'white-space': 'nowrap',
+                    'max-width': '100%'
+                });
+                return $span;
+            }
         });
 
         // Add event listeners
@@ -331,7 +356,6 @@ const itemRow = {
         return items;
     }
 };
-
 // ==================== TABLE OPERATIONS ====================
 const table = {
     async addRow(data) {
@@ -409,34 +433,54 @@ const handlers = {
 
         if (typeof open_orderCreateModal === 'function') open_orderCreateModal();
     },
-
-    async onView(e) {
+ async onView(e) {
+        console.log('👁️ View button clicked, event:', e);
         const id = e.detail.id;
+        console.log('📦 Order ID:', id);
+
+        // Show loading
+        $(SELECTORS.fields.orderViewContent).html(`
+            <div class="flex items-center justify-center py-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        `);
+
+        // Open modal immediately to show loading
+        if (typeof open_orderViewModal === 'function') {
+            console.log('✅ Opening view modal');
+            open_orderViewModal();
+        } else {
+            console.error('❌ open_orderViewModal function not found');
+            return;
+        }
 
         try {
+            console.log('🔄 Fetching order data...');
             const response = await api.show(id);
+            console.log('📥 API Response:', response);
 
             if (response.success) {
                 const order = response.data;
+                console.log('✅ Order data:', order);
 
                 let itemsHTML = order.items.map(item => `
                     <div class="grid grid-cols-12 gap-3 p-3 bg-gray-50 rounded-lg">
                         <div class="col-span-6">
-                            <p class="text-sm text-gray-600">Product</p>
-                            <p class="font-medium">${item.product_name}</p>
-                            <p class="text-xs text-gray-500">SKU: ${item.sku}</p>
+                            <p class="text-sm text-gray-600 font-poppins">Product</p>
+                            <p class="font-medium font-poppins">${item.product_name}</p>
+                            <p class="text-xs text-gray-500 font-poppins">SKU: ${item.sku}</p>
                         </div>
                         <div class="col-span-2">
-                            <p class="text-sm text-gray-600">Qty</p>
-                            <p class="font-medium">${item.qty}</p>
+                            <p class="text-sm text-gray-600 font-poppins">Qty</p>
+                            <p class="font-medium font-poppins">${item.qty}</p>
                         </div>
                         <div class="col-span-2">
-                            <p class="text-sm text-gray-600">Points/Unit</p>
-                            <p class="font-medium">${utils.formatNumber(item.points_per_unit)}</p>
+                            <p class="text-sm text-gray-600 font-poppins">Points/Unit</p>
+                            <p class="font-medium font-poppins">${utils.formatNumber(item.points_per_unit)}</p>
                         </div>
                         <div class="col-span-2">
-                            <p class="text-sm text-gray-600">Total</p>
-                            <p class="font-semibold text-blue-600">${utils.formatNumber(item.total_points)}</p>
+                            <p class="text-sm text-gray-600 font-poppins">Total</p>
+                            <p class="font-semibold text-blue-600 font-poppins">${utils.formatNumber(item.total_points)}</p>
                         </div>
                     </div>
                 `).join('');
@@ -445,29 +489,29 @@ const handlers = {
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <p class="text-sm text-gray-600">Order ID</p>
-                                <p class="font-semibold">${order.order_id}</p>
+                                <p class="text-sm text-gray-600 font-poppins">Order ID</p>
+                                <p class="font-semibold font-poppins">${order.order_id}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600">Date</p>
-                                <p class="font-medium">${order.created_at}</p>
+                                <p class="text-sm text-gray-600 font-poppins">Date</p>
+                                <p class="font-medium font-poppins">${order.created_at}</p>
                             </div>
                         </div>
 
                         <div>
-                            <p class="text-sm text-gray-600">Customer</p>
-                            <p class="font-semibold">${order.customer_name}</p>
+                            <p class="text-sm text-gray-600 font-poppins">Customer</p>
+                            <p class="font-semibold font-poppins">${order.customer_name}</p>
                         </div>
 
                         ${order.notes ? `
                         <div>
-                            <p class="text-sm text-gray-600">Notes</p>
-                            <p class="text-gray-700">${order.notes}</p>
+                            <p class="text-sm text-gray-600 font-poppins">Notes</p>
+                            <p class="text-gray-700 font-poppins">${order.notes}</p>
                         </div>
                         ` : ''}
 
                         <div>
-                            <p class="text-sm font-medium text-gray-700 mb-2">Items</p>
+                            <p class="text-sm font-medium text-gray-700 mb-3 font-poppins">Items</p>
                             <div class="space-y-2">
                                 ${itemsHTML}
                             </div>
@@ -476,27 +520,36 @@ const handlers = {
                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p class="text-sm text-gray-600">Total Items (Qty)</p>
-                                    <p class="text-2xl font-semibold text-gray-900">${utils.formatNumber(order.total_items)}</p>
+                                    <p class="text-sm text-gray-600 font-poppins">Total Items (Qty)</p>
+                                    <p class="text-2xl font-semibold text-gray-900 font-poppins">${utils.formatNumber(order.total_items)}</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-600">Total Points</p>
-                                    <p class="text-2xl font-semibold text-blue-600">${utils.formatNumber(order.total_points)}</p>
+                                    <p class="text-sm text-gray-600 font-poppins">Total Points</p>
+                                    <p class="text-2xl font-semibold text-blue-600 font-poppins">${utils.formatNumber(order.total_points)}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
 
+                console.log('✅ Updating modal content');
                 $(SELECTORS.fields.orderViewContent).html(content);
-                if (typeof open_orderViewModal === 'function') open_orderViewModal();
+                
+            } else {
+                console.error('❌ API returned error:', response.message);
+                ui.showNotification('error', response.message || 'Gagal memuat detail order');
+                if (typeof close_orderViewModal === 'function') {
+                    close_orderViewModal();
+                }
             }
         } catch (error) {
-            console.error('View error:', error);
+            console.error('❌ View error:', error);
             ui.showNotification('error', 'Gagal memuat detail order');
+            if (typeof close_orderViewModal === 'function') {
+                close_orderViewModal();
+            }
         }
     },
-
     async onEdit(e) {
         const id = e.detail.id;
 
@@ -687,7 +740,10 @@ $(document).ready(function() {
 
     // Register event listeners
     document.addEventListener('table:add', handlers.onAdd);
-    document.addEventListener('table:view', handlers.onView);
+    document.addEventListener('table:view', (e) => {
+        console.log('🔔 table:view event triggered');
+        handlers.onView(e);
+    });
     document.addEventListener('table:edit', handlers.onEdit);
     document.addEventListener('table:delete', handlers.onDelete);
 

@@ -3,6 +3,7 @@
 'title' => 'Modal Title',
 'size' => 'md', // sm, md, lg, xl, full
 'showFooter' => true,
+'showSubmit' => true,
 'submitText' => 'Submit',
 'cancelText' => 'Cancel',
 'submitButtonClass' => 'bg-blue-600 hover:bg-blue-700 text-white',
@@ -54,10 +55,12 @@ $modalSize = $sizeClasses[$size] ?? $sizeClasses['md'];
                 class="modal-cancel px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-poppins">
                 {{ $cancelText }}
             </button>
+            @if($showSubmit)
             <button type="button"
                 class="modal-submit px-4 py-2 rounded-lg transition-colors font-poppins {{ $submitButtonClass }}">
                 {{ $submitText }}
             </button>
+            @endif
         </div>
         @endif
 

@@ -150,19 +150,17 @@ class OrderController extends Controller
                     'items' => $itemsData,
                 ]
             ]);
-
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => implode('<br>', $e->validator->errors()->all()),
             ], 422);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             // Simpan error lengkap ke log Laravel
-            Log::error('Order store failed: '.$e->getMessage(), [
+            Log::error('Order store failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
@@ -193,8 +191,8 @@ class OrderController extends Controller
                     'product_name' => $item->product_name,
                     'sku' => $item->sku,
                     'qty' => $item->qty,
-                    'points_per_unit' => $item->points_per_unit,
-                    'total_points' => $item->total_points,
+                    'points_per_unit' => $item->points_per_unit, // Raw number
+                    'total_points' => $item->total_points, // Raw number
                 ];
             });
 
@@ -206,18 +204,15 @@ class OrderController extends Controller
                     'customer_id' => $order->customer_id,
                     'customer_name' => $order->customer->name,
                     'notes' => $order->notes,
-                    'total_points' => $order->total_points,
-                    'total_items' => $order->total_items,
+                    'total_points' => $order->total_points, // Raw number
+                    'total_items' => $order->total_items, // Raw number
                     'items' => $itemsData,
                     'created_at' => $order->formatted_date,
                 ]
             ]);
-
         } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Simpan error lengkap ke log Laravel
-            Log::error('Order store failed: '.$e->getMessage(), [
+            Log::error('Order show failed: ' . $e->getMessage(), [
+                'order_id' => $id,
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
@@ -225,7 +220,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menambahkan order.',
+                'message' => 'Gagal memuat detail order',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -318,19 +313,17 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                 ]
             ]);
-
         } catch (ValidationException $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => implode('<br>', $e->validator->errors()->all()),
             ], 422);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             // Simpan error lengkap ke log Laravel
-            Log::error('Order store failed: '.$e->getMessage(), [
+            Log::error('Order store failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
@@ -378,12 +371,11 @@ class OrderController extends Controller
                 'success' => true,
                 'message' => 'Order berhasil dihapus!'
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
             // Simpan error lengkap ke log Laravel
-            Log::error('Order store failed: '.$e->getMessage(), [
+            Log::error('Order store failed: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),

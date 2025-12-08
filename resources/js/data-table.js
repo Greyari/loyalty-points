@@ -36,9 +36,14 @@ class DataTable {
         }
 
         this.container.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('.view-btn');
             const editBtn = e.target.closest('.edit-btn');
             const deleteBtn = e.target.closest('.delete-btn');
 
+             if (viewBtn) {
+                console.log('🔍 View button clicked, ID:', viewBtn.dataset.id);
+                this.dispatchEvent('table:view', { id: viewBtn.dataset.id });
+            }
             if (editBtn) {
                 this.dispatchEvent('table:edit', { id: editBtn.dataset.id });
             }
