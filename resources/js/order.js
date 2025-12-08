@@ -186,7 +186,6 @@ const ui = {
         return new Promise(resolve => setTimeout(resolve, duration));
     }
 };
-
 // ==================== ITEM ROW MANAGEMENT ====================
 const itemRow = {
     create(containerId, isEdit = false) {
@@ -194,58 +193,84 @@ const itemRow = {
         const prefix = isEdit ? 'edit_' : '';
 
         const row = document.createElement('div');
-        row.className = 'item-row grid grid-cols-12 gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200';
+        row.className = 'item-row p-4 bg-gray-50 rounded-lg border border-gray-200';
         row.dataset.index = counter;
 
         row.innerHTML = `
-            <div class="col-span-6">
-                <select name="items[${counter}][product_id]"
-                    class="${prefix}product-select product-select-${counter}"
-                    data-index="${counter}" required>
-                    <option value="">Select product</option>
-                    ${window.productsData.map(p => `
-                        <option value="${p.id}"
-                            data-sku="${p.sku}"
-                            data-points="${p.points_per_unit}"
-                            data-stock="${p.quantity}">
-                            ${p.name} (${p.sku}) - ${p.points_per_unit} pts - Stock: ${p.quantity}
-                        </option>
-                    `).join('')}
-                </select>
-            </div>
-            <div class="col-span-3">
-                <input type="number"
-                    name="items[${counter}][qty]"
-                    class="${prefix}qty-input qty-input-${counter}"
-                    data-index="${counter}"
-                    placeholder="Qty"
-                    min="1"
-                    value="1"
-                    required>
-            </div>
-            <div class="col-span-2">
-                <input type="text"
-                    class="${prefix}item-total item-total-${counter} bg-white"
-                    placeholder="0"
-                    readonly>
-            </div>
-            <div class="col-span-1 flex items-center justify-center">
-                <button type="button" class="remove-item-btn text-red-600 hover:text-red-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </button>
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-1 w-full md:w-auto min-w-0">
+                    <select name="items[${counter}][product_id]"
+                        class="${prefix}product-select product-select-${counter} w-full"
+                        data-index="${counter}" required>
+                        <option value="">Select product</option>
+                        ${window.productsData.map(p => `
+                            <option value="${p.id}"
+                                data-sku="${p.sku}"
+                                data-points="${p.points_per_unit}"
+                                data-stock="${p.quantity}">
+                                ${p.name} (${p.sku}) - ${p.points_per_unit} pts - Stock: ${p.quantity}
+                            </option>
+                        `).join('')}
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-4 flex-none flex-nowrap">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">QTY :</label>
+                        <input type="number"
+                            name="items[${counter}][qty]"
+                            class="${prefix}qty-input qty-input-${counter} px-2 py-1 w-16 text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            data-index="${counter}"
+                            placeholder="1"
+                            min="1"
+                            value="1" required>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Point :</label>
+                        <input type="text"
+                            class="${prefix}item-total item-total-${counter} px-2 py-1 w-16 text-center border border-gray-300 rounded bg-gray-100"
+                            data-index="${counter}"
+                            placeholder="0"
+                            readonly>
+                    </div>
+
+                    <button type="button" 
+                        class="remove-item-btn p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors shrink-0"
+                        aria-label="Remove item">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         `;
 
         const container = utils.getElement(containerId);
         container.appendChild(row);
 
-        // Initialize Select2 for this row
+        // Initialize Select2 with text truncation
         $(row).find('.product-select-' + counter).select2({
             width: '100%',
             dropdownParent: $(isEdit ? SELECTORS.modals.edit : SELECTORS.modals.create),
-            placeholder: 'Select product'
+            placeholder: 'Select product',
+            templateSelection: function(data) {
+                if (!data.id) {
+                    return data.text;
+                }
+                // Create truncated display
+                const $span = $('<span></span>');
+                $span.text(data.text);
+                $span.css({
+                    'display': 'block',
+                    'overflow': 'hidden',
+                    'text-overflow': 'ellipsis',
+                    'white-space': 'nowrap',
+                    'max-width': '100%'
+                });
+                return $span;
+            }
         });
 
         // Add event listeners
@@ -331,7 +356,6 @@ const itemRow = {
         return items;
     }
 };
-
 // ==================== TABLE OPERATIONS ====================
 const table = {
     async addRow(data) {
