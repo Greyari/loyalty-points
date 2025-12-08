@@ -434,9 +434,9 @@ const handlers = {
         if (typeof open_orderCreateModal === 'function') open_orderCreateModal();
     },
  async onView(e) {
-        console.log('👁️ View button clicked, event:', e);
+        console.log(' View button clicked, event:', e);
         const id = e.detail.id;
-        console.log('📦 Order ID:', id);
+        console.log(' Order ID:', id);
 
         // Show loading
         $(SELECTORS.fields.orderViewContent).html(`
@@ -447,21 +447,21 @@ const handlers = {
 
         // Open modal immediately to show loading
         if (typeof open_orderViewModal === 'function') {
-            console.log('✅ Opening view modal');
+            console.log(' Opening view modal');
             open_orderViewModal();
         } else {
-            console.error('❌ open_orderViewModal function not found');
+            console.error(' open_orderViewModal function not found');
             return;
         }
 
         try {
-            console.log('🔄 Fetching order data...');
+            console.log(' Fetching order data...');
             const response = await api.show(id);
-            console.log('📥 API Response:', response);
+            console.log(' API Response:', response);
 
             if (response.success) {
                 const order = response.data;
-                console.log('✅ Order data:', order);
+                console.log(' Order data:', order);
 
                 let itemsHTML = order.items.map(item => `
                     <div class="grid grid-cols-12 gap-3 p-3 bg-gray-50 rounded-lg">
@@ -532,18 +532,18 @@ const handlers = {
                     </div>
                 `;
 
-                console.log('✅ Updating modal content');
+                console.log(' Updating modal content');
                 $(SELECTORS.fields.orderViewContent).html(content);
                 
             } else {
-                console.error('❌ API returned error:', response.message);
+                console.error(' API returned error:', response.message);
                 ui.showNotification('error', response.message || 'Gagal memuat detail order');
                 if (typeof close_orderViewModal === 'function') {
                     close_orderViewModal();
                 }
             }
         } catch (error) {
-            console.error('❌ View error:', error);
+            console.error(' View error:', error);
             ui.showNotification('error', 'Gagal memuat detail order');
             if (typeof close_orderViewModal === 'function') {
                 close_orderViewModal();
@@ -705,7 +705,7 @@ async onCreate() {
 
 // ==================== INITIALIZATION ====================
 $(document).ready(function() {
-    console.log('✅ Order module loaded');
+    console.log(' Order module loaded');
 
     // Initialize Select2 for customer dropdowns
     $(SELECTORS.fields.customerSelect).select2({
@@ -741,7 +741,7 @@ $(document).ready(function() {
     // Register event listeners
     document.addEventListener('table:add', handlers.onAdd);
     document.addEventListener('table:view', (e) => {
-        console.log('🔔 table:view event triggered');
+        console.log(' table:view event triggered');
         handlers.onView(e);
     });
     document.addEventListener('table:edit', handlers.onEdit);
