@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Dashboard Analytics</h2>
-            <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">November, 01 - 30</p>
+            <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Sales & Revenue Insights</p>
         </div>
     </div>
 
