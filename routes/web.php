@@ -59,8 +59,8 @@ Route::middleware('auth')->group(function () {
     // Route::put('/transaction/{id}', [PointTransactionController::class, 'update'])->name('transaction.update');
     // Route::delete('/transaction/{id}', [PointTransactionController::class, 'destroy'])->name('transaction.destroy');
 
-    // Settings
-    // Route::get('/settings', function () {
-    //     return view('settings.settings_page');
-    // })->name('settings');
+    // History
+    Route::get('/history', function () {
+        return view('history.history_page');
+    })->name('history');
 });
