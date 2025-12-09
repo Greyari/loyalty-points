@@ -1,3 +1,4 @@
+// tes hallo
 // ==================== CONSTANTS ====================
 const SELECTORS = {
     modals: {
@@ -622,7 +623,7 @@ const handlers = {
             $('.select2-hidden-accessible').each(function() {
                 $(this).select2('destroy');
             });
-            
+
             // 2. Close modal
             if (typeof close_orderCreateModal === 'function') {
                 close_orderCreateModal();
@@ -630,7 +631,7 @@ const handlers = {
 
             // 3. Wait for modal to completely disappear AND re-initialize Select2
             await new Promise(resolve => setTimeout(resolve, 400));
-            
+
             // 4. Re-initialize Select2 for next use
             $(SELECTORS.fields.customerSelect).select2({
                 placeholder: 'Select customer',
@@ -684,13 +685,13 @@ const handlers = {
 
             if (data.success) {
                 $('.select2-hidden-accessible').select2('close');
-                
+
                 if (typeof close_orderEditModal === 'function') close_orderEditModal();
-                
+
                 await new Promise(resolve => setTimeout(resolve, 300));
-                
+
                 await table.updateRow(id, data.data);
-                
+
                 ui.showNotification('success', data.message);
             } else {
                 ui.showNotification('error', data.message || 'Gagal mengupdate order');
@@ -709,11 +710,11 @@ const handlers = {
 
             if (data.success) {
                 if (typeof close_orderDeleteModal === 'function') close_orderDeleteModal();
-                
+
                 await new Promise(resolve => setTimeout(resolve, 300));
-                
+
                 await table.removeRow(id);
-                
+
                 ui.showNotification('success', data.message);
             } else {
                 ui.showNotification('error', data.message || 'Gagal menghapus order');
