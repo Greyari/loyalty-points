@@ -49,7 +49,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('orders.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('transaction.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
+                    <a href="{{ route('orders.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('orders.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
                         <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                         </svg>
@@ -64,15 +64,7 @@
                         <span class="ml-3 nav-text font-poppins">Inventory</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('history') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('history') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
-                        <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-6-8.485A9 9 0 0121 12z" />
-                        </svg>
-                        <span class="ml-3 nav-text font-poppins">History</span>
-                    </a>
-                </li>
+
             </ul>
         </nav>
 

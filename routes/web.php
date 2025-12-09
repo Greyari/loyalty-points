@@ -60,7 +60,7 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/transaction/{id}', [PointTransactionController::class, 'destroy'])->name('transaction.destroy');
 
     // History
-    Route::get('/history', function () {
-        return view('history.history_page');
-    })->name('history');
+    // Route::get('/history', function () {
+    //     return view('history.history_page');
+    // })->name('history');
 });

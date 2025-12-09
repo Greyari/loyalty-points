@@ -24,7 +24,7 @@
                     <th class="px-6 py-3">SKU</th>
                     <th class="px-6 py-3">Name</th>
                     <th class="px-6 py-3 text-center">Unit</th>
-                    <th class="px-6 py-3 text-right">Points</th>
+                    <!-- <th class="px-6 py-3 text-right">Points</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -66,12 +66,12 @@
                         {{ number_format($product->qty, 0, ',', '.') }}
                     </td>
 
-                    <td class="px-6 py-4 text-right font-semibold text-gray-900">
+                    <!-- <td class="px-6 py-4 text-right font-semibold text-gray-900">
                         {{ $product->product
                                 ? number_format($product->qty * $product->product->points_per_unit, 0, ',', '.')
                                 : '-'
                             }}
-                    </td>
+                    </td> -->
                 </tr>
                 @endforeach
             </tbody>
