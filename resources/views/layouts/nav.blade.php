@@ -91,16 +91,48 @@
         </nav>
 
         <!-- Logout button -->
-        <div class="py-4 px-2 border-t border-[#C8C8C8]">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="nav-item flex items-center w-full px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-900 transition rounded-lg group text-gray-700">
-                    <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        <!-- User Profile Section -->
+        <div class="py-4 px-2 border-t border-[#C8C8C8]" x-data="{ open: false }">
+            <div class="relative">
+                <!-- Profile Button -->
+                <button @click="open = !open" class="nav-item flex items-center w-full px-3 py-3 hover:bg-[#E8E7ED] transition rounded-lg group text-gray-700">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center shrink-0 nav-icon">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3 flex-1 text-left nav-text">
+                        <p class="text-sm font-semibold text-gray-800 font-poppins">{{ auth()->user()->name ?? 'User Super' }}</p>
+                        <p class="text-xs text-gray-500 font-poppins truncate">{{ auth()->user()->email ?? 'usersuper@gmail.com' }}</p>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-600 nav-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
-                    <span class="ml-3 nav-text font-poppins">Logout</span>
                 </button>
-            </form>
+
+                <!-- Dropdown Menu -->
+                <div x-show="open"
+                    @click.away="open = false"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 transform scale-95"
+                    x-transition:enter-end="opacity-100 transform scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 transform scale-100"
+                    x-transition:leave-end="opacity-0 transform scale-95"
+                    class="absolute bottom-full left-2 right-2 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+                    style="display: none;">
+
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center px-4 py-3 hover:bg-gray-50 transition text-left">
+                            <svg class="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700 font-poppins">Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </aside>
 

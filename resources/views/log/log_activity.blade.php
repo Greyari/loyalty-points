@@ -11,14 +11,35 @@
 
 <!-- Success/Error Messages -->
 @if(session('success'))
-<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4" role="alert">
-    <span class="block sm:inline">{{ session('success') }}</span>
+<div id="successNotification" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
+    <span class="block sm:inline font-poppins">{{ session('success') }}</span>
+    <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+</div>
+@endif
+
+@if(session('error'))
+<div id="errorNotification" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
+    <span class="block sm:inline font-poppins">{{ session('error') }}</span>
+    <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
 </div>
 @endif
 
 @if(session('info'))
-<div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-4" role="alert">
-    <span class="block sm:inline">{{ session('info') }}</span>
+<div id="infoNotification" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg mb-4 flex items-center justify-between" role="alert">
+    <span class="block sm:inline font-poppins">{{ session('info') }}</span>
+    <button onclick="this.parentElement.remove()" class="text-blue-700 hover:text-blue-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
 </div>
 @endif
 
@@ -44,19 +65,31 @@
 
     <!-- Filter Section with Delete Button -->
     <div class="p-4 sm:p-6 border-b border-gray-200">
-        <form method="GET" action="{{ route('log.index') }}">
-            <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1">
+        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+            <form method="GET" action="{{ route('log.index') }}" class="flex-1 flex flex-col sm:flex-row gap-4">
+                <div class="flex-1 relative">
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search by module or user..."
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        class="placeholder-gray-400 w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onkeydown="if (event.key === 'Enter') this.form.submit()">
+
+                    <button type="submit"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <svg class="w-5 h-5"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+                        </svg>
+                    </button>
                 </div>
+
                 <div class="flex gap-2">
                     <select name="action" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="">All Actions</option>
+                        <option value="">Actions</option>
                         <option value="created" {{ request('action') == 'created' ? 'selected' : '' }}>Created</option>
                         <option value="updated" {{ request('action') == 'updated' ? 'selected' : '' }}>Updated</option>
                         <option value="deleted" {{ request('action') == 'deleted' ? 'selected' : '' }}>Deleted</option>
@@ -75,8 +108,15 @@
                         Filter
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+
+        <!-- Delete Monthly Log Button -->
+        <div class="flex justify-end">
+            <button onclick="openDeleteLogModal()" class="px-4 py-2 bg-red-600 rounded-lg text-white hover:bg-red-700 transition-colors font-poppins">
+                Hapus Log Bulanan
+            </button>
+        </div>
     </div>
 
     <!-- History List -->
@@ -135,20 +175,20 @@
                         @if(!empty($history->changes))
                         <div class="mt-3 space-y-3 text-sm font-poppins">
                             @php
-                                $before = $history->changes['before'] ?? [];
-                                $after = $history->changes['after'] ?? [];
-                                $isAuth = $history->module === 'auth';
+                            $before = $history->changes['before'] ?? [];
+                            $after = $history->changes['after'] ?? [];
+                            $isAuth = $history->module === 'auth';
                             @endphp
 
                             {{-- Special handling for Auth (Login/Logout) - No Before/After labels --}}
                             @if($isAuth && isset($after['auth']))
-                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                    <div class="space-y-0.5 text-xs">
-                                        @foreach($after['auth'] as $key => $value)
-                                            <p><span class="text-gray-600 font-medium">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span> <span class="text-gray-800">{{ $value }}</span></p>
-                                        @endforeach
-                                    </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <div class="space-y-0.5 text-xs">
+                                    @foreach($after['auth'] as $key => $value)
+                                    <p><span class="text-gray-600 font-medium">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span> <span class="text-gray-800">{{ $value }}</span></p>
+                                    @endforeach
                                 </div>
+                            </div>
                             @else
                             {{-- Normal Before/After for other modules --}}
 
@@ -159,16 +199,16 @@
 
                                 {{-- Customer/Product/User/Auth data --}}
                                 @foreach(['customer', 'product', 'user', 'order', 'auth'] as $entityType)
-                                    @if(isset($before[$entityType]) && !empty($before[$entityType]))
-                                    <div class="mb-2">
-                                        <p class="font-medium text-gray-700">{{ ucfirst($entityType) }}:</p>
-                                        <div class="ml-3 space-y-0.5 text-xs">
-                                            @foreach($before[$entityType] as $key => $value)
-                                                <p><span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span> <span class="text-gray-800">{{ is_numeric($value) ? number_format($value, 0, ',', '.') : $value }}</span></p>
-                                            @endforeach
-                                        </div>
+                                @if(isset($before[$entityType]) && !empty($before[$entityType]))
+                                <div class="mb-2">
+                                    <p class="font-medium text-gray-700">{{ ucfirst($entityType) }}:</p>
+                                    <div class="ml-3 space-y-0.5 text-xs">
+                                        @foreach($before[$entityType] as $key => $value)
+                                        <p><span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span> <span class="text-gray-800">{{ is_numeric($value) ? number_format($value, 0, ',', '.') : $value }}</span></p>
+                                        @endforeach
                                     </div>
-                                    @endif
+                                </div>
+                                @endif
                                 @endforeach
 
                                 {{-- Order Items --}}
@@ -192,7 +232,7 @@
                                     <p class="font-medium text-gray-700">Product Stock:</p>
                                     <div class="ml-3 space-y-0.5 text-xs">
                                         @foreach($before['products'] as $productId => $product)
-                                            <p>{{ $product['name'] ?? 'N/A' }} ({{ $product['sku'] ?? 'N/A' }}): <span class="font-medium">{{ $product['quantity'] ?? 0 }}</span></p>
+                                        <p>{{ $product['name'] ?? 'N/A' }} ({{ $product['sku'] ?? 'N/A' }}): <span class="font-medium">{{ $product['quantity'] ?? 0 }}</span></p>
                                         @endforeach
                                     </div>
                                 </div>
@@ -207,28 +247,28 @@
 
                                 {{-- Customer/Product/User/Auth data --}}
                                 @foreach(['customer', 'product', 'user', 'order', 'auth'] as $entityType)
-                                    @if(isset($after[$entityType]) && !empty($after[$entityType]))
-                                    <div class="mb-2">
-                                        <p class="font-medium text-gray-700">{{ ucfirst($entityType) }}:</p>
-                                        <div class="ml-3 space-y-0.5 text-xs">
-                                            @foreach($after[$entityType] as $key => $value)
-                                                @php
-                                                    $beforeValue = $before[$entityType][$key] ?? null;
-                                                    $hasChanged = isset($before[$entityType]) && $beforeValue != $value;
-                                                @endphp
-                                                <p>
-                                                    <span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
-                                                    @if($hasChanged)
-                                                        <span class="text-red-600 line-through">{{ is_numeric($beforeValue) ? number_format($beforeValue, 0, ',', '.') : $beforeValue }}</span>
-                                                        <span class="text-green-600 font-medium"> → {{ is_numeric($value) ? number_format($value, 0, ',', '.') : $value }}</span>
-                                                    @else
-                                                        <span class="text-gray-800">{{ is_numeric($value) ? number_format($value, 0, ',', '.') : $value }}</span>
-                                                    @endif
-                                                </p>
-                                            @endforeach
-                                        </div>
+                                @if(isset($after[$entityType]) && !empty($after[$entityType]))
+                                <div class="mb-2">
+                                    <p class="font-medium text-gray-700">{{ ucfirst($entityType) }}:</p>
+                                    <div class="ml-3 space-y-0.5 text-xs">
+                                        @foreach($after[$entityType] as $key => $value)
+                                        @php
+                                        $beforeValue = $before[$entityType][$key] ?? null;
+                                        $hasChanged = isset($before[$entityType]) && $beforeValue != $value;
+                                        @endphp
+                                        <p>
+                                            <span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
+                                            @if($hasChanged)
+                                            <span class="text-red-600 line-through">{{ is_numeric($beforeValue) ? number_format($beforeValue, 0, ',', '.') : $beforeValue }}</span>
+                                            <span class="text-green-600 font-medium"> → {{ is_numeric($value) ? number_format($value, 0, ',', '.') : $value }}</span>
+                                            @else
+                                            <span class="text-gray-800">{{ is_numeric($value) ? number_format($value, 0, ',', '.') : $value }}</span>
+                                            @endif
+                                        </p>
+                                        @endforeach
                                     </div>
-                                    @endif
+                                </div>
+                                @endif
                                 @endforeach
 
                                 {{-- Order Items --}}
@@ -252,19 +292,19 @@
                                     <p class="font-medium text-gray-700">Product Stock:</p>
                                     <div class="ml-3 space-y-0.5 text-xs">
                                         @foreach($after['products'] as $productId => $product)
-                                            @php
-                                                $beforeQty = $before['products'][$productId]['quantity'] ?? null;
-                                                $afterQty = $product['quantity'] ?? 0;
-                                            @endphp
-                                            <p>
-                                                {{ $product['name'] ?? 'N/A' }} ({{ $product['sku'] ?? 'N/A' }}):
-                                                @if($beforeQty !== null && $beforeQty != $afterQty)
-                                                    <span class="text-red-600 line-through">{{ $beforeQty }}</span>
-                                                    <span class="text-green-600 font-medium"> → {{ $afterQty }}</span>
-                                                @else
-                                                    <span class="font-medium">{{ $afterQty }}</span>
-                                                @endif
-                                            </p>
+                                        @php
+                                        $beforeQty = $before['products'][$productId]['quantity'] ?? null;
+                                        $afterQty = $product['quantity'] ?? 0;
+                                        @endphp
+                                        <p>
+                                            {{ $product['name'] ?? 'N/A' }} ({{ $product['sku'] ?? 'N/A' }}):
+                                            @if($beforeQty !== null && $beforeQty != $afterQty)
+                                            <span class="text-red-600 line-through">{{ $beforeQty }}</span>
+                                            <span class="text-green-600 font-medium"> → {{ $afterQty }}</span>
+                                            @else
+                                            <span class="font-medium">{{ $afterQty }}</span>
+                                            @endif
+                                        </p>
                                         @endforeach
                                     </div>
                                 </div>
@@ -337,127 +377,114 @@
     @endif
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteLogModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-lg w-96 p-6">
-        <h2 class="text-xl font-semibold mb-4">Pilih Log Bulan Yang Akan Dihapus</h2>
+<!-- Delete Monthly Log Modal -->
+<div id="deleteLogModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 m-4">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold font-poppins text-gray-900">Delete Monthly Log</h2>
+            <button onclick="closeDeleteLogModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
 
-        <form method="POST" action="{{ route('log.clearMonthly') }}">
+        <form id="deleteLogForm" method="POST" action="{{ route('log.delete.month') }}">
             @csrf
+            @method('DELETE')
 
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Pilih Bulan & Tahun</label>
-                <select name="month_year" class="w-full border rounded-lg p-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Choose Month & Year</label>
+                <select name="month_year" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent font-poppins" required>
                     @foreach ($availableMonths as $item)
-                        @php
-                            $monthNum = $item->month;
-                            $yearNum = $item->year;
-                            $dateObj = DateTime::createFromFormat('!m', $monthNum);
-                            $monthName = $dateObj->format('F'); // January, February, etc
-                        @endphp
-
-                        <option value="{{ $yearNum }}-{{ $monthNum }}">
-                            {{ $monthName }} {{ $yearNum }}
-                        </option>
+                    @php
+                    $monthNum = $item->month;
+                    $yearNum = $item->year;
+                    $dateObj = DateTime::createFromFormat('!m', $monthNum);
+                    $monthName = $dateObj->format('F');
+                    @endphp
+                    <option value="{{ $yearNum }}-{{ $monthNum }}">
+                        {{ $monthName }} {{ $yearNum }}
+                    </option>
                     @endforeach
                 </select>
             </div>
 
-            <div class="flex justify-end gap-2">
-                <button type="button"
-                    onclick="document.getElementById('deleteLogModal').classList.add('hidden')"
-                    class="px-4 py-2 bg-gray-300 rounded-lg">
-                    Batal
-                </button>
-
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg">
-                    Hapus
-                </button>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <p class="text-sm text-red-800 font-poppins">
+                    <strong>Warning:</strong> Logs that are deleted cannot be recovered.
+                </p>
             </div>
-        </form>
 
-    </div>
-</div>
-
-<!-- Modal Delete -->
-<div id="deleteLogModal"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
-    <div class="bg-white rounded-lg p-6 shadow-xl w-80 text-center">
-
-        <h3 class="text-lg font-semibold mb-3 font-poppins">Hapus semua log bulan ini?</h3>
-        <p class="text-sm text-gray-600 font-poppins mb-6">
-            Log bulan ini akan dihapus permanen.
-        </p>
-
-        <form action="{{ route('log.delete.month') }}" method="POST">
-            @csrf
-            @method('DELETE')
-
-            <div class="flex justify-center gap-3">
-                <button type="button"
-                    onclick="closeDeleteLogModal()"
-                    class="px-4 py-2 rounded-lg border border-gray-400 text-gray-700">
-                    Batal
+            <div class="flex justify-end gap-3">
+                <button type="button" onclick="closeDeleteLogModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors font-poppins">
+                    Cancel
                 </button>
-
-                <button type="submit"
-                    class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
-                    Ya, Hapus
+                <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-poppins">
+                    Delete
                 </button>
             </div>
         </form>
     </div>
 </div>
-
-
-<!-- Delete Monthly Log Modal -->
-<button onclick="document.getElementById('deleteLogModal').classList.remove('hidden')"
-    class="px-4 py-2 bg-red-600 rounded-xl text-white">
-    Hapus Log Bulanan
-</button>
 
 @endsection
 
 @push('scripts')
 <script>
-function openDeleteLogModal() {
-    const modal = document.getElementById('logDeleteModal');
-    if (modal) {
+    // Open delete modal
+    function openDeleteLogModal() {
+        const modal = document.getElementById('deleteLogModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     }
-}
 
-// Handle modal submit button
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('logDeleteModal');
-    if (modal) {
-        const submitButton = modal.querySelector('[data-modal-submit]');
-        if (submitButton) {
-            submitButton.addEventListener('click', function() {
-                document.getElementById('deleteLogForm').submit();
+    // Close delete modal
+    function closeDeleteLogModal() {
+        const modal = document.getElementById('deleteLogModal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteLogModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteLogModal();
+        }
+    });
+
+    // Auto-close modal on successful delete and show notification
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide notifications after 5 seconds
+        const notifications = ['successNotification', 'errorNotification', 'infoNotification'];
+        notifications.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                setTimeout(() => {
+                    element.style.transition = 'opacity 0.3s ease-out';
+                    element.style.opacity = '0';
+                    setTimeout(() => element.remove(), 300);
+                }, 5000);
+            }
+        });
+
+        // Handle form submission
+        const deleteForm = document.getElementById('deleteLogForm');
+        if (deleteForm) {
+            deleteForm.addEventListener('submit', function(e) {
+                // Show loading state on submit button
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-white inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Deleting...
+                `;
             });
         }
-    }
-});
-function openDeleteLogModal() {
-    document.getElementById('deleteLogModal').classList.remove('hidden');
-}
-
-function closeDeleteLogModal() {
-    document.getElementById('deleteLogModal').classList.add('hidden');
-}
-</script>
-
-<script>
-    function openDeleteLogModal() {
-    document.getElementById('deleteLogModal').classList.remove('hidden');
-    document.getElementById('deleteLogModal').classList.add('flex');
-}
-
-function closeDeleteLogModal() {
-    document.getElementById('deleteLogModal').classList.remove('flex');
-    document.getElementById('deleteLogModal').classList.add('hidden');
-}
+    });
 </script>
 @endpush
