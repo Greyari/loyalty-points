@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Product;
+use App\Models\Customer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        User::flushEventListeners();
+        Product::flushEventListeners();
+        Customer::flushEventListeners();
+
         $this->command->info('');
         $this->command->info('========================================');
         $this->command->info('  🌱 Starting Database Seeding...');
@@ -44,12 +50,6 @@ class DatabaseSeeder extends Seeder
             $this->command->info('👥 Seeding Customers...');
             $this->call(CustomerSeeder::class);
             $this->command->info('');
-
-            // // 3. PointTransaction terakhir (karena depends on Product & Customer)
-            // // MonthlySummary akan auto-generated via service
-            // $this->command->info('💳 Seeding Transactions & Monthly Summaries...');
-            // $this->call(PointTransactionSeeder::class);
-            // $this->command->info('');
 
         } catch (\Exception $e) {
             $this->command->error('❌ Error during seeding: ' . $e->getMessage());

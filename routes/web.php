@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\LogController;
 
 
 // ================================
@@ -62,14 +63,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
 
-    // Transaction
-    // route::get('/transaction', [PointTransactionController::class, 'index'])->name('transaction.index');
-    // Route::post('/transaction', [PointTransactionController::class, 'store'])->name('transaction.store');
-    // Route::put('/transaction/{id}', [PointTransactionController::class, 'update'])->name('transaction.update');
-    // Route::delete('/transaction/{id}', [PointTransactionController::class, 'destroy'])->name('transaction.destroy');
+    // Log Activity
+    Route::get('/log', [LogController::class, 'index'])->name('log.index');
+    Route::post('/logs/clear-monthly', [LogController::class, 'clearMonthly'])->name('log.clearMonthly');
+    Route::delete('/log/delete-month', [LogController::class, 'deleteThisMonth'])
+    ->name('log.delete.month');
 
-    // History
-    Route::get('/log', function () {
-        return view('log.log_activity');
-    })->name('log');
+
 });

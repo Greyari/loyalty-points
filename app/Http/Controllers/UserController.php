@@ -46,7 +46,12 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'User berhasil ditambahkan!',
-                'data'    => $user
+                'data'    => [
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'role'  => $user->role,
+                ]
             ]);
 
         } catch (ValidationException $e) {
@@ -86,7 +91,9 @@ class UserController extends Controller
 
             $user->name  = $validated['name'];
             $user->email = $validated['email'];
+            $user->role  = $validated['role']; 
 
+            // Update password hanya jika diisi
             if (!empty($validated['password'])) {
                 $user->password = Hash::make($validated['password']);
             }
@@ -96,7 +103,12 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'User berhasil diupdate!',
-                'data'    => $user
+                'data'    => [
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'role'  => $user->role,
+                ]
             ]);
 
         } catch (ValidationException $e) {

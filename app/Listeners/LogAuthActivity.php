@@ -5,26 +5,37 @@ namespace App\Listeners;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use App\Helpers\LogHelper;
-use App\Models\User; // <-- tambahkan ini
+use App\Models\User;
 
 class LogAuthActivity
 {
     /**
-     * @param Login $event
+     * Handle user login event
      */
     public function handleLogin(Login $event): void
     {
         /** @var User $user */
-        $user = $event->user; 
+        $user = $event->user;
 
-        LogHelper::log('auth', 'login', $user->id, null, [
-            'status' => 'User successfully logged in',
-            'email'  => $user->email
-        ]);
+        // Login: hanya after, tidak ada before
+        LogHelper::log(
+            'auth',
+            'login',
+            $user->id,
+            null, // before = null (tidak ada)
+            [
+                'auth' => [
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'user_role' => $user->role,
+                    'status' => 'Login successful'
+                ]
+            ]
+        );
     }
 
     /**
-     * @param Logout $event
+     * Handle user logout event
      */
     public function handleLogout(Logout $event): void
     {
@@ -35,9 +46,20 @@ class LogAuthActivity
             return;
         }
 
-        LogHelper::log('auth', 'logout', $user->id, null, [
-            'status' => 'User successfully logged out',
-            'email'  => $user->email
-        ]);
+        // Logout: hanya after, tidak ada before
+        LogHelper::log(
+            'auth',
+            'logout',
+            $user->id,
+            null, // before = null (tidak ada)
+            [
+                'auth' => [
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'user_role' => $user->role,
+                    'status' => 'Logged out'
+                ]
+            ]
+        );
     }
 }

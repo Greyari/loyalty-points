@@ -11,10 +11,17 @@ class ActivityLog extends Model
         'action',
         'user_id',
         'target_id',
-        'changes'
+        'changes',
+        'ip_address',
+        'user_agent',   
     ];
 
     protected $casts = [
         'changes' => 'array'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

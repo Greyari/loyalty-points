@@ -9,19 +9,56 @@ class CustomerObserver
 {
     public function created(Customer $customer)
     {
-        LogHelper::log('customer', 'created', $customer->id, null, $customer->toArray());
+        $afterData = [
+            'customer' => [
+                'name' => $customer->name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'address' => $customer->address,
+            ]
+        ];
+
+        LogHelper::log('customer', 'created', $customer->id, [], $afterData);
     }
 
     public function updated(Customer $customer)
     {
-        $before = $customer->getOriginal();
-        $after  = $customer->getDirty();
+        $original = $customer->getOriginal();
+        $dirty = $customer->getDirty();
 
-        LogHelper::log('customer', 'updated', $customer->id, $before, $after);
+        // Filter out timestamps
+        $dirty = array_filter($dirty, function($key) {
+            return !in_array($key, ['created_at', 'updated_at']);
+        }, ARRAY_FILTER_USE_KEY);
+
+        // Jika tidak ada perubahan setelah filter timestamps, skip log
+        if (empty($dirty)) {
+            return;
+        }
+
+        $beforeData = ['customer' => []];
+        $afterData = ['customer' => []];
+
+        foreach ($dirty as $key => $value) {
+            $beforeData['customer'][$key] = $original[$key] ?? null;
+            $afterData['customer'][$key] = $value;
+        }
+
+        LogHelper::log('customer', 'updated', $customer->id, $beforeData, $afterData);
     }
 
     public function deleted(Customer $customer)
     {
-        LogHelper::log('customer', 'deleted', $customer->id, $customer->toArray(), null);
+        $beforeData = [
+            'customer' => [
+                'name' => $customer->name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'address' => $customer->address,
+            ]
+        ];
+
+        LogHelper::log('customer', 'deleted', $customer->id, $beforeData, []);
     }
 }
+

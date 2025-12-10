@@ -74,7 +74,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('log') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('log') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
+                    <a href="{{ route('log.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('log') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
                         <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 2m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />
