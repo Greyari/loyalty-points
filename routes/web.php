@@ -6,6 +6,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\UserController;
+
 
 // ================================
 // GUEST ROUTES (belum login)
@@ -53,6 +55,10 @@ Route::middleware('auth')->group(function () {
     // Chart
     Route::get('/chart-data', [DashboardController::class, 'chartData'])->name('chart.data');
     Route::get('/chart-data-years', [DashboardController::class, 'getAvailableYears'])->name('chart.years');
+
+    // User Management
+    Route::resource('/users', UserController::class);
+
     // Transaction
     // route::get('/transaction', [PointTransactionController::class, 'index'])->name('transaction.index');
     // Route::post('/transaction', [PointTransactionController::class, 'store'])->name('transaction.store');
