@@ -21,7 +21,7 @@
             <thead class="text-sm text-gray-700  sticky top-0 bg-white font-poppins">
                 <tr>
                     <th class="px-6 py-3">Rank</th>
-                    <th class="px-6 py-3">SKU</th>
+                    <th class="py-3">SKU</th>
                     <th class="px-6 py-3">Name</th>
                     <th class="px-6 py-3 text-center">Unit</th>
                     <!-- <th class="px-6 py-3 text-right">Points</th> -->
@@ -54,15 +54,15 @@
                         </div>
                     </td>
 
-                    <td class="px-6 py-4 text-gray-600">
+                    <td class=" py-4 text-gray-600">
                         {{ optional($product->product)->sku ?? 'Data produk ini dihapus' }}
                     </td>
 
-                    <td class="px-6 py-4 font-medium text-gray-900">
+                    <td class="px-6 py-4 font-semibold text-gray-900">
                         {{ optional($product->product)->name ?? 'Data produk ini dihapus' }}
                     </td>
 
-                    <td class="px-6 py-4 text-center font-semibold text-gray-800">
+                    <td class="px-6 py-4 text-center font-bold text-gray-800">
                         {{ number_format($product->qty, 0, ',', '.') }}
                     </td>
 
