@@ -28,7 +28,7 @@ class UserObserver
 
         // Filter out timestamps
         $dirty = array_filter($dirty, function($key) {
-            return !in_array($key, ['created_at', 'updated_at']);
+            return !in_array($key, ['created_at', 'updated_at', 'deleted_at', 'email_verified_at', 'last_login_at', 'password_changed_at', 'remember_token']);
         }, ARRAY_FILTER_USE_KEY);
 
         // Jika tidak ada perubahan setelah filter timestamps, skip log

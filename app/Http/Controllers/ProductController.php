@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\ProductsImport;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -156,4 +159,51 @@ class ProductController extends Controller
         }
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xls,xlsx,csv|max:10240',
+        ]);
+
+        try {
+            Log::info('======== STARTING IMPORT ========');
+            Log::info('File: ' . $request->file('excel_file')->getClientOriginalName());
+
+            $import = new ProductsImport();
+            Excel::import($import, $request->file('excel_file'));
+
+            $stats = $import->getStats();
+
+            Log::info('======== IMPORT COMPLETED ========', $stats);
+
+            $message = sprintf(
+                'Import completed! Imported: %d products, Skipped: %d rows',
+                $stats['imported'],
+                $stats['skipped']
+            );
+
+            return back()->with('success', $message);
+
+        } catch (\Throwable $th) {
+            Log::error('IMPORT PRODUCT FAILED', [
+                'error' => $th->getMessage(),
+                'file'  => $request->file('excel_file')->getClientOriginalName(),
+                'line'  => $th->getLine(),
+                'trace' => $th->getTraceAsString(),
+            ]);
+
+            return back()->with('error', 'Import failed: ' . $th->getMessage());
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $file = public_path('templates/product_import_example.xls');
+
+        if (!file_exists($file)) {
+            return back()->with('error', 'Example template not found.');
+        }
+
+        return response()->download($file);
+    }
 }

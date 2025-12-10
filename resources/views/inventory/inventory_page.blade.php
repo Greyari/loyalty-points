@@ -4,6 +4,46 @@
 @section('page_title', 'Inventory')
 
 @section('content')
+
+<!-- Flash Messages -->
+@if(session('success') || session('error'))
+<div class="mb-6">
+    @if(session('success'))
+    <div class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 border border-green-200" role="alert">
+        <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        <div class="ml-3 text-sm font-medium font-poppins">
+            {{ session('success') }}
+        </div>
+        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8" data-dismiss-target="#alert-success" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 border border-red-200" role="alert">
+        <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <div class="ml-3 text-sm font-medium font-poppins">
+            {{ session('error') }}
+        </div>
+        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8" data-dismiss-target="#alert-error" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+    @endif
+</div>
+@endif
+
 <div class="space-y-6 mb-6">
     <div class="flex justify-between items-start">
         <div>
@@ -68,7 +108,6 @@
                     placeholder="0" required>
             </div>
         </div>
-
     </form>
 </x-modal>
 
@@ -133,42 +172,103 @@
 </x-modal>
 
 <!-- Import Modal -->
-<x-modal id="productImportModal" title="Import Products" size="lg" submitText="Import" submitButtonClass="bg-blue-600 hover:bg-blue-700 text-white">
-    <div class="space-y-4">
-        <div class="flex items-center justify-center w-full">
-            <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
-                    </svg>
-                    <p class="mb-2 text-sm text-gray-600 font-poppins">
-                        <span class="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p class="text-xs text-gray-500 font-poppins">CSV or XLSX (MAX. 10MB)</p>
-                </div>
-                <input id="dropzone-file" type="file" class="hidden" accept=".csv,.xlsx,.xls" />
-            </label>
-        </div>
+<x-modal id="productImportModal" title="Import Products" size="xl" submitText="Import" submitButtonClass="bg-blue-600 hover:bg-blue-700 text-white">
+    <form id="importForm" method="POST" enctype="multipart/form-data" action="{{ route('products.import') }}" class="space-y-6">
+        @csrf
 
-        <div id="file-info" class="hidden">
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <div>
-                        <p class="text-sm font-medium text-gray-700 font-poppins" id="file-name"></p>
-                        <p class="text-xs text-gray-500 font-poppins" id="file-size"></p>
+        <!-- Import Instructions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="flex-1">
+                    <h4 class="text-sm font-semibold text-blue-900 mb-2 font-poppins">File Format Requirements</h4>
+                    <p class="text-sm text-blue-800 mb-3 font-poppins">Your Excel/CSV file must contain these columns:</p>
+                    <div class="bg-white rounded border border-blue-200 p-3 mb-3">
+                        <div class="grid grid-cols-3 gap-2 text-xs font-mono">
+                            <div class="font-semibold text-blue-900">Item Description</div>
+                            <div class="font-semibold text-blue-900">Item No.</div>
+                            <div class="font-semibold text-blue-900">Quantity</div>
+                            <div class="text-gray-600">Product A</div>
+                            <div class="text-gray-600">SKU-001</div>
+                            <div class="text-gray-600">10</div>
+                            <div class="text-gray-600">Product B</div>
+                            <div class="text-gray-600">SKU-002</div>
+                            <div class="text-gray-600">25</div>
+                        </div>
+                    </div>
+                    <div class="space-y-1 text-sm text-blue-800">
+                        <p class="flex items-start gap-2 font-poppins">
+                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Column names can vary (Product Name, Description, SKU, Code, Qty, Stock, etc.)</span>
+                        </p>
+                        <p class="flex items-start gap-2 font-poppins">
+                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>System will automatically detect headers</span>
+                        </p>
+                        <p class="flex items-start gap-2 font-poppins">
+                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Price & Points will be set to 0 (can be updated later)</span>
+                        </p>
                     </div>
                 </div>
-                <button type="button" id="remove-file" class="text-red-500 hover:text-red-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
             </div>
         </div>
-    </div>
+
+        <!-- Download Template Button -->
+        <div class="flex justify-center">
+            <a href="{{ route('products.template') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors font-poppins">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Example Excel
+            </a>
+        </div>
+
+        <!-- File Upload -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-center w-full">
+                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
+                        </svg>
+                        <p class="mb-2 text-sm text-gray-600 font-poppins">
+                            <span class="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-xs text-gray-500 font-poppins">CSV or XLSX (MAX. 10MB)</p>
+                    </div>
+                    <input id="dropzone-file" name="excel_file" type="file" class="hidden" accept=".csv,.xlsx,.xls" required />
+                </label>
+            </div>
+
+            <div id="file-info" class="hidden">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 font-poppins" id="file-name"></p>
+                            <p class="text-xs text-gray-500 font-poppins" id="file-size"></p>
+                        </div>
+                    </div>
+                    <button type="button" id="remove-file" class="text-red-500 hover:text-red-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 </x-modal>
 
 @push('scripts')
@@ -181,6 +281,7 @@
         const fileName = document.getElementById('file-name');
         const fileSize = document.getElementById('file-size');
         const removeFileBtn = document.getElementById('remove-file');
+        const importModal = document.getElementById('productImportModal');
 
         // Handle file selection
         if (dropzoneFile) {
@@ -210,6 +311,37 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
+
+        if(importModal) {
+            importModal.addEventListener('modal:submit', function () {
+                document.getElementById('importForm').submit();
+            });
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            document.querySelectorAll('[role="alert"]').forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            });
+        }, 5000);
+
+        // Manual close button
+        document.querySelectorAll('[data-dismiss-target]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const target = this.closest('[role="alert"]');
+                if (target) {
+                    target.style.transition = 'opacity 0.3s ease';
+                    target.style.opacity = '0';
+                    setTimeout(function() {
+                        target.remove();
+                    }, 300);
+                }
+            });
+        });
     });
 </script>
 @endpush

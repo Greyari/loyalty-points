@@ -49,9 +49,9 @@ class DatabaseSeeder extends Seeder
 
             // Run seeders in correct order (PENTING!)
             // 1. Product dulu (karena tidak ada dependency)
-            $this->command->info('📦 Seeding Products...');
-            $this->call(ProductSeeder::class);
-            $this->command->info('');
+            // $this->command->info('📦 Seeding Products...');
+            // $this->call(ProductSeeder::class);
+            // $this->command->info('');
 
             // 2. Customer (karena tidak ada dependency)
             $this->command->info('👥 Seeding Customers...');
