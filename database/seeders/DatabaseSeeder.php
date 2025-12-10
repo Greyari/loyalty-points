@@ -71,8 +71,13 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✓ All seeders completed successfully!');
         $this->command->info('========================================');
         $this->command->info('');
-        $this->command->info('📝 Login credentials:');
+        $this->command->info('📝 Login credentials Admin Super:');
         $this->command->info('   Email: admin@gmail.com');
+        $this->command->info('   Password: 123');
+        $this->command->info('');
+        $this->command->info('');
+        $this->command->info('📝 Login credentials Admin Office:');
+        $this->command->info('   Email: office@gmail.com');
         $this->command->info('   Password: 123');
         $this->command->info('');
         $this->command->info('📊 Database Summary:');
