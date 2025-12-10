@@ -56,12 +56,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/chart-data', [DashboardController::class, 'chartData'])->name('chart.data');
     Route::get('/chart-data-years', [DashboardController::class, 'getAvailableYears'])->name('chart.years');
 
-    // User Management
-    Route::get('/user-42f9bd91a7ff3c53', [UserController::class, 'index'])->name('user.index');
-    Route::post('/user', [UserController::class, 'store'])->name('user.store');
-    Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
-    Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
-
+    // User Management - Only for Admin Super
+    Route::middleware(['role:Admin Super'])->prefix('user')->name('user.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::put('/{id}', [UserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+    });
     // Transaction
     // route::get('/transaction', [PointTransactionController::class, 'index'])->name('transaction.index');
     // Route::post('/transaction', [PointTransactionController::class, 'store'])->name('transaction.store');
