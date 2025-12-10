@@ -22,7 +22,7 @@
         $customerName = optional($customer->customer)->name ?? 'Data user ini dihapus';
         @endphp
 
-        <div class="flex items-center gap-3 group relative">
+        <div class="flex items-center gap-3 group relative font-poppins">
             <!-- Rank Badge -->
             <div class="relative shrink-0">
                 @if($rank == 1)
@@ -49,7 +49,7 @@
                 class="flex-1 min-w-0 transition-all duration-200 hover:bg-gray-50 -m-2 p-2 rounded-lg cursor-pointer"
                 data-customer-name="{{ $customerName }}">
                 <div class="flex items-center gap-2 mb-0.5">
-                    <p class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                    <p class="text-xs font-semibold text-gray-800 truncate group-hover:text-blue-600 transition-colors">
                         {{ $customerName }}
                     </p>
 

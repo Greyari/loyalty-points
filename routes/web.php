@@ -57,7 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/chart-data-years', [DashboardController::class, 'getAvailableYears'])->name('chart.years');
 
     // User Management
-    Route::get('/user', [UserController::class, 'index'])->name('user.index');
+    Route::get('/user-42f9bd91a7ff3c53', [UserController::class, 'index'])->name('user.index');
     Route::post('/user', [UserController::class, 'store'])->name('user.store');
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
