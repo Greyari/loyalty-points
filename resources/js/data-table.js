@@ -40,8 +40,7 @@ class DataTable {
             const editBtn = e.target.closest('.edit-btn');
             const deleteBtn = e.target.closest('.delete-btn');
 
-             if (viewBtn) {
-                console.log('🔍 View button clicked, ID:', viewBtn.dataset.id);
+            if (viewBtn) {
                 this.dispatchEvent('table:view', { id: viewBtn.dataset.id });
             }
             if (editBtn) {
@@ -103,26 +102,64 @@ class DataTable {
         this.paginationNumbers.innerHTML = '';
         const totalPages = Math.ceil(this.visibleRows.length / this.entriesPerPage) || 1;
 
-        for (let i = 1; i <= totalPages; i++) {
-            const btn = document.createElement('button');
-            btn.textContent = i;
-            btn.className = `px-3 py-1 border-t border-b border-l border-gray-300 text-sm ${
-                i === this.currentPage
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`;
+        // Calculate page range to display (max 3 pages)
+        let startPage = Math.max(1, this.currentPage - 1);
+        let endPage = Math.min(totalPages, startPage + 2);
 
-            btn.addEventListener('click', () => {
-                this.currentPage = i;
-                this.updateTable();
-            });
-
-            this.paginationNumbers.appendChild(btn);
+        // Adjust start if we're near the end
+        if (endPage - startPage < 1) {
+            startPage = Math.max(1, endPage - 2);
         }
 
+        // Show first page if not in range
+        if (startPage > 1) {
+            this.createPageButton(1);
+            if (startPage > 2) {
+                this.createEllipsis();
+            }
+        }
+
+        // Show page numbers in range
+        for (let i = startPage; i <= endPage; i++) {
+            this.createPageButton(i);
+        }
+
+        // Show last page if not in range
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                this.createEllipsis();
+            }
+            this.createPageButton(totalPages);
+        }
+
+        // Remove left border from first button
         if (this.paginationNumbers.firstChild) {
             this.paginationNumbers.firstChild.classList.add('border-l-0');
         }
+    }
+
+    createPageButton(pageNum) {
+        const btn = document.createElement('button');
+        btn.textContent = pageNum;
+        btn.className = `px-3 py-1 border-t border-b border-l border-gray-300 text-sm ${
+            pageNum === this.currentPage
+                ? 'bg-blue-500 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+        }`;
+
+        btn.addEventListener('click', () => {
+            this.currentPage = pageNum;
+            this.updateTable();
+        });
+
+        this.paginationNumbers.appendChild(btn);
+    }
+
+    createEllipsis() {
+        const ellipsis = document.createElement('span');
+        ellipsis.textContent = '...';
+        ellipsis.className = 'px-3 py-1 border-t border-b border-l border-gray-300 text-sm bg-white text-gray-700';
+        this.paginationNumbers.appendChild(ellipsis);
     }
 
     updateTable() {

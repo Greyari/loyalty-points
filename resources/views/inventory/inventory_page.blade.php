@@ -5,43 +5,17 @@
 
 @section('content')
 
-<!-- Flash Messages -->
-@if(session('success') || session('error'))
-<div class="mb-6">
-    @if(session('success'))
-    <div class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 border border-green-200" role="alert">
-        <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-        </svg>
-        <div class="ml-3 text-sm font-medium font-poppins">
-            {{ session('success') }}
-        </div>
-        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8" data-dismiss-target="#alert-success" aria-label="Close">
-            <span class="sr-only">Close</span>
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-    </div>
-    @endif
+<!-- Toast Messages -->
+@if(session('success'))
+<x-toast type="success" :message="session('success')" />
+@endif
 
-    @if(session('error'))
-    <div class="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 border border-red-200" role="alert">
-        <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-        </svg>
-        <div class="ml-3 text-sm font-medium font-poppins">
-            {{ session('error') }}
-        </div>
-        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8" data-dismiss-target="#alert-error" aria-label="Close">
-            <span class="sr-only">Close</span>
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-    </div>
-    @endif
-</div>
+@if(session('error'))
+<x-toast type="error" :message="session('error')" />
+@endif
+
+@if(session('warning'))
+<x-toast type="warning" :message="session('warning')" />
 @endif
 
 <div class="space-y-6 mb-6">
@@ -179,7 +153,7 @@
         <!-- Import Instructions -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                 </svg>
                 <div class="flex-1">
@@ -200,19 +174,19 @@
                     </div>
                     <div class="space-y-1 text-sm text-blue-800">
                         <p class="flex items-start gap-2 font-poppins">
-                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
                             <span>Column names can vary (Product Name, Description, SKU, Code, Qty, Stock, etc.)</span>
                         </p>
                         <p class="flex items-start gap-2 font-poppins">
-                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
                             <span>System will automatically detect headers</span>
                         </p>
                         <p class="flex items-start gap-2 font-poppins">
-                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
                             <span>Price & Points will be set to 0 (can be updated later)</span>
@@ -232,10 +206,15 @@
             </a>
         </div>
 
-        <!-- File Upload -->
+        <!-- File Upload with Drag & Drop -->
         <div class="space-y-4">
-            <div class="flex items-center justify-center w-full">
-                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+            <div
+                id="dropzone-area"
+                class="flex items-center justify-center w-full">
+                <label
+                    for="dropzone-file"
+                    id="dropzone-label"
+                    class="flex flex-col items-center justify-center w-full h-64 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
                         <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
@@ -245,7 +224,7 @@
                         </p>
                         <p class="text-xs text-gray-500 font-poppins">CSV or XLSX (MAX. 10MB)</p>
                     </div>
-                    <input id="dropzone-file" name="excel_file" type="file" class="hidden" accept=".csv,.xlsx,.xls" required />
+                    <input id="dropzone-file" name="excel_file" type="file" class="hidden" accept=".csv,.xlsx,.xls" />
                 </label>
             </div>
 
@@ -271,12 +250,63 @@
     </form>
 </x-modal>
 
+<!-- Toast Container -->
+<div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
 @push('scripts')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <script src="{{ asset('js/inventory.js') }}"></script>
 <script>
+    // Toast notification function
+    function showToast(type, message, duration = 5000) {
+        const container = document.getElementById('toast-container');
+
+        const iconClasses = {
+            success: 'text-green-500',
+            error: 'text-red-500',
+            warning: 'text-orange-500'
+        };
+
+        const bgClasses = {
+            success: 'bg-green-500/20',
+            error: 'bg-red-500/20',
+            warning: 'bg-orange-500/20'
+        };
+
+        const iconPaths = {
+            success: 'M5 13l4 4L19 7',
+            error: 'M6 18L18 6M6 6l12 12',
+            warning: 'M12 9v4m0 4h.01'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = 'flex items-center w-full max-w-sm p-4 rounded-xl shadow-md bg-white/90 mb-4 transition-opacity duration-300';
+        toast.innerHTML = `
+            <div class="shrink-0 w-10 h-10 mr-3 flex items-center justify-center rounded-full ${bgClasses[type]}">
+                <svg class="w-6 h-6 ${iconClasses[type]}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="${iconPaths[type]}" />
+                </svg>
+            </div>
+            <div class="flex-1 text-sm text-gray-900">${message}</div>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-gray-400 hover:text-gray-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const dropzoneFile = document.getElementById('dropzone-file');
+        const dropzoneArea = document.getElementById('dropzone-area');
+        const dropzoneLabel = document.getElementById('dropzone-label');
         const fileInfo = document.getElementById('file-info');
         const fileName = document.getElementById('file-name');
         const fileSize = document.getElementById('file-size');
@@ -288,11 +318,65 @@
             dropzoneFile.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    fileName.textContent = file.name;
-                    fileSize.textContent = formatFileSize(file.size);
-                    fileInfo.classList.remove('hidden');
+                    displayFileInfo(file);
                 }
             });
+        }
+
+        // Drag and drop handlers
+        if (dropzoneLabel) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropzoneLabel.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzoneLabel.addEventListener(eventName, () => {
+                    dropzoneLabel.classList.add('border-blue-500', 'bg-blue-50');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzoneLabel.addEventListener(eventName, () => {
+                    dropzoneLabel.classList.remove('border-blue-500', 'bg-blue-50');
+                }, false);
+            });
+
+            dropzoneLabel.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files.length > 0) {
+                    dropzoneFile.files = files;
+                    displayFileInfo(files[0]);
+                }
+            }, false);
+        }
+
+        // Display file info
+        function displayFileInfo(file) {
+            const validTypes = ['.csv', '.xlsx', '.xls'];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(fileExt)) {
+                showToast('error', 'Invalid file type. Please upload CSV or Excel file.');
+                dropzoneFile.value = '';
+                return;
+            }
+
+            if (file.size > 10485760) { // 10MB
+                showToast('error', 'File size exceeds 10MB limit.');
+                dropzoneFile.value = '';
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('hidden');
         }
 
         // Handle file removal
@@ -312,36 +396,18 @@
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        if(importModal) {
-            importModal.addEventListener('modal:submit', function () {
+        // Handle import modal submit
+        if (importModal) {
+            importModal.addEventListener('modal:submit', function(e) {
+                if (!dropzoneFile.files.length) {
+                    e.preventDefault();
+                    showToast('error', 'Please select a file to import.');
+                    return;
+                }
+
                 document.getElementById('importForm').submit();
             });
         }
-
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
-            document.querySelectorAll('[role="alert"]').forEach(function(alert) {
-                alert.style.transition = 'opacity 0.5s ease';
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    alert.remove();
-                }, 500);
-            });
-        }, 5000);
-
-        // Manual close button
-        document.querySelectorAll('[data-dismiss-target]').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const target = this.closest('[role="alert"]');
-                if (target) {
-                    target.style.transition = 'opacity 0.3s ease';
-                    target.style.opacity = '0';
-                    setTimeout(function() {
-                        target.remove();
-                    }, 300);
-                }
-            });
-        });
     });
 </script>
 @endpush

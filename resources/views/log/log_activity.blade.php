@@ -354,23 +354,64 @@
                 </a>
                 @endif
 
-                @foreach($histories->getUrlRange(1, $histories->lastPage()) as $page => $url)
-                @if($page == $histories->currentPage())
-                <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-poppins">{{ $page }}</button>
-                @else
-                <a href="{{ $url }}" class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins hover:bg-gray-50">{{ $page }}</a>
-                @endif
-                @endforeach
+                @php
+                $currentPage = $histories->currentPage();
+                $lastPage = $histories->lastPage();
 
-                @if($histories->hasMorePages())
-                <a href="{{ $histories->nextPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins hover:bg-gray-50">
-                    Next
-                </a>
-                @else
-                <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins opacity-50 cursor-not-allowed" disabled>
-                    Next
-                </button>
-                @endif
+                // Calculate visible page range (max 3 pages)
+                $startPage = max(1, $currentPage - 1);
+                $endPage = min($lastPage, $startPage + 2);
+
+                // Adjust start if we're near the end
+                if ($endPage - $startPage < 2) {
+                    $startPage=max(1, $endPage - 2);
+                    }
+                    @endphp
+
+                    {{-- First page --}}
+                    @if($startPage> 1)
+                    @if($currentPage == 1)
+                    <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-poppins">1</button>
+                    @else
+                    <a href="{{ $histories->url(1) }}" class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins hover:bg-gray-50">1</a>
+                    @endif
+
+                    @if($startPage > 2)
+                    <span class="px-3 py-1 text-gray-400 text-sm font-poppins">...</span>
+                    @endif
+                    @endif
+
+                    {{-- Page range --}}
+                    @for($page = $startPage; $page <= $endPage; $page++)
+                        @if($page==$currentPage)
+                        <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-poppins">{{ $page }}</button>
+                        @else
+                        <a href="{{ $histories->url($page) }}" class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins hover:bg-gray-50">{{ $page }}</a>
+                        @endif
+                        @endfor
+
+                        {{-- Last page --}}
+                        @if($endPage < $lastPage)
+                            @if($endPage < $lastPage - 1)
+                            <span class="px-3 py-1 text-gray-400 text-sm font-poppins">...</span>
+                            @endif
+
+                            @if($currentPage == $lastPage)
+                            <button class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm font-poppins">{{ $lastPage }}</button>
+                            @else
+                            <a href="{{ $histories->url($lastPage) }}" class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins hover:bg-gray-50">{{ $lastPage }}</a>
+                            @endif
+                            @endif
+
+                            @if($histories->hasMorePages())
+                            <a href="{{ $histories->nextPageUrl() }}" class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins hover:bg-gray-50">
+                                Next
+                            </a>
+                            @else
+                            <button class="px-3 py-1 border border-gray-300 rounded-lg text-sm font-poppins opacity-50 cursor-not-allowed" disabled>
+                                Next
+                            </button>
+                            @endif
             </div>
         </div>
     </div>
