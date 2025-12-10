@@ -4,9 +4,27 @@
 @section('page_title', 'Orders')
 
 @section('content')
-<div class="space-y-6 mb-6">
-    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Orders Management</h2>
-    <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Manage customer orders with multiple products.</p>
+<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
+    <div class="space-y-2">
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Orders Management</h2>
+        <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Manage customer orders with multiple products.</p>
+    </div>
+
+    <!-- Total Belanja Card (Hidden by default) -->
+    <div id="totalBelanjaCard" class=" hidden bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 min-w-[280px]">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium font-poppins mb-1">Total Belanja</p>
+                <p class="text-white text-xs font-light font-poppins mb-3" id="searchedCustomerName">-</p>
+                <p class="text-white text-2xl lg:text-3xl font-bold font-poppins" id="totalBelanjaAmount">Rp 0</p>
+            </div>
+            <div class="bg-white/20 rounded-full p-3">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+    </div>
 </div>
 
 <x-data-tables
@@ -236,6 +254,40 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    /* Total Belanja Card Animation */
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+    }
+
+    /* Smooth transitions for Total Belanja Card */
+    #totalBelanjaCard {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #totalBelanjaCard:not(.hidden) {
+        display: block !important;
     }
 </style>
 

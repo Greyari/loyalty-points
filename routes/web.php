@@ -66,7 +66,11 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/transaction/{id}', [PointTransactionController::class, 'destroy'])->name('transaction.destroy');
 
     // History
-    // Route::get('/history', function () {
-    //     return view('history.history_page');
-    // })->name('history');
+    Route::get('/log', function () {
+        return view('log.log_activity');
+    })->name('log');
+    // User 
+    Route::get('/user', function () {
+        return view('user.user');
+    })->name('user');
 });
