@@ -65,7 +65,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('user') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('user.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
+                    <a href="{{ route('user.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('user.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
                         <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

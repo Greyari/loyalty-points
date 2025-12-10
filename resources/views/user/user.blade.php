@@ -8,17 +8,10 @@
     <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">User Data</h2>
     <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Manage system user accounts.</p>
 </div>
-@php
-$dummyUsers = [
-['id' => 1, 'name' => 'Admin Master', 'email' => 'admin@example.com', 'role' => 'Administrator'],
-['id' => 2, 'name' => 'John Doe', 'email' => 'john@example.com', 'role' => 'Staff'],
-['id' => 3, 'name' => 'Sarah Smith', 'email' => 'sarah@example.com', 'role' => 'Manager'],
-];
-@endphp
 
 <x-data-tables
     :headers="['Name', 'Email', 'Role']"
-    :rows="$dummyUsers"
+    :rows="$users"
     onAdd="true"
     onEdit="true"
     onDelete="true" />
@@ -45,11 +38,16 @@ $dummyUsers = [
             <select name="role"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 required>
-                <option value="">Select role</option>
-                <option>Administrator</option>
-                <option>Manager</option>
-                <option>Staff</option>
+                <option>Admin Super</option>
+                <option>Admin Office</option>
             </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Password</label>
+            <input type="password" name="password"
+                class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                placeholder="Enter password" required>
         </div>
     </form>
 </x-modal>
@@ -78,10 +76,16 @@ $dummyUsers = [
             <select name="role" id="edit_role"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 required>
-                <option>Administrator</option>
-                <option>Manager</option>
-                <option>Staff</option>
+                <option>Admin Super</option>
+                <option>Admin Office</option>
             </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Password</label>
+            <input type="password" name="password" id="edit_password"
+                class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                placeholder="Enter new password (leave blank to keep current password)">
         </div>
     </form>
 </x-modal>

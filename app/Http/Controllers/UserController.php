@@ -19,10 +19,11 @@ class UserController extends Controller
                 'id'    => $u->id,
                 'name'  => $u->name,
                 'email' => $u->email,
+                'role'  => $u->role,
             ];
         });
 
-        return view('users.user_page', compact('users'));
+        return view('user.user', compact('users'));
     }
 
     /**
@@ -34,7 +35,8 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name'     => 'required|string|max:255',
                 'email'    => 'required|email|max:255|unique:users,email',
-                'password' => 'required|min:6'
+                'password' => 'required|min:6',
+                'role'     => 'required|string|max:255'
             ]);
 
             $validated['password'] = Hash::make($validated['password']);
@@ -76,7 +78,8 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name'     => 'required|string|max:255',
                 'email'    => 'required|email|max:255|unique:users,email,' . $id,
-                'password' => 'nullable|min:6'
+                'password' => 'nullable|min:6',
+                'role'     => 'required|string|max:255'
             ]);
 
             $user = User::findOrFail($id);

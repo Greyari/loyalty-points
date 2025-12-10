@@ -12,6 +12,7 @@ class UserObserver
         LogHelper::log('user', 'created', $user->id, null, [
             'name'  => $user->name,
             'email' => $user->email,
+            'role' => $user->role,
             'password' => '*** created ***'
         ]);
     }

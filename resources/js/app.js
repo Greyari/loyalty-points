@@ -7,6 +7,7 @@ import './order';
 import './customer';
 import './data-table';
 import './chart';
+import './user';
 import './transaction/create';
 import '../css/app.css';
 import '../css/transaction.css';
