@@ -64,6 +64,8 @@
                         <span class="ml-3 nav-text font-poppins">Inventory</span>
                     </a>
                 </li>
+                @auth
+                @if(auth()->user()->role === 'Admin Super')
                 <li>
                     <a href="{{ route('user.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('user.*') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
                         <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,6 +75,7 @@
                         <span class="ml-3 nav-text font-poppins">User</span>
                     </a>
                 </li>
+
                 <li>
                     <a href="{{ route('log.index') }}" class="nav-item flex items-center px-3 py-3 hover:bg-[#E8E7ED] hover:text-gray-800 transition rounded-lg group {{ request()->routeIs('log') ? 'bg-[#E8E7ED] text-gray-900' : 'text-gray-600' }}">
                         <svg class="w-5 h-5 shrink-0 nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +85,8 @@
                         <span class="ml-3 nav-text font-poppins">Log Activity</span>
                     </a>
                 </li>
-
+                @endif
+                @endauth
             </ul>
         </nav>
 

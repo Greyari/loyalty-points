@@ -26,7 +26,6 @@
 
     <!-- Chart Container -->
     <div class="relative">
-        <!-- Loading Spinner -->
         <div id="chartLoader" class="hidden absolute inset-0 items-center justify-center bg-white bg-opacity-75 z-10">
             <div class="flex flex-col items-center">
                 <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -37,8 +36,7 @@
             </div>
         </div>
 
-        <!-- Chart Element -->
-        <div id="main-chart" class="py-4"></div>
+        <div id="main-chart" class="py-4 min-h-[412px]"></div>
     </div>
 </div>
 

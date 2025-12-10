@@ -1,5 +1,5 @@
 <!-- Top Product Sales Table -->
-<div class="transform transition-transform duration-300 hover:-translate-y-1  bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col" style="height: 450px;">
+<div class="transform transition-transform duration-300 hover:-translate-y-1  bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col" style="height: 459px;">
     <div class="flex items-center justify-between mb-6">
         <h5 class="text-xl font-semibold leading-none text-gray-800 font-poppins">Top Product Sales</h5>
         <a href="/inventory" class="font-medium text-blue-600 hover:underline">View all</a>
@@ -18,10 +18,10 @@
         </div>
         @else
         <table class="w-full text-sm text-left text-gray-700">
-            <thead class="text-xs text-gray-700 uppercase sticky top-0 bg-white">
+            <thead class="text-sm text-gray-700  sticky top-0 bg-white font-poppins">
                 <tr>
                     <th class="px-6 py-3">Rank</th>
-                    <th class="px-6 py-3">SKU</th>
+                    <th class="py-3">SKU</th>
                     <th class="px-6 py-3">Name</th>
                     <th class="px-6 py-3 text-center">Unit</th>
                     <!-- <th class="px-6 py-3 text-right">Points</th> -->
@@ -30,39 +30,39 @@
             <tbody>
                 @foreach($topProducts as $i => $product)
                 <tr class="bg-white border-b hover:bg-gray-50">
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-3">
                         <div class="flex items-center">
                             @php $rank = $i + 1; @endphp
 
                             @if($rank == 1)
-                            <div class="w-7 h-7 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold">
+                            <div class="w-9 h-9 rounded-full  border-5 border-[#FFAF33] bg-[#FFC569] text-white flex items-center justify-center font-bold">
                                 {{ $rank }}
                             </div>
                             @elseif($rank == 2)
-                            <div class="w-7 h-7 rounded-full bg-gray-400 text-white flex items-center justify-center font-bold">
+                            <div class="w-9 h-9 rounded-full  border-5 border-[#9DABBE] bg-[#B5C0CE] text-white flex items-center justify-center font-bold">
                                 {{ $rank }}
                             </div>
                             @elseif($rank == 3)
-                            <div class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+                            <div class="w-9 h-9 rounded-full border-5 border-[#C07D42] bg-[#D09B6D] text-white flex items-center justify-center font-bold">
                                 {{ $rank }}
                             </div>
                             @else
-                            <div class="w-7 h-7 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-semibold">
+                            <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-semibold">
                                 {{ $rank }}
                             </div>
                             @endif
                         </div>
                     </td>
 
-                    <td class="px-6 py-4 text-gray-600">
+                    <td class=" py-4 text-gray-600">
                         {{ optional($product->product)->sku ?? 'Data produk ini dihapus' }}
                     </td>
 
-                    <td class="px-6 py-4 font-medium text-gray-900">
+                    <td class="px-6 py-4 font-semibold text-gray-900">
                         {{ optional($product->product)->name ?? 'Data produk ini dihapus' }}
                     </td>
 
-                    <td class="px-6 py-4 text-center font-semibold text-gray-800">
+                    <td class="px-6 py-4 text-center font-bold text-gray-800">
                         {{ number_format($product->qty, 0, ',', '.') }}
                     </td>
 

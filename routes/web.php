@@ -57,17 +57,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/chart-data', [DashboardController::class, 'chartData'])->name('chart.data');
     Route::get('/chart-data-years', [DashboardController::class, 'getAvailableYears'])->name('chart.years');
 
-    // User Management
-    Route::get('/user', [UserController::class, 'index'])->name('user.index');
-    Route::post('/user', [UserController::class, 'store'])->name('user.store');
-    Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
-    Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+    // middleware untuk Admin Super
+    Route::middleware(['role:Admin Super'])->group(function () {
+        // User Management
+        Route::get('/user', [UserController::class, 'index'])->name('user.index');
+        Route::post('/user', [UserController::class, 'store'])->name('user.store');
+        Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
+        Route::delete('/user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
 
-    // Log Activity
-    Route::get('/log', [LogController::class, 'index'])->name('log.index');
-    Route::post('/logs/clear-monthly', [LogController::class, 'clearMonthly'])->name('log.clearMonthly');
-    Route::delete('/log/delete-month', [LogController::class, 'deleteThisMonth'])
-    ->name('log.delete.month');
-
+        // Log Activity
+        Route::get('/log', [LogController::class, 'index'])->name('log.index');
+        Route::post('/logs/clear-monthly', [LogController::class, 'clearMonthly'])->name('log.clearMonthly');
+        Route::delete('/log/delete-month', [LogController::class, 'deleteThisMonth'])->name('log.delete.month');
+    });
 
 });
