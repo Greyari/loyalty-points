@@ -26,11 +26,11 @@ class LogController extends Controller
         // Search by module name atau user name
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('module', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q2) use ($search) {
-                      $q2->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('user', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -41,8 +41,8 @@ class LogController extends Controller
         $statistics = [
             'total'      => ActivityLog::count(),
             'this_month' => ActivityLog::whereMonth('created_at', now()->month)
-                                      ->whereYear('created_at', now()->year)
-                                      ->count(),
+                ->whereYear('created_at', now()->year)
+                ->count(),
             'today'      => ActivityLog::whereDate('created_at', now()->toDateString())->count(),
         ];
 
@@ -92,5 +92,4 @@ class LogController extends Controller
                 ->with('info', 'Terjadi kesalahan saat menghapus log: ' . $e->getMessage());
         }
     }
-
 }
