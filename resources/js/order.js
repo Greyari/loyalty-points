@@ -34,6 +34,11 @@ const SELECTORS = {
         row: (id) => `tr[data-id="${id}"]`,
         container: '[id^="table_"]',
         searchInput: '.search-input'
+    },
+    summary: {
+        card: '#totalBelanjaCard',
+        customerName: '#searchedCustomerName',
+        amount: '#totalBelanjaAmount'
     }
 };
 
@@ -56,7 +61,16 @@ const utils = {
 
     getCsrfToken: () => document.querySelector('meta[name="csrf-token"]').content,
 
-    createSearchData: (data) => `${data.order_id} ${data.created_at} ${data.customer} ${data.items_count} ${data.total_items}`.toLowerCase()
+    createSearchData: (data) => `${data.order_id} ${data.created_at} ${data.customer} ${data.items_count} ${data.total_items}`.toLowerCase(),
+ formatCurrency: (amount) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
+
 };
 
 // ==================== API FUNCTIONS ====================
@@ -725,6 +739,36 @@ const handlers = {
     }
 };
 
+// ==================== AUTO-SEARCH FROM URL ====================
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+
+    if (searchQuery) {
+        // Wait for table to be ready
+        setTimeout(() => {
+            const searchInput = document.querySelector('.search-input');
+
+            if (searchInput) {
+                searchInput.value = searchQuery;
+                searchInput.focus();
+
+                // Trigger search event
+                searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                // Visual feedback
+                searchInput.classList.add('ring-2', 'ring-blue-500');
+                setTimeout(() => {
+                    searchInput.classList.remove('ring-2', 'ring-blue-500');
+                }, 2000);
+
+                // Calculate and show Total Belanja
+                searchSummary.calculate(searchQuery);
+            }
+        }, 100);
+    }
+});
+
 // ==================== INITIALIZATION ====================
 $(document).ready(function() {
     // Initialize Select2 for customer dropdowns
@@ -750,6 +794,31 @@ $(document).ready(function() {
     $(SELECTORS.fields.editAddItemBtn).on('click', function() {
         itemRow.create(SELECTORS.fields.editItemsContainer, true);
     });
+// Search input handler for Total Belanja
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            searchSummary.calculate(this.value);
+        });
+        
+        // Clear button handler
+        const clearButton = searchInput.parentElement.querySelector('button');
+        if (clearButton) {
+            clearButton.addEventListener('click', function() {
+                searchSummary.hide();
+            });
+        }
+    }
+ // Table update handler
+    const tableContainer = utils.getElement(SELECTORS.table.container);
+    if (tableContainer) {
+        tableContainer.addEventListener('table:updated', function() {
+            const searchInput = this.querySelector(SELECTORS.table.searchInput);
+            if (searchInput && searchInput.value) {
+                searchSummary.calculate(searchInput.value);
+            }
+        });
+    }
 
     // Remove Item Button handler
     $(document).on('click', '.remove-item-btn', function() {
@@ -774,3 +843,74 @@ $.ajaxSetup({
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
+
+// ==================== SEARCH SUMMARY ====================
+const searchSummary = {
+    calculate(searchQuery) {
+        if (!searchQuery || searchQuery.trim() === '') {
+            this.hide();
+            return;
+        }
+
+        const query = searchQuery.toLowerCase().trim();
+        const tableRows = document.querySelectorAll('.table-row[data-search]');
+        
+        let totalPrice = 0;
+        let matchedCustomer = '';
+        let hasMatches = false;
+
+        tableRows.forEach(row => {
+            const searchData = row.getAttribute('data-search');
+            
+            if (searchData && searchData.includes(query)) {
+                hasMatches = true;
+                
+                // Extract customer name from search data
+                if (!matchedCustomer) {
+                    const customerCell = row.querySelector('td:nth-child(3)');
+                    if (customerCell) {
+                        matchedCustomer = customerCell.textContent.trim();
+                    }
+                }
+                
+                // Extract total price from row
+                const priceCell = row.querySelector('td:nth-child(7)');
+                if (priceCell) {
+                    const priceText = priceCell.textContent.trim();
+                    const cleanPrice = priceText.replace(/[^\d]/g, '');
+                    totalPrice += parseInt(cleanPrice) || 0;
+                }
+            }
+        });
+
+        if (hasMatches) {
+            this.show(matchedCustomer, totalPrice);
+        } else {
+            this.hide();
+        }
+    },
+
+    show(customerName, totalAmount) {
+        const card = utils.getElement(SELECTORS.summary.card);
+        const nameEl = utils.getElement(SELECTORS.summary.customerName);
+        const amountEl = utils.getElement(SELECTORS.summary.amount);
+
+        if (card && nameEl && amountEl) {
+            nameEl.textContent = customerName;
+            amountEl.textContent = utils.formatCurrency(totalAmount);
+            
+            card.classList.remove('hidden');
+            card.style.animation = 'slideInRight 0.4s ease-out';
+        }
+    },
+
+    hide() {
+        const card = utils.getElement(SELECTORS.summary.card);
+        if (card) {
+            card.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => {
+                card.classList.add('hidden');
+            }, 300);
+        }
+    }
+};

@@ -1,4 +1,4 @@
-<div class="transform transition-transform duration-300 hover:-translate-y-1  bg-white rounded-xl shadow-sm p-6">
+<div class="transform transition-transform duration-300 hover:-translate-y-1 bg-white rounded-xl shadow-sm p-6">
     <div class="mb-1">
         <h5 class="text-xl font-semibold text-gray-900 font-poppins">Top Customer</h5>
         <p class="text-xs text-gray-400 mt-0.5 font-poppins">Monthly top customer rank points</p>
@@ -19,9 +19,10 @@
         @foreach($topCustomers as $i => $customer)
         @php
         $rank = $i + 1;
+        $customerName = optional($customer->customer)->name ?? 'Data user ini dihapus';
         @endphp
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 group relative">
             <!-- Rank Badge -->
             <div class="relative shrink-0">
                 @if($rank == 1)
@@ -43,20 +44,35 @@
                 @endif
             </div>
 
-            <!-- Customer Info -->
-            <div class="flex-1 min-w-0">
+            <!-- Customer Info (Clickable) -->
+            <a href="{{ route('orders.index', ['search' => $customerName]) }}"
+                class="flex-1 min-w-0 transition-all duration-200 hover:bg-gray-50 -m-2 p-2 rounded-lg cursor-pointer"
+                data-customer-name="{{ $customerName }}">
                 <div class="flex items-center gap-2 mb-0.5">
-                    <p class="text-sm font-semibold text-gray-900 truncate">
-                        {{-- {{ $customer->customer?->name ?? 'Data user ini dihapus' }} --}}
-                        {{ optional($customer->customer)->name ?? 'Data user ini dihapus' }}
-
+                    <p class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                        {{ $customerName }}
                     </p>
+
+                    <!-- Tooltip Icon -->
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+
+                        <!-- Tooltip -->
+                        <div class="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-10 shadow-lg">
+                            See Details
+                            <div class="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-1.5 text-xs text-gray-500">
                     <span>{{ number_format($customer->points, 0, ',', '.') }} poin</span>
                 </div>
-            </div>
+            </a>
 
             <!-- Points -->
             <div class="text-right shrink-0">
