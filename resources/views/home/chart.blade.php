@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <div id="main-chart" class="py-4 min-h-[412px]"></div>
+        <div id="main-chart" class="py-4 min-h-[302px]"></div>
     </div>
 </div>
 

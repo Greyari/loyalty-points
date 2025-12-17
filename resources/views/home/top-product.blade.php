@@ -54,15 +54,15 @@
                         </div>
                     </td>
 
-                    <td class=" py-4 text-gray-600">
+                    <td class="text-xs py-4 text-gray-600">
                         {{ optional($product->product)->sku ?? 'Data produk ini dihapus' }}
                     </td>
 
-                    <td class="px-6 py-4 font-semibold text-gray-900">
+                    <td class="text-xs px-6 py-4 font-semibold text-gray-900">
                         {{ optional($product->product)->name ?? 'Data produk ini dihapus' }}
                     </td>
 
-                    <td class="px-6 py-4 text-center font-bold text-gray-800">
+                    <td class="text-xs px-6 py-4 text-center font-bold text-gray-800">
                         {{ number_format($product->qty, 0, ',', '.') }}
                     </td>
 
