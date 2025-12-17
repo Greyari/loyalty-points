@@ -9,8 +9,6 @@ class Product extends Model
     protected $fillable = [
         'sku',
         'name',
-        'price',
         'points_per_unit',
-        'quantity'
     ];
 }

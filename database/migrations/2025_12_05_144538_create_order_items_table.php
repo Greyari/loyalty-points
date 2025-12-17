@@ -25,12 +25,11 @@ return new class extends Migration
             $table->integer('points_per_unit')->default(0);
             $table->integer('total_points')->default(0);
 
-            $table->decimal('price_per_unit', 15, 2)->default(0);
-            $table->decimal('total_price', 15, 2)->default(0);
-            
+            // REMOVED: price_per_unit dan total_price
+
             $table->timestamps();
 
-            // PENTING: Indexes untuk performa
+            // Indexes untuk performa
             $table->index('order_id');
             $table->index('product_id');
             $table->index(['product_id', 'created_at']);
