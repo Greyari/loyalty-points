@@ -4,26 +4,21 @@
 @section('page_title', 'Orders')
 
 @section('content')
-<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
-    <div class="space-y-2">
-        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Orders Management</h2>
-        <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Manage customer orders with multiple products.</p>
-    </div>
 
-    <!-- Total Belanja Card (Hidden by default) -->
-    <div id="totalBelanjaCard" class=" hidden bg-linear-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 min-w-[280px]">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-blue-100 text-sm font-medium font-poppins mb-1">Total Belanja</p>
-                <p class="text-white text-xs font-light font-poppins mb-3" id="searchedCustomerName">-</p>
-                <p class="text-white text-2xl lg:text-3xl font-bold font-poppins" id="totalBelanjaAmount">Rp 0</p>
-            </div>
-            <div class="bg-white/20 rounded-full p-3">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
+<div class="space-y-6 mb-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Orders Management</h2>
+            <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Manage your orders.</p>
         </div>
+        <button onclick="" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center gap-2 font-poppins">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+            </svg>
+
+            Export
+        </button>
     </div>
 </div>
 
@@ -81,7 +76,13 @@
                 <!-- Items will be added here dynamically -->
             </div>
         </div>
-
+        <!-- Notes -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Price</label>
+            <input name="notes" id="notes"
+                class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-700"
+                rows="2" placeholder="Add price..."></input>
+        </div>
         <!-- Summary -->
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <div class="grid grid-cols-2 gap-4">

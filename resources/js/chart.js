@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const baseOptions = {
         chart: {
             type: "area",
-            height: 380,
+            height: 270,
             fontFamily: 'Poppins, sans-serif',
             toolbar: {
                 show: true,
