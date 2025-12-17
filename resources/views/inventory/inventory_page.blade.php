@@ -34,7 +34,7 @@
 </div>
 
 <x-data-tables
-    :headers="['Product Name', 'SKU', 'Quantity', 'Price', 'Point Unit']"
+    :headers="['Product Name', 'SKU', 'Point Unit']"
     :rows="$products"
     onAdd="true"
     onEdit="true"
@@ -113,12 +113,6 @@
                     class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
                     placeholder="0" required>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Price</label>
-                <input type="text" name="price" id="edit_price"
-                    class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
-                    placeholder="0" required>
-            </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -184,12 +178,6 @@
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
                             <span>System will automatically detect headers</span>
-                        </p>
-                        <p class="flex items-start gap-2 font-poppins">
-                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span>Price & Points will be set to 0 (can be updated later)</span>
                         </p>
                     </div>
                 </div>

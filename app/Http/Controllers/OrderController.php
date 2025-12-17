@@ -33,7 +33,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'total_purchase_price' => number_format((float) $order->total_purchase_price, 0, ',', '.'),
+                    'price' => number_format((float) $order->price, 0, ',', '.'),
                 ];
             });
 
@@ -55,20 +55,18 @@ class OrderController extends Controller
         try {
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
-                'total_purchase_price' => 'required|numeric|min:0', // ADDED: input manual total harga
+                'price' => 'required|numeric|min:0', // ADDED: input manual total harga
                 'items' => 'required|array|min:1',
                 'items.*.product_id' => 'required|exists:products,id',
                 'items.*.qty' => 'required|integer|min:1',
                 'notes' => 'nullable|string|max:1000'
             ], [
                 'customer_id.required' => 'Customer harus dipilih',
-                'total_purchase_price.required' => 'Total harga pembelian harus diisi', // ADDED
-                'total_purchase_price.numeric' => 'Total harga pembelian harus berupa angka', // ADDED
+                'price.required' => 'Total harga pembelian harus diisi', // ADDED
+                'price.numeric' => 'Total harga pembelian harus berupa angka', // ADDED
                 'items.required' => 'Minimal 1 produk harus dipilih',
                 'items.min' => 'Minimal 1 produk harus dipilih',
                 'items.*.product_id.required' => 'Produk harus dipilih',
-                'items.*.qty.required' => 'Quantity harus diisi',
-                'items.*.qty.min' => 'Quantity minimal 1',
             ]);
 
             DB::beginTransaction();
@@ -90,7 +88,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'order_id' => $orderId,
                 'customer_id' => $validated['customer_id'],
-                'total_purchase_price' => $validated['total_purchase_price'], // ADDED
+                'price' => $validated['price'], // ADDED
                 'notes' => $validated['notes'] ?? null,
                 'total_points' => 0,
                 'total_items' => 0,
@@ -132,7 +130,7 @@ class OrderController extends Controller
             $afterData['order'] = [
                 'order_id' => $order->order_id,
                 'customer_id' => $order->customer_id,
-                'total_purchase_price' => $order->total_purchase_price, // ADDED
+                'price' => $order->price, // ADDED
                 'notes' => $order->notes,
                 'total_items' => $order->total_items,
                 'total_points' => $order->total_points,
@@ -169,7 +167,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'total_purchase_price' => number_format((float) $order->total_purchase_price, 0, ',', '.'),
+                    'price' => number_format((float) $order->price, 0, ',', '.'),
                     'items' => $itemsData,
                 ]
             ]);
@@ -225,7 +223,7 @@ class OrderController extends Controller
                     'order_id' => $order->order_id,
                     'customer_id' => $order->customer_id,
                     'customer_name' => $order->customer->name,
-                    'total_purchase_price' => $order->total_purchase_price, // ADDED
+                    'price' => $order->price, // ADDED
                     'notes' => $order->notes,
                     'total_points' => $order->total_points,
                     'total_items' => $order->total_items,
@@ -257,7 +255,7 @@ class OrderController extends Controller
         try {
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
-                'total_purchase_price' => 'required|numeric|min:0', // ADDED
+                'price' => 'required|numeric|min:0', // ADDED
                 'items' => 'required|array|min:1',
                 'items.*.product_id' => 'required|exists:products,id',
                 'items.*.qty' => 'required|integer|min:1',
@@ -273,7 +271,7 @@ class OrderController extends Controller
                 'order' => [
                     'order_id' => $order->order_id,
                     'customer_id' => $order->customer_id,
-                    'total_purchase_price' => $order->total_purchase_price, // ADDED
+                    'price' => $order->price, // ADDED
                     'notes' => $order->notes,
                     'total_items' => $order->total_items,
                     'total_points' => $order->total_points,
@@ -303,7 +301,7 @@ class OrderController extends Controller
             // Update order header
             $order->update([
                 'customer_id' => $validated['customer_id'],
-                'total_purchase_price' => $validated['total_purchase_price'], // ADDED
+                'price' => $validated['price'], // ADDED
                 'notes' => $validated['notes'] ?? null,
             ]);
 
@@ -342,7 +340,7 @@ class OrderController extends Controller
             $afterData['order'] = [
                 'order_id' => $order->order_id,
                 'customer_id' => $order->customer_id,
-                'total_purchase_price' => $order->total_purchase_price, // ADDED
+                'price' => $order->price, // ADDED
                 'notes' => $order->notes,
                 'total_items' => $order->total_items,
                 'total_points' => $order->total_points,
@@ -367,7 +365,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'total_purchase_price' => number_format((float) $order->total_purchase_price, 0, ',', '.'),
+                    'price' => number_format((float) $order->price, 0, ',', '.'),
                 ]
             ]);
         } catch (ValidationException $e) {
@@ -409,7 +407,7 @@ class OrderController extends Controller
                 'order' => [
                     'order_id' => $order->order_id,
                     'customer_id' => $order->customer_id,
-                    'total_purchase_price' => $order->total_purchase_price, // ADDED
+                    'price' => $order->price, // ADDED
                     'total_items' => $order->total_items,
                     'total_points' => $order->total_points,
                 ],

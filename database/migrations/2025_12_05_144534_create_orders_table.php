@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('total_items')->default(0);
 
             // ADDED: Manual input untuk total harga pembelian
-            $table->decimal('total_purchase_price', 15, 2)->default(0);
+            $table->decimal('price', 15, 2)->default(0);
 
             $table->text('notes')->nullable();
 

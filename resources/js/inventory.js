@@ -147,8 +147,6 @@ const ui = {
         return `
             <td class="py-4 px-2 text-sm text-gray-800">${data.name}</td>
             <td class="py-4 px-2 text-sm text-gray-800">${data.sku}</td>
-            <td class="py-4 px-2 text-sm text-gray-800">${data.quantity}</td>
-            <td class="py-4 px-2 text-sm text-gray-800">${formattedPrice}</td>
             <td class="py-4 px-2 text-sm text-gray-800">${data.points_per_unit}</td>
             <td class="py-2 px-2 text-sm text-gray-800">
                 <div class="flex justify-center items-center gap-2">
@@ -202,8 +200,6 @@ const table = {
         const data = {
             name: formData.get('name'),
             sku: formData.get('sku'),
-            quantity: formData.get('quantity'),
-            price: formData.get('price'),
             points_per_unit: formData.get('points_per_unit')
         };
 
@@ -212,8 +208,6 @@ const table = {
         const cells = row.querySelectorAll('td');
         cells[0].textContent = data.name;
         cells[1].textContent = data.sku;
-        cells[2].textContent = data.quantity;
-        cells[3].textContent = utils.formatPrice(data.price);
         cells[4].textContent = data.points_per_unit;
 
         await ui.animate(row, { backgroundColor: '#dbeafe' }, 100);

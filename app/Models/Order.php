@@ -14,14 +14,14 @@ class Order extends Model
         'customer_id',
         'total_points',
         'total_items',
-        'total_purchase_price', 
+        'price', 
         'notes',
     ];
 
     protected $casts = [
         'total_points' => 'integer',
         'total_items' => 'integer',
-        'total_purchase_price' => 'decimal:2',
+        'price' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

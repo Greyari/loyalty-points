@@ -13,8 +13,6 @@ class ProductObserver
             'product' => [
                 'name' => $product->name,
                 'sku' => $product->sku,
-                'price' => $product->price,
-                'quantity' => $product->quantity,
                 'points_per_unit' => $product->points_per_unit,
             ]
         ];
@@ -54,8 +52,6 @@ class ProductObserver
             'product' => [
                 'name' => $product->name,
                 'sku' => $product->sku,
-                'price' => $product->price,
-                'quantity' => $product->quantity,
                 'points_per_unit' => $product->points_per_unit,
             ]
         ];
