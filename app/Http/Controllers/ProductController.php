@@ -24,8 +24,6 @@ class ProductController extends Controller
                 'id'             => $p->id,
                 'name'           => $p->name,
                 'sku'            => $p->sku,
-                'quantity'       => $p->quantity,
-                'price'          => 'Rp ' . number_format($p->price, 0, ',', '.'),
                 'points_per_unit'=> $p->points_per_unit,
             ];
         });
@@ -43,8 +41,6 @@ class ProductController extends Controller
             $validated = $request->validate([
                 'name'            => 'required|string|max:255',
                 'sku'             => 'required|string|max:255|unique:products,sku',
-                'quantity'        => 'required|integer|min:0',
-                'price'           => 'required|numeric|min:0',
                 'points_per_unit' => 'required|numeric|min:0',
             ]);
 
@@ -84,8 +80,6 @@ class ProductController extends Controller
             $validated = $request->validate([
                 'name'            => 'required|string|max:255',
                 'sku'             => 'required|string|max:255|unique:products,sku,' . $id,
-                'quantity'        => 'required|integer|min:0',
-                'price'           => 'required|numeric|min:0',
                 'points_per_unit' => 'required|numeric|min:0',
             ]);
 
