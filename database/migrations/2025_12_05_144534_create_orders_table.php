@@ -18,12 +18,14 @@ return new class extends Migration
 
             $table->integer('total_points')->default(0);
             $table->integer('total_items')->default(0);
+
+            // ADDED: Manual input untuk total harga pembelian
+            $table->decimal('total_purchase_price', 15, 2)->default(0);
+
             $table->text('notes')->nullable();
-            $table->decimal('total_price', 15, 2)->default(0);
 
             $table->timestamps();
 
-            // PENTING: Indexes untuk performa
             $table->index('order_id');
             $table->index(['customer_id', 'created_at']);
             $table->index('created_at');

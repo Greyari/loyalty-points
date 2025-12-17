@@ -33,13 +33,14 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'total_price' => number_format($order->total_price, 0, ',', '.'),
+                    'total_purchase_price' => number_format((float) $order->total_purchase_price, 0, ',', '.'),
                 ];
             });
 
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
-        $products = Product::select('id', 'name', 'sku', 'points_per_unit', 'price', 'quantity')
-            ->where('quantity', '>', 0)
+
+        // REMOVED: where('quantity', '>', 0) - tidak ada stock tracking lagi
+        $products = Product::select('id', 'name', 'sku', 'points_per_unit')
             ->orderBy('name')
             ->get();
 
@@ -54,12 +55,15 @@ class OrderController extends Controller
         try {
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
+                'total_purchase_price' => 'required|numeric|min:0', // ADDED: input manual total harga
                 'items' => 'required|array|min:1',
                 'items.*.product_id' => 'required|exists:products,id',
                 'items.*.qty' => 'required|integer|min:1',
                 'notes' => 'nullable|string|max:1000'
             ], [
                 'customer_id.required' => 'Customer harus dipilih',
+                'total_purchase_price.required' => 'Total harga pembelian harus diisi', // ADDED
+                'total_purchase_price.numeric' => 'Total harga pembelian harus berupa angka', // ADDED
                 'items.required' => 'Minimal 1 produk harus dipilih',
                 'items.min' => 'Minimal 1 produk harus dipilih',
                 'items.*.product_id.required' => 'Produk harus dipilih',
@@ -77,53 +81,26 @@ class OrderController extends Controller
             // Siapkan data before untuk log
             $beforeData = [];
             $afterData = [];
-            $productsAffected = [];
 
             // Nonaktifkan observer sementara
             Order::unsetEventDispatcher();
             OrderItem::unsetEventDispatcher();
-            Product::unsetEventDispatcher();
 
             // Buat Order (header)
             $order = Order::create([
                 'order_id' => $orderId,
                 'customer_id' => $validated['customer_id'],
+                'total_purchase_price' => $validated['total_purchase_price'], // ADDED
                 'notes' => $validated['notes'] ?? null,
                 'total_points' => 0,
                 'total_items' => 0,
-                'total_price' => 0,
             ]);
 
             // Loop untuk setiap item
             foreach ($validated['items'] as $itemData) {
                 $product = Product::findOrFail($itemData['product_id']);
 
-                // Validasi stok
-                if ($itemData['qty'] > $product->quantity) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Stok produk '{$product->name}' tidak cukup. Tersisa: {$product->quantity}"
-                    ], 422);
-                }
-
-                // Simpan before state produk
-                $beforeData['products'][$product->id] = [
-                    'name' => $product->name,
-                    'sku' => $product->sku,
-                    'quantity' => $product->quantity,
-                ];
-
-                // Kurangi stok produk
-                $product->decrement('quantity', $itemData['qty']);
-                $product->refresh();
-
-                // Simpan after state produk
-                $afterData['products'][$product->id] = [
-                    'name' => $product->name,
-                    'sku' => $product->sku,
-                    'quantity' => $product->quantity,
-                ];
+                // REMOVED: Validasi stok (tidak ada stock tracking)
 
                 // Buat order item
                 $orderItem = OrderItem::create([
@@ -134,8 +111,7 @@ class OrderController extends Controller
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
                     'total_points' => $itemData['qty'] * $product->points_per_unit,
-                    'price_per_unit' => $product->price ?? 0,
-                    'total_price' => $itemData['qty'] * ($product->price ?? 0),
+                    // REMOVED: price_per_unit, total_price
                 ]);
 
                 // Simpan item untuk after data
@@ -145,12 +121,10 @@ class OrderController extends Controller
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
                     'total_points' => $orderItem->total_points,
-                    'price_per_unit' => $product->price ?? 0,
-                    'total_price' => $orderItem->total_price,
                 ];
             }
 
-            // Update total_points, total_items, dan total_price
+            // Update total_points dan total_items
             OrderService::recalculate($order->id);
             $order->refresh();
 
@@ -158,10 +132,10 @@ class OrderController extends Controller
             $afterData['order'] = [
                 'order_id' => $order->order_id,
                 'customer_id' => $order->customer_id,
+                'total_purchase_price' => $order->total_purchase_price, // ADDED
                 'notes' => $order->notes,
                 'total_items' => $order->total_items,
                 'total_points' => $order->total_points,
-                'total_price' => $order->total_price,
             ];
 
             // Buat log gabungan yang rapi
@@ -180,8 +154,6 @@ class OrderController extends Controller
                     'qty' => $item->qty,
                     'points_per_unit' => number_format($item->points_per_unit, 0, ',', '.'),
                     'total_points' => number_format($item->total_points, 0, ',', '.'),
-                    'price_per_unit' => number_format($item->price_per_unit, 0, ',', '.'),
-                    'total_price' => number_format($item->total_price, 0, ',', '.'),
                 ];
             });
 
@@ -197,7 +169,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'total_price' => number_format($order->total_price, 0, ',', '.'),
+                    'total_purchase_price' => number_format((float) $order->total_purchase_price, 0, ',', '.'),
                     'items' => $itemsData,
                 ]
             ]);
@@ -243,8 +215,6 @@ class OrderController extends Controller
                     'qty' => $item->qty,
                     'points_per_unit' => $item->points_per_unit,
                     'total_points' => $item->total_points,
-                    'price_per_unit' => $item->price_per_unit,
-                    'total_price' => $item->total_price,
                 ];
             });
 
@@ -255,10 +225,10 @@ class OrderController extends Controller
                     'order_id' => $order->order_id,
                     'customer_id' => $order->customer_id,
                     'customer_name' => $order->customer->name,
+                    'total_purchase_price' => $order->total_purchase_price, // ADDED
                     'notes' => $order->notes,
                     'total_points' => $order->total_points,
                     'total_items' => $order->total_items,
-                    'total_price' => $order->total_price,
                     'items' => $itemsData,
                     'created_at' => $order->formatted_date,
                 ]
@@ -287,6 +257,7 @@ class OrderController extends Controller
         try {
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
+                'total_purchase_price' => 'required|numeric|min:0', // ADDED
                 'items' => 'required|array|min:1',
                 'items.*.product_id' => 'required|exists:products,id',
                 'items.*.qty' => 'required|integer|min:1',
@@ -302,47 +273,29 @@ class OrderController extends Controller
                 'order' => [
                     'order_id' => $order->order_id,
                     'customer_id' => $order->customer_id,
+                    'total_purchase_price' => $order->total_purchase_price, // ADDED
                     'notes' => $order->notes,
                     'total_items' => $order->total_items,
                     'total_points' => $order->total_points,
-                    'total_price' => $order->total_price,
                 ],
                 'items' => [],
-                'products' => [],
             ];
 
-            // Simpan before state items dan products
+            // Simpan before state items
             foreach ($order->items as $oldItem) {
                 $beforeData['items'][] = [
                     'product_name' => $oldItem->product_name,
                     'sku' => $oldItem->sku,
                     'qty' => $oldItem->qty,
                     'total_points' => $oldItem->total_points,
-                    'total_price' => $oldItem->total_price,
                 ];
-
-                $oldProduct = Product::find($oldItem->product_id);
-                if ($oldProduct) {
-                    $beforeData['products'][$oldProduct->id] = [
-                        'name' => $oldProduct->name,
-                        'sku' => $oldProduct->sku,
-                        'quantity' => $oldProduct->quantity,
-                    ];
-                }
             }
 
             // Nonaktifkan observer
             Order::unsetEventDispatcher();
             OrderItem::unsetEventDispatcher();
-            Product::unsetEventDispatcher();
 
-            // Kembalikan stok produk lama
-            foreach ($order->items as $oldItem) {
-                $oldProduct = Product::find($oldItem->product_id);
-                if ($oldProduct) {
-                    $oldProduct->increment('quantity', $oldItem->qty);
-                }
-            }
+            // REMOVED: Kembalikan stok produk lama (tidak ada stock tracking)
 
             // Hapus semua items lama
             $order->items()->delete();
@@ -350,38 +303,18 @@ class OrderController extends Controller
             // Update order header
             $order->update([
                 'customer_id' => $validated['customer_id'],
+                'total_purchase_price' => $validated['total_purchase_price'], // ADDED
                 'notes' => $validated['notes'] ?? null,
             ]);
 
             // Siapkan after data
-            $afterData = [
-                'items' => [],
-                'products' => [],
-            ];
+            $afterData = ['items' => []];
 
             // Tambah items baru
             foreach ($validated['items'] as $itemData) {
                 $product = Product::findOrFail($itemData['product_id']);
 
-                // Validasi stok
-                if ($itemData['qty'] > $product->quantity) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Stok produk '{$product->name}' tidak cukup. Tersisa: {$product->quantity}"
-                    ], 422);
-                }
-
-                // Kurangi stok
-                $product->decrement('quantity', $itemData['qty']);
-                $product->refresh();
-
-                // Simpan after state produk
-                $afterData['products'][$product->id] = [
-                    'name' => $product->name,
-                    'sku' => $product->sku,
-                    'quantity' => $product->quantity,
-                ];
+                // REMOVED: Validasi stok
 
                 $orderItem = OrderItem::create([
                     'order_id' => $order->id,
@@ -391,8 +324,6 @@ class OrderController extends Controller
                     'qty' => $itemData['qty'],
                     'points_per_unit' => $product->points_per_unit,
                     'total_points' => $itemData['qty'] * $product->points_per_unit,
-                    'price_per_unit' => $product->price ?? 0,
-                    'total_price' => $itemData['qty'] * ($product->price ?? 0),
                 ]);
 
                 // Simpan after state item
@@ -401,21 +332,20 @@ class OrderController extends Controller
                     'sku' => $product->sku,
                     'qty' => $itemData['qty'],
                     'total_points' => $orderItem->total_points,
-                    'total_price' => $orderItem->total_price,
                 ];
             }
 
-            // Update total_points, total_items, dan total_price
+            // Update total_points dan total_items
             OrderService::recalculate($order->id);
             $order->refresh();
 
             $afterData['order'] = [
                 'order_id' => $order->order_id,
                 'customer_id' => $order->customer_id,
+                'total_purchase_price' => $order->total_purchase_price, // ADDED
                 'notes' => $order->notes,
                 'total_items' => $order->total_items,
                 'total_points' => $order->total_points,
-                'total_price' => $order->total_price,
             ];
 
             // Buat log gabungan
@@ -437,7 +367,7 @@ class OrderController extends Controller
                     'items_count' => $order->items->count(),
                     'total_items' => $order->total_items,
                     'total_points' => number_format($order->total_points, 0, ',', '.'),
-                    'total_price' => number_format($order->total_price, 0, ',', '.'),
+                    'total_purchase_price' => number_format((float) $order->total_purchase_price, 0, ',', '.'),
                 ]
             ]);
         } catch (ValidationException $e) {
@@ -479,12 +409,11 @@ class OrderController extends Controller
                 'order' => [
                     'order_id' => $order->order_id,
                     'customer_id' => $order->customer_id,
+                    'total_purchase_price' => $order->total_purchase_price, // ADDED
                     'total_items' => $order->total_items,
                     'total_points' => $order->total_points,
-                    'total_price' => $order->total_price,
                 ],
                 'items' => [],
-                'products' => [],
             ];
 
             foreach ($order->items as $item) {
@@ -492,46 +421,21 @@ class OrderController extends Controller
                     'product_name' => $item->product_name,
                     'sku' => $item->sku,
                     'qty' => $item->qty,
+                    'total_points' => $item->total_points,
                 ];
-
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $beforeData['products'][$product->id] = [
-                        'name' => $product->name,
-                        'sku' => $product->sku,
-                        'quantity' => $product->quantity,
-                    ];
-                }
             }
 
             // Nonaktifkan observer
             Order::unsetEventDispatcher();
             OrderItem::unsetEventDispatcher();
-            Product::unsetEventDispatcher();
 
-            // Siapkan after data untuk products
-            $afterData = ['products' => []];
-
-            // Kembalikan stok produk
-            foreach ($order->items as $item) {
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $product->increment('quantity', $item->qty);
-                    $product->refresh();
-
-                    $afterData['products'][$product->id] = [
-                        'name' => $product->name,
-                        'sku' => $product->sku,
-                        'quantity' => $product->quantity,
-                    ];
-                }
-            }
+            // REMOVED: Kembalikan stok produk (tidak ada stock tracking)
 
             // Hapus order
             $order->delete();
 
             // Buat log gabungan
-            LogHelper::log('order', 'deleted', $id, $beforeData, $afterData);
+            LogHelper::log('order', 'deleted', $id, $beforeData, []);
 
             DB::commit();
 

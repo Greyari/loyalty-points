@@ -53,9 +53,8 @@ class ProductsImport implements ToModel, SkipsEmptyRows
                 ['sku' => $data['sku']],
                 [
                     'name' => $data['name'],
-                    'quantity' => $data['quantity'],
-                    'price' => $data['price'] ?? 0,
                     'points_per_unit' => $data['points_per_unit'] ?? 0
+                    // REMOVED: quantity, price
                 ]
             );
 
@@ -79,7 +78,8 @@ class ProductsImport implements ToModel, SkipsEmptyRows
         $headerKeywords = [
             'description', 'desc', 'product', 'item', 'name',  // untuk kolom nama
             'sku', 'code', 'item no', 'product code',          // untuk kolom SKU
-            'qty', 'quantity', 'stock', 'amount'                // untuk kolom quantity
+            'points', 'point'                                   // untuk kolom points
+            // REMOVED: qty, quantity, stock, price keywords
         ];
 
         $matchCount = 0;
@@ -106,8 +106,8 @@ class ProductsImport implements ToModel, SkipsEmptyRows
         $mapping = [
             'name' => null,
             'sku' => null,
-            'quantity' => null,
-            'price' => null
+            'points_per_unit' => null,
+            // REMOVED: quantity, price
         ];
 
         foreach ($row as $index => $cell) {
@@ -123,14 +123,9 @@ class ProductsImport implements ToModel, SkipsEmptyRows
                 $mapping['sku'] = $index;
             }
 
-            // Deteksi kolom Quantity
-            if (preg_match('/(qty|quantity|stock|amount)/i', $cellValue) && !$mapping['quantity']) {
-                $mapping['quantity'] = $index;
-            }
-
-            // Deteksi kolom Price
-            if (preg_match('/(price|harga|cost)/i', $cellValue) && !$mapping['price']) {
-                $mapping['price'] = $index;
+            // Deteksi kolom Points
+            if (preg_match('/(points?|point.*unit)/i', $cellValue) && !$mapping['points_per_unit']) {
+                $mapping['points_per_unit'] = $index;
             }
         }
 
@@ -149,8 +144,7 @@ class ProductsImport implements ToModel, SkipsEmptyRows
 
         $name = isset($this->headerColumns['name']) ? trim($row[$this->headerColumns['name']] ?? '') : '';
         $sku = isset($this->headerColumns['sku']) ? trim($row[$this->headerColumns['sku']] ?? '') : '';
-        $quantity = isset($this->headerColumns['quantity']) ? trim($row[$this->headerColumns['quantity']] ?? '0') : '0';
-        $price = isset($this->headerColumns['price']) ? trim($row[$this->headerColumns['price']] ?? '0') : '0';
+        $points = isset($this->headerColumns['points_per_unit']) ? trim($row[$this->headerColumns['points_per_unit']] ?? '0') : '0';
 
         // Validasi data
         if (empty($name) || empty($sku)) {
@@ -170,16 +164,13 @@ class ProductsImport implements ToModel, SkipsEmptyRows
             return null;
         }
 
-        // Clean quantity dan price
-        $quantity = (float)str_replace([',', ' '], '', $quantity);
-        $price = (float)str_replace([',', ' ', 'Rp'], '', $price);
+        // Clean points
+        $points = (int)str_replace([',', ' '], '', $points);
 
         return [
             'name' => $name,
             'sku' => $sku,
-            'quantity' => (int)$quantity,
-            'price' => $price,
-            'points_per_unit' => 0
+            'points_per_unit' => $points
         ];
     }
 
@@ -196,8 +187,8 @@ class ProductsImport implements ToModel, SkipsEmptyRows
             }
         }
 
-        // Harus minimal ada 3 kolom (name, sku, quantity)
-        if (count($nonEmptyCols) < 3) {
+        // Harus minimal ada 2 kolom (name, sku)
+        if (count($nonEmptyCols) < 2) {
             return null;
         }
 
@@ -206,9 +197,7 @@ class ProductsImport implements ToModel, SkipsEmptyRows
         return [
             'name' => $values[0] ?? '',
             'sku' => $values[1] ?? '',
-            'quantity' => (int)(float)str_replace(',', '', $values[2] ?? '0'),
-            'price' => 0,
-            'points_per_unit' => 0
+            'points_per_unit' => isset($values[2]) ? (int)str_replace(',', '', $values[2]) : 0
         ];
     }
 
@@ -220,7 +209,8 @@ class ProductsImport implements ToModel, SkipsEmptyRows
         $headerPatterns = [
             'item description', 'product description', 'description',
             'item no', 'product code', 'sku', 'code',
-            'quantity', 'qty', 'stock'
+            'points', 'point'
+            // REMOVED: quantity, qty, stock, price patterns
         ];
 
         $nameLower = strtolower($name);

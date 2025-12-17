@@ -15,8 +15,6 @@
                 $table->id();
                 $table->string('sku', 100)->unique();
                 $table->string('name', 255);
-                $table->decimal('price', 15, 2);
-                $table->integer('quantity')->default(0);
                 $table->integer('points_per_unit')->default(0);
                 $table->timestamps();
             });

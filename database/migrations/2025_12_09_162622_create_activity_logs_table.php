@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('module'); // contoh: order, product, customer
-            $table->string('action'); // created, updated, deleted
+            $table->string('module');
+            $table->string('action');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('target_id')->nullable();
             $table->json('changes')->nullable();
