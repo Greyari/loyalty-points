@@ -28,7 +28,6 @@
 
         <!-- Kolom Kanan: Total Penjualan + Latest Customers + Latest Transactions -->
         <div class="lg:col-span-1 space-y-4 sm:space-y-6">
-            @include('home.total-penjualan')
             @include('home.top-customer')
             @include('home.latest-transaction')
         </div>
