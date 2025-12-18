@@ -1,4 +1,4 @@
-// tes hallo
+
 // ==================== CONSTANTS ====================
 const SELECTORS = {
     modals: {
@@ -222,7 +222,7 @@ const itemRow = {
                                 data-sku="${p.sku}"
                                 data-points="${p.points_per_unit}"
                                 data-stock="${p.quantity}">
-                                ${p.name} (${p.sku}) - ${p.points_per_unit} pts - Stock: ${p.quantity}
+                                ${p.name} (${p.sku}) - ${p.points_per_unit} point
                             </option>
                         `).join('')}
                     </select>
@@ -567,7 +567,15 @@ const handlers = {
                 $(SELECTORS.fields.editOrderId).val(order.order_id);
                 $(SELECTORS.fields.editCustomerSelect).val(order.customer_id).trigger('change');
                 $(SELECTORS.fields.editNotes).val(order.notes || '');
-                $('#edit_price').val(order.price || '');
+            $('#edit_price').val(
+    order.price
+        ? new Intl.NumberFormat('id-ID', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(order.price)
+        : ''
+);
+
                 $(SELECTORS.fields.editItemsContainer).empty();
                 editItemCounter = 0;
 
@@ -610,7 +618,9 @@ const handlers = {
             const customerId = $(SELECTORS.fields.customerSelect).val();
             const notes = $(SELECTORS.fields.notes).val();
             const items = itemRow.getFormData(false);
-            const price = document.querySelector('#price')?.value;
+           const rawPrice = document.querySelector('#price')?.value || '0';
+const cleanPrice = utils.parseNumber(rawPrice);
+
 
             if (!customerId) {
                 ui.showNotification('error', 'Customer harus dipilih');
@@ -624,7 +634,7 @@ const handlers = {
 
             const data = await api.create({
                 customer_id: parseInt(customerId),
-                price: parseInt(price),
+                price: parseInt(cleanPrice),
                 notes: notes || null,
                 items: items
             });
@@ -682,7 +692,8 @@ const handlers = {
             const customerId = $(SELECTORS.fields.editCustomerSelect).val();
             const notes = $(SELECTORS.fields.editNotes).val();
             const items = itemRow.getFormData(true);
-            const price = document.querySelector('#edit_price')?.value;
+            const rawPrice = document.querySelector('#edit_price')?.value || '0';
+const cleanPrice = utils.parseNumber(rawPrice);
 
             if (!customerId) {
                 ui.showNotification('error', 'Customer harus dipilih');
@@ -695,7 +706,7 @@ const handlers = {
             }
 
             const data = await api.update(id, {
-                price: parseInt(price),
+                price: parseInt(cleanPrice),
                 customer_id: parseInt(customerId),
                 notes: notes || null,
                 items: items
