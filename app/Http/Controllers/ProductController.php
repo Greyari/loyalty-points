@@ -130,13 +130,21 @@ class ProductController extends Controller
 
                 // Hitung ulang order
                 OrderService::recalculate($order->id);
-
-                // Setelah dihitung ulang, cek apakah order masih ada item
-                $order->refresh();
-
-                if ($order->items()->count() == 0) {
-                    $order->delete();
+                $updatedOrder = Order::find($order->id);
+                if (!$updatedOrder) {
+                    Log::warning('Order already deleted during recalculation', [
+                        'order_id' => $order->id
+                    ]);
+                    continue;
                 }
+
+                if ($updatedOrder->items()->count() === 0) {
+                    Log::warning('Deleting empty order', [
+                        'order_id' => $updatedOrder->id
+                    ]);
+                    $updatedOrder->delete();
+                }
+
             }
 
             return response()->json([
@@ -145,6 +153,11 @@ class ProductController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Failed to delete product and recalculate orders', [
+                'product_id' => $id,
+                'exception'  => $e,
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error saat menghapus product',
