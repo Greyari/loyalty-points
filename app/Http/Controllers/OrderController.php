@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\OrdersExport;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
@@ -13,6 +14,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Exports\OrdersWithItemsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -456,5 +459,13 @@ class OrderController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function exportOrdersWithItemsExcel()
+    {
+        return Excel::download(
+            new OrdersExport(),
+            'orders-complete-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 }

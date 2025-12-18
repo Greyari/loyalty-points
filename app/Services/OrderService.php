@@ -19,7 +19,6 @@ class OrderService
         Order::where('id', $orderId)->update([
             'total_points' => $items->sum('total_points'),
             'total_items' => $items->sum('qty'),
-            'total_price' => $items->sum('total_price'),
         ]);
     }
 }

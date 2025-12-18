@@ -34,6 +34,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/data', [DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/chart-data', [DashboardController::class, 'chartData']);
 
+    // Export Orders Items Detail
+    Route::get('/orders/export-detail', [OrderController::class, 'exportOrdersWithItemsExcel']);
+
     // Order Routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
@@ -48,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/inventory/{id}', [ProductController::class, 'destroy'])->name('inventory.destroy');
     Route::post('/import-products', [ProductController::class, 'import'])->name('products.import');
     Route::get('/inventory/template', [ProductController::class, 'downloadTemplate'])->name('products.template');
+
     // Customer
     Route::get('/customer', [CustomerController::class, 'index'])->name('customer.index');
     Route::post('/customer', [CustomerController::class, 'store'])->name('customer.store');

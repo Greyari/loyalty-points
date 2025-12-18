@@ -170,7 +170,7 @@ const ui = {
             <td class="py-4 px-2 text-sm text-gray-800">${data.items_count}</td>
             <td class="py-4 px-2 text-sm text-gray-800">${data.total_items}</td>
             <td class="py-4 px-2 text-sm text-gray-800">${data.total_points}</td>
-            <td class="py-4 px-2 text-sm text-gray-800">${data.total_price}</td>
+            <td class="py-4 px-2 text-sm text-gray-800">${data.price}</td>
             <td class="py-2 px-2 text-sm text-gray-800">
                 <div class="flex justify-center items-center gap-2">
                     <button class="view-btn text-gray-600 hover:text-gray-800 transition-colors" data-id="${data.id}" title="View">
@@ -399,7 +399,7 @@ const table = {
         cells[3].textContent = data.items_count;
         cells[4].textContent = data.total_items;
         cells[5].textContent = data.total_points;
-        cells[6].textContent = data.total_price;
+        cells[6].textContent = data.price;
 
         await ui.animate(row, { backgroundColor: '#dbeafe' }, 100);
         await ui.animate(row, { transition: 'background-color 0.5s ease', backgroundColor: '' });
@@ -530,7 +530,7 @@ const handlers = {
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-600 font-poppins">Total Price</p>
-                                    <p class="text-2xl font-semibold text-blue-600 font-poppins">${utils.formatNumber(order.total_price)}</p>
+                                    <p class="text-2xl font-semibold text-green-600 font-poppins">${utils.formatCurrency(order.price)}</p>
                                 </div>
                             </div>
                         </div>
@@ -567,7 +567,7 @@ const handlers = {
                 $(SELECTORS.fields.editOrderId).val(order.order_id);
                 $(SELECTORS.fields.editCustomerSelect).val(order.customer_id).trigger('change');
                 $(SELECTORS.fields.editNotes).val(order.notes || '');
-
+                $('#edit_price').val(order.price || '');
                 $(SELECTORS.fields.editItemsContainer).empty();
                 editItemCounter = 0;
 
@@ -610,6 +610,7 @@ const handlers = {
             const customerId = $(SELECTORS.fields.customerSelect).val();
             const notes = $(SELECTORS.fields.notes).val();
             const items = itemRow.getFormData(false);
+            const price = document.querySelector('#price')?.value;
 
             if (!customerId) {
                 ui.showNotification('error', 'Customer harus dipilih');
@@ -623,6 +624,7 @@ const handlers = {
 
             const data = await api.create({
                 customer_id: parseInt(customerId),
+                price: parseInt(price),
                 notes: notes || null,
                 items: items
             });
@@ -680,6 +682,7 @@ const handlers = {
             const customerId = $(SELECTORS.fields.editCustomerSelect).val();
             const notes = $(SELECTORS.fields.editNotes).val();
             const items = itemRow.getFormData(true);
+            const price = document.querySelector('#edit_price')?.value;
 
             if (!customerId) {
                 ui.showNotification('error', 'Customer harus dipilih');
@@ -692,6 +695,7 @@ const handlers = {
             }
 
             const data = await api.update(id, {
+                price: parseInt(price),
                 customer_id: parseInt(customerId),
                 notes: notes || null,
                 items: items
