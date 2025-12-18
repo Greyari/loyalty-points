@@ -1,5 +1,5 @@
 <!-- Latest Transactions Card -->
-<div class="transform transition-transform duration-300 hover:-translate-y-1  bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col" style="height: 432px;">
+<div class="transform transition-transform duration-300 hover:-translate-y-1  bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col" style="height: 461px;">
     <div class="flex items-center justify-between mb-4">
         <h5 class="text-xl font-semibold leading-none text-gray-800 font-poppins">Recent Transactions</h5>
         <a href="/orders" class="text-xs text-blue-600 hover:underline font-poppins">See all</a>

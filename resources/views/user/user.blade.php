@@ -10,6 +10,7 @@
 </div>
 
 <x-data-tables
+    module="user"
     :headers="['Name', 'Email', 'Role']"
     :rows="$users"
     onAdd="true"

@@ -11,9 +11,7 @@
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold font-poppins mb-0">Orders Management</h2>
             <p class="text-sm sm:text-base lg:text-lg font-light text-gray-500 font-poppins">Manage your orders.</p>
         </div>
-        
-        <a href="{{ url('/orders/export-detail') }}"
-        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center gap-2 font-poppins">
+        <button onclick="" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center gap-2 font-poppins">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
@@ -24,6 +22,7 @@
 </div>
 
 <x-data-tables
+    module="order"
     :headers="['Order ID', 'Date', 'Customer', 'Items Count', 'Total Items', 'Total Points', 'Total Price']"
     :rows="$orders"
     onAdd="true"

@@ -346,9 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ customer module loaded');
 
     // Register event listeners
-    document.addEventListener('table:add', handlers.onAdd);
-    document.addEventListener('table:edit', handlers.onEdit);
-    document.addEventListener('table:delete', handlers.onDelete);
+    document.addEventListener('customer:add', handlers.onAdd);
+    document.addEventListener('customer:edit', handlers.onEdit);
+    document.addEventListener('customer:delete', handlers.onDelete);
 
     utils.getElement(SELECTORS.modals.create).addEventListener('modal:submit', handlers.onCreate);
     utils.getElement(SELECTORS.modals.edit).addEventListener('modal:submit', handlers.onEditSubmit);

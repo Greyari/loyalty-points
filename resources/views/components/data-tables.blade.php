@@ -5,13 +5,14 @@
 'onView' => null,
 'onEdit' => null,
 'onDelete' => null,
+'module' => 'default',
 ])
 
 @php
 $componentId = 'table_' . uniqid();
 @endphp
 
-<div id="{{ $componentId }}" class="w-full">
+<div id="{{ $componentId }}" class="w-full" data-module="{{ $module }}">
 
     <!-- Controls (Outside Table) -->
     <div class="flex flex-col md:flex-row justify-between gap-3 mb-4 items-center">
