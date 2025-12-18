@@ -3,6 +3,9 @@ class DataTable {
         this.container = document.getElementById(containerId);
         if (!this.container) return;
 
+        // Get module name from data attribute
+        this.module = this.container.dataset.module || 'default';
+
         this.searchInput = this.container.querySelector('.search-input');
         this.entriesSelect = this.container.querySelector('.entries-select');
         this.tbody = this.container.querySelector('.table-body');
@@ -32,7 +35,7 @@ class DataTable {
         this.nextBtn.addEventListener('click', () => this.handleNext());
 
         if (this.addButton) {
-            this.addButton.addEventListener('click', () => this.dispatchEvent('table:add'));
+            this.addButton.addEventListener('click', () => this.dispatchEvent('add'));
         }
 
         this.container.addEventListener('click', (e) => {
@@ -41,25 +44,39 @@ class DataTable {
             const deleteBtn = e.target.closest('.delete-btn');
 
             if (viewBtn) {
-                this.dispatchEvent('table:view', { id: viewBtn.dataset.id });
+                e.preventDefault();
+                this.dispatchEvent('view', { id: viewBtn.dataset.id });
             }
             if (editBtn) {
-                this.dispatchEvent('table:edit', { id: editBtn.dataset.id });
+                e.preventDefault();
+                this.dispatchEvent('edit', { id: editBtn.dataset.id });
             }
             if (deleteBtn) {
-                this.dispatchEvent('table:delete', { id: deleteBtn.dataset.id });
+                e.preventDefault();
+                this.dispatchEvent('delete', { id: deleteBtn.dataset.id });
             }
         });
     }
 
-    dispatchEvent(eventName, detail = {}) {
+    // Dispatch event dengan namespace module
+    dispatchEvent(action, detail = {}) {
+        // Event format: "module:action" (misal: "inventory:edit", "orders:edit")
+        const eventName = `${this.module}:${action}`;
+        
         const event = new CustomEvent(eventName, {
             bubbles: true,
-            detail: { ...detail, componentId: this.container.id }
+            detail: { 
+                ...detail, 
+                componentId: this.container.id,
+                module: this.module 
+            }
         });
-        this.container.dispatchEvent(event);
+        
+        document.dispatchEvent(event);
     }
 
+    // ... rest of the methods remain the same ...
+    
     handleSearch() {
         const query = this.searchInput.value.toLowerCase();
         this.visibleRows = query === ''
@@ -102,16 +119,13 @@ class DataTable {
         this.paginationNumbers.innerHTML = '';
         const totalPages = Math.ceil(this.visibleRows.length / this.entriesPerPage) || 1;
 
-        // Calculate page range to display (max 3 pages)
         let startPage = Math.max(1, this.currentPage - 1);
         let endPage = Math.min(totalPages, startPage + 2);
 
-        // Adjust start if we're near the end
         if (endPage - startPage < 1) {
             startPage = Math.max(1, endPage - 2);
         }
 
-        // Show first page if not in range
         if (startPage > 1) {
             this.createPageButton(1);
             if (startPage > 2) {
@@ -119,12 +133,10 @@ class DataTable {
             }
         }
 
-        // Show page numbers in range
         for (let i = startPage; i <= endPage; i++) {
             this.createPageButton(i);
         }
 
-        // Show last page if not in range
         if (endPage < totalPages) {
             if (endPage < totalPages - 1) {
                 this.createEllipsis();
@@ -132,7 +144,6 @@ class DataTable {
             this.createPageButton(totalPages);
         }
 
-        // Remove left border from first button
         if (this.paginationNumbers.firstChild) {
             this.paginationNumbers.firstChild.classList.add('border-l-0');
         }
@@ -163,10 +174,8 @@ class DataTable {
     }
 
     updateTable() {
-        // Refresh all rows from DOM
         this.allRows = Array.from(this.tbody.querySelectorAll('.table-row'));
         
-        // Reapply search filter if search is active
         const query = this.searchInput.value.toLowerCase();
         if (query !== '') {
             this.visibleRows = this.allRows.filter(row => row.dataset.search.includes(query));
@@ -174,7 +183,6 @@ class DataTable {
             this.visibleRows = [...this.allRows];
         }
 
-        // Hide all rows initially
         this.allRows.forEach(row => row.style.display = 'none');
 
         const start = (this.currentPage - 1) * this.entriesPerPage;
@@ -197,7 +205,6 @@ class DataTable {
         if (this.visibleRows.length === 0) {
             noDataRow.style.display = '';
             
-            // Set appropriate message based on search state
             if (this.searchInput.value.trim() !== '') {
                 noDataText.textContent = `No data found for "${this.searchInput.value}"`;
             } else {
@@ -216,7 +223,6 @@ class DataTable {
         this.renderPageNumbers();
     }
 
-    // Method to refresh table after CRUD operations
     refresh() {
         this.updateTable();
     }

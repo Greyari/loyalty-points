@@ -34,6 +34,7 @@
 </div>
 
 <x-data-tables
+    module="inventory"
     :headers="['Product Name', 'SKU', 'Point Unit']"
     :rows="$products"
     onAdd="true"
@@ -50,6 +51,8 @@
                 placeholder="Enter product name" required>
         </div>
 
+
+
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">SKU</label>
@@ -57,10 +60,15 @@
                     class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
                     placeholder="SKU-001" required>
             </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4">
             <div>
+                <label class="block text-sm font-medium mb-2">Points Per Unit</label>
+                <input type="number" name="points_per_unit"
+                    class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300  rounded-lg focus:ring-2 focus:ring-gray-500"
+                    placeholder="0" required>
+            </div>
+        </div>
+        <!-- <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Quantity</label>
                 <input type="number" name="quantity"
                     class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
@@ -71,17 +79,8 @@
                 <input type="text" name="price"
                     class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
                     placeholder="0" required>
-            </div>
-        </div>
+            </div> -->
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium mb-2">Points Per Unit</label>
-                <input type="number" name="points_per_unit"
-                    class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300  rounded-lg focus:ring-2 focus:ring-gray-500"
-                    placeholder="0" required>
-            </div>
-        </div>
     </form>
 </x-modal>
 
@@ -104,24 +103,26 @@
                     class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
                     placeholder="SKU-001" required>
             </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Quantity</label>
-                <input type="number" name="quantity" id="edit_quantity"
-                    class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
-                    placeholder="0" required>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-2">Points per Unit</label>
                 <input type="number" name="points_per_unit" id="edit_points_per_unit"
                     class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300  rounded-lg focus:ring-2 focus:ring-gray-500"
                     placeholder="0" required>
             </div>
+        </div>
+
+        <!-- <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Quantity</label>
+                <input type="number" name="quantity" id="edit_quantity"
+                    class="placeholder:text-gray-400 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500"
+                    placeholder="0" required>
+            </div>
+        </div> -->
+
+        <div class="grid grid-cols-2 gap-4">
+
         </div>
     </form>
 </x-modal>
@@ -154,16 +155,16 @@
                     <h4 class="text-sm font-semibold text-blue-900 mb-2 font-poppins">File Format Requirements</h4>
                     <p class="text-sm text-blue-800 mb-3 font-poppins">Your Excel/CSV file must contain these columns:</p>
                     <div class="bg-white rounded border border-blue-200 p-3 mb-3">
-                        <div class="grid grid-cols-3 gap-2 text-xs font-mono">
+                        <div class="grid grid-cols-2 gap-3 text-xs font-mono">
                             <div class="font-semibold text-blue-900">Item Description</div>
                             <div class="font-semibold text-blue-900">Item No.</div>
-                            <div class="font-semibold text-blue-900">Quantity</div>
+                            <!-- <div class="font-semibold text-blue-900">Quantity</div> -->
                             <div class="text-gray-600">Product A</div>
                             <div class="text-gray-600">SKU-001</div>
-                            <div class="text-gray-600">10</div>
+                            <!-- <div class="text-gray-600">10</div> -->
                             <div class="text-gray-600">Product B</div>
                             <div class="text-gray-600">SKU-002</div>
-                            <div class="text-gray-600">25</div>
+                            <!-- <div class="text-gray-600">25</div> -->
                         </div>
                     </div>
                     <div class="space-y-1 text-sm text-blue-800">
@@ -171,7 +172,7 @@
                             <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
-                            <span>Column names can vary (Product Name, Description, SKU, Code, Qty, Stock, etc.)</span>
+                            <span>Column names can vary (Product Name, Description, SKU, Code, etc.)</span>
                         </p>
                         <p class="flex items-start gap-2 font-poppins">
                             <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">

@@ -23,6 +23,7 @@
 </div>
 
 <x-data-tables
+    module="order"
     :headers="['Order ID', 'Date', 'Customer', 'Total Items','QTY', 'Total Points', 'Total Price']"
     :rows="$orders"
     onAdd="true"

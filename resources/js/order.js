@@ -828,10 +828,10 @@ $(document).ready(function() {
     });
 
     // Register event listeners
-    document.addEventListener('table:add', handlers.onAdd);
-    document.addEventListener('table:view', handlers.onView);
-    document.addEventListener('table:edit', handlers.onEdit);
-    document.addEventListener('table:delete', handlers.onDelete);
+    document.addEventListener('order:add', handlers.onAdd);
+    document.addEventListener('order:view', handlers.onView);
+    document.addEventListener('order:edit', handlers.onEdit);
+    document.addEventListener('order:delete', handlers.onDelete);
 
     utils.getElement(SELECTORS.modals.create).addEventListener('modal:submit', handlers.onCreate);
     utils.getElement(SELECTORS.modals.edit).addEventListener('modal:submit', handlers.onEditSubmit);
