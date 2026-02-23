@@ -9,6 +9,7 @@ use App\Observers\CustomerObserver;
 use App\Models\Product;
 use App\Observers\ProductObserver;
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +29,6 @@ class AppServiceProvider extends ServiceProvider
         Customer::observe(CustomerObserver::class);
         Product::observe(ProductObserver::class);
         User::observe(UserObserver::class);
+        URL::forceScheme('https');
     }
 }
